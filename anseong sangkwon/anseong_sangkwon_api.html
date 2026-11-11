@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>안성맞춤 AI · 상권 분석</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--sub:#667085;--line:#e4e7ec;--pri:#2563eb;--warn:#b54708}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:14px 20px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:18px}
+header span{color:var(--sub);font-size:13px}
+.wrap{display:grid;grid-template-columns:1fr 400px;gap:14px;padding:14px;height:calc(100vh - 56px)}
+#map{border-radius:12px;border:1px solid var(--line);min-height:420px}
+.side{overflow:auto;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{margin:0 0 10px;font-size:14px}
+label{display:block;font-size:12px;color:var(--sub);margin:8px 0 3px}
+input[type=text],input[type=password],select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+input[type=range]{width:100%}
+button{padding:7px 11px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:13px;cursor:pointer}
+button.pri{background:var(--pri);color:#fff;border-color:var(--pri)}
+button.on{background:#eef4ff;border-color:var(--pri);color:var(--pri)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--bg);border-radius:8px;padding:8px}
+.kpi b{display:block;font-size:17px}
+.kpi small{color:var(--sub);font-size:11px}
+.bar{display:grid;grid-template-columns:86px 1fr 34px;gap:6px;align-items:center;font-size:12px;padding:2px 0;cursor:pointer}
+.bar.off{opacity:.35}
+.bar i{display:block;height:9px;border-radius:5px}
+.rec{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:13px}
+.rec b{font-size:14px}
+.rec small{display:block;color:var(--sub);margin-top:2px}
+.score{float:right;color:var(--pri);font-weight:700}
+.vac{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line)}
+#status{font-size:12px;color:var(--sub);min-height:16px}
+#status.err{color:var(--warn)}
+.note{font-size:11px;color:var(--sub);line-height:1.5;margin-top:6px}
+.vicon{width:16px;height:16px;background:#111;border:2px solid #fff;transform:rotate(45deg);box-shadow:0 0 0 1px #111}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;height:auto}#map{height:55vh}}
+</style>
+</head>
+<body>
+<header>
+  <h1>안성맞춤 AI · 상권 분석</h1>
+  <span>공실 처방 모듈 프로토타입 · 소상공인 상가(상권)정보 API 기반</span>
+</header>
+<div class="wrap">
+  <div id="map"></div>
+  <div class="side">
+    <div class="card">
+      <h2>데이터 설정</h2>
+      <label>데이터 모드</label>
+      <select id="mode">
+        <option value="demo">데모 (가상 샘플 데이터)</option>
+        <option value="proxy">공공데이터 API · 프록시 서버 (권장)</option>
+        <option value="api">공공데이터 API · 브라우저 직접 호출</option>
+      </select>
+      <div id="proxyBox" class="note" style="display:none">proxy.py를 실행한 뒤 http://localhost:8000 주소로 이 페이지를 열어야 합니다. 서비스키는 서버 환경변수에만 두므로 화면에 입력할 필요가 없습니다.</div>
+      <div id="apiBox" style="display:none">
+        <label>공공데이터포털 서비스키</label>
+        <input type="password" id="svcKey" placeholder="data.go.kr에서 발급받은 인증키">
+        <label>반경 조회 엔드포인트</label>
+        <input type="text" id="endpoint" value="https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInRadius">
+        <div class="note">엔드포인트와 응답 필드는 활용신청한 API의 명세 기준으로 확인해 주세요(서비스명이 개편된 이력이 있음). 브라우저 직접 호출이 CORS로 막히면 프록시가 필요합니다.</div>
+      </div>
+      <label>분석 반경: <span id="rv">500</span>m</label>
+      <input type="range" id="radius" min="200" max="1500" step="100" value="500">
+      <label>접근성 점수(신호 진단 연계 임시 입력): <span id="av">60</span></label>
+      <input type="range" id="access" min="0" max="100" step="5" value="60">
+      <div class="row" style="margin-top:10px">
+        <button class="pri" id="load">이 위치 분석</button>
+        <button id="addVac">공실 추가 모드</button>
+      </div>
+      <div id="status"></div>
+      <div class="note">지도를 클릭하면 분석 중심이 이동합니다. '공실 추가 모드'에서는 클릭한 위치에 공실 후보가 추가됩니다. 공실 위치는 상가정보 API에 없으므로 별도 자료나 직접 입력이 필요합니다.</div>
+    </div>
+    <div class="card">
+      <h2>상권 요약</h2>
+      <div class="kpis">
+        <div class="kpi"><b id="kCount">-</b><small>업소 수</small></div>
+        <div class="kpi"><b id="kDens">-</b><small>업소/㎢</small></div>
+        <div class="kpi"><b id="kDiv">-</b><small>업종 다양성(0~100)</small></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>업종 분포 <small style="font-weight:400;color:var(--sub)">(클릭하면 지도에서 숨김/표시)</small></h2>
+      <div id="bars"></div>
+    </div>
+    <div class="card">
+      <h2>적합 업종 추천 <span id="recScope" style="font-weight:400;color:var(--sub);font-size:12px"></span></h2>
+      <div id="recs"></div>
+      <div class="note">현재는 업종 공급 공백과 접근성 점수를 합산하는 규칙 기반 점수입니다. 이후 AI 모델로 교체할 자리입니다.</div>
+    </div>
+    <div class="card">
+      <h2>공실 후보</h2>
+      <div id="vacs"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const BASELINE = ['음식','소매','생활서비스','교육','의료·보건','숙박','여가·오락'];
+const PALETTE = ['#e4572e','#17bebb','#e6a700','#76b041','#6a4c93','#2e86ab','#f18f01','#c73e1d','#3b8ea5','#8d99ae'];
+const $ = id => document.getElementById(id);
+const S = { center:{lat:37.0080,lng:127.2797}, radius:500, access:60, stores:[], vacs:[], hidden:new Set(), sel:null, addMode:false, colors:{} };
+
+// ---------- util
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function dist(a,b){const R=6371000,t=Math.PI/180,dLa=(b.lat-a.lat)*t,dLo=(b.lng-a.lng)*t;
+  const h=Math.sin(dLa/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function colorOf(c){ if(!S.colors[c]) S.colors[c]=PALETTE[Object.keys(S.colors).length%PALETTE.length]; return S.colors[c]; }
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function status(msg,err){const el=$('status');el.textContent=msg;el.className=err?'err':'';}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+// ---------- map
+const map = L.map('map').setView([S.center.lat,S.center.lng],15);
+const esriTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'}).addTo(map);
+const osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'});
+L.control.layers({'Esri 거리지도':esriTiles,'OpenStreetMap (웹 주소로 열 때만)':osmTiles}).addTo(map);
+const layer = L.layerGroup().addTo(map);
+map.on('click', e => {
+  const p={lat:e.latlng.lat,lng:e.latlng.lng};
+  if(S.addMode){ S.vacs.push({id:'v'+Date.now(),name:'공실 후보 '+(S.vacs.length+1),...p,vacant:true}); S.sel=null; render(); return; }
+  S.center=p; S.sel=null; loadData();
+});
+
+// ---------- data
+function genDemo(){
+  const r = rng(Math.round(S.center.lat*1e4)*7919 + Math.round(S.center.lng*1e4));
+  const weights = {'음식':34,'소매':26,'생활서비스':14,'교육':9,'의료·보건':7,'숙박':3,'여가·오락':4};
+  const cats = Object.keys(weights), tot = Object.values(weights).reduce((a,b)=>a+b,0);
+  const rad = S.radius, out = [];
+  const n = Math.round(60 + rad*0.18);
+  for(let i=0;i<n;i++){
+    let x=r()*tot, c=cats[0]; for(const k of cats){ if((x-=weights[k])<0){c=k;break;} }
+    const d=Math.sqrt(r())*rad, a=r()*Math.PI*2;
+    out.push({name:c+' 예시 '+(i+1),cat:c,lat:S.center.lat+(d*Math.cos(a))/111320,lng:S.center.lng+(d*Math.sin(a))/(111320*Math.cos(S.center.lat*Math.PI/180))});
+  }
+  const vac=[];
+  for(let i=0;i<6;i++){const d=Math.sqrt(r())*rad*0.9,a=r()*Math.PI*2;
+    vac.push({id:'d'+i,name:'공실 후보 '+(i+1),lat:S.center.lat+(d*Math.cos(a))/111320,lng:S.center.lng+(d*Math.sin(a))/(111320*Math.cos(S.center.lat*Math.PI/180)),vacant:true});}
+  return {stores:out,vacs:vac};
+}
+function parseItems(j){
+  let it = j?.response?.body?.items;
+  if(!it) return [];
+  if(!Array.isArray(it)) it = it.item ?? [];
+  if(!Array.isArray(it)) it=[it];
+  return it.map(o=>({name:o.bizesNm,cat:o.indsLclsNm||'기타',mid:o.indsMclsNm,sub:o.indsSclsNm,lat:+o.lat,lng:+o.lon,addr:o.rdnmAdr})).filter(s=>isFinite(s.lat)&&isFinite(s.lng));
+}
+async function fetchApi(){
+  const proxy = $('mode').value==='proxy';
+  let base, auth='';
+  if(proxy){ base='/api/storeListInRadius'; }
+  else{
+    const key=$('svcKey').value.trim();
+    if(!key) throw new Error('서비스키를 입력해 주세요.');
+    base=$('endpoint').value.trim();
+    auth='serviceKey='+(key.includes('%')?key:encodeURIComponent(key))+'&';
+  }
+  let all=[];
+  for(let page=1;page<=5;page++){
+    const url=`${base}?${auth}pageNo=${page}&numOfRows=1000&radius=${S.radius}&cx=${S.center.lng}&cy=${S.center.lat}&type=json`;
+    let res;
+    try{ res=await fetch(url); }
+    catch(e){ throw new Error(proxy?'프록시 서버에 연결하지 못했습니다. proxy.py 실행 상태를 확인해 주세요.':'브라우저 직접 호출이 차단됐습니다(CORS 가능성). 프록시 모드를 사용해 주세요.'); }
+    const txt=await res.text();
+    if(!res.ok) throw new Error('HTTP '+res.status+' '+txt.slice(0,120));
+    let j; try{ j=JSON.parse(txt); }catch(e){ throw new Error('JSON이 아닌 응답: '+txt.slice(0,120)); }
+    const code=j?.response?.header?.resultCode;
+    if(code && code!=='00') throw new Error('API 오류 '+code+' '+(j.response.header.resultMsg||''));
+    const rows=parseItems(j);
+    all=all.concat(rows);
+    if(rows.length<1000) break;
+  }
+  return all;
+}
+async function loadData(){
+  S.radius=+$('radius').value; S.access=+$('access').value;
+  status('불러오는 중...');
+  try{
+    if($('mode').value==='demo'){
+      const d=genDemo(); S.stores=d.stores; S.vacs=d.vacs.concat(S.vacs.filter(v=>String(v.id).startsWith('v')));
+      status('데모 데이터입니다(가상). API 모드로 바꾸면 실제 상가정보를 조회합니다.');
+    } else {
+      S.stores=await fetchApi();
+      status(`상가 ${S.stores.length}곳을 불러왔습니다.`);
+    }
+  }catch(e){
+    S.stores=[]; status('조회 실패: '+e.message+' (키·엔드포인트·CORS를 확인해 주세요)',true);
+  }
+  render();
+}
+
+// ---------- analysis
+function within(c,r){return S.stores.filter(s=>dist(c,s)<=r);}
+function countBy(list){const m={};list.forEach(s=>m[s.cat]=(m[s.cat]||0)+1);return m;}
+function recommend(c,r){
+  const list=within(c,r), cnt=countBy(list), total=list.length||1;
+  const cats=[...new Set([...BASELINE,...Object.keys(S.colors)])];
+  const ideal=1/cats.length;
+  return cats.map(cat=>{
+    const n=cnt[cat]||0, share=n/total, gap=Math.max(0,1-share/ideal);
+    return {cat,n,pct:Math.round(share*100),score:Math.round(gap*70+S.access*0.3)};
+  }).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>({...x,scope:list.length}));
+}
+
+// ---------- render
+function render(){
+  layer.clearLayers();
+  const c=S.center;
+  L.circle([c.lat,c.lng],{radius:S.radius,color:'#2563eb',weight:1,fillOpacity:.05}).addTo(layer);
+  L.circleMarker([c.lat,c.lng],{radius:5,color:'#2563eb',fillColor:'#2563eb',fillOpacity:1}).addTo(layer);
+  S.stores.forEach(s=>colorOf(s.cat));
+  S.stores.forEach(s=>{
+    if(S.hidden.has(s.cat)) return;
+    L.circleMarker([s.lat,s.lng],{radius:4,color:'#fff',weight:1,fillColor:colorOf(s.cat),fillOpacity:.9})
+      .bindPopup(`<b>${esc(s.name)}</b><br>${esc(s.cat)}${s.sub?' · '+esc(s.sub):''}${s.addr?'<br>'+esc(s.addr):''}`).addTo(layer);
+  });
+  S.vacs.forEach(v=>{
+    const m=L.marker([v.lat,v.lng],{icon:L.divIcon({className:'',html:'<div class="vicon"></div>',iconSize:[16,16]})}).addTo(layer);
+    m.bindPopup(`<b>${esc(v.name)}</b>`); m.on('click',()=>{S.sel=v.id;renderPanels();});
+  });
+  renderPanels();
+}
+function renderPanels(){
+  const list=within(S.center,S.radius), cnt=countBy(list), n=list.length;
+  const area=Math.PI*(S.radius/1000)**2, ks=Object.keys(cnt);
+  let div=0; if(ks.length>1){const H=-ks.reduce((a,k)=>a+(cnt[k]/n)*Math.log(cnt[k]/n),0);div=Math.round(H/Math.log(ks.length)*100);}
+  $('kCount').textContent=n; $('kDens').textContent=n?Math.round(n/area):'-'; $('kDiv').textContent=n?div:'-';
+
+  const max=Math.max(1,...Object.values(cnt));
+  $('bars').innerHTML = Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+    `<div class="bar ${S.hidden.has(k)?'off':''}" data-k="${esc(k)}"><span>${esc(k)}</span><i style="width:${v/max*100}%;background:${colorOf(k)}"></i><span>${v}</span></div>`).join('') || '<div class="note">데이터가 없습니다.</div>';
+  $('bars').querySelectorAll('.bar').forEach(el=>el.onclick=()=>{const k=el.dataset.k;S.hidden.has(k)?S.hidden.delete(k):S.hidden.add(k);render();});
+
+  const v=S.vacs.find(x=>x.id===S.sel);
+  const c=v?{lat:v.lat,lng:v.lng}:S.center, r=v?300:S.radius;
+  $('recScope').textContent = v?`· ${v.name} 반경 300m`:`· 분석 중심 반경 ${S.radius}m`;
+  const recs=recommend(c,r);
+  $('recs').innerHTML = recs.length&&recs[0].scope ? recs.map((x,i)=>
+    `<div class="rec"><span class="score">${x.score}점</span><b>${i+1}. ${esc(x.cat)}</b><small>반경 내 ${x.n}곳(${x.pct}%) · 접근성 ${S.access}</small></div>`).join('') : '<div class="note">분석할 업소 데이터가 없습니다.</div>';
+
+  $('vacs').innerHTML = S.vacs.length ? S.vacs.map(x=>
+    `<div class="vac"><span>${esc(x.name)}</span><span><button data-id="${x.id}" data-a="go">분석</button> <button data-id="${x.id}" data-a="del">삭제</button></span></div>`).join('') : '<div class="note">공실 후보가 없습니다.</div>';
+  $('vacs').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id;
+    if(b.dataset.a==='del'){S.vacs=S.vacs.filter(x=>x.id!==id);if(S.sel===id)S.sel=null;render();}
+    else{S.sel=id;const t=S.vacs.find(x=>x.id===id);map.panTo([t.lat,t.lng]);renderPanels();}
+  });
+}
+
+// ---------- ui
+$('mode').onchange=()=>{ const m=$('mode').value; $('apiBox').style.display=m==='api'?'block':'none'; $('proxyBox').style.display=m==='proxy'?'block':'none'; lsSet('sk_mode',m); loadData(); };
+if(lsGet('sk_mode')){ $('mode').value=lsGet('sk_mode'); $('mode').onchange=$('mode').onchange; }
+else if(location.protocol.startsWith('http')&&location.hostname==='localhost'){ $('mode').value='proxy'; }
+else { $('mode').value='api'; }
+{ const m=$('mode').value; $('apiBox').style.display=m==='api'?'block':'none'; $('proxyBox').style.display=m==='proxy'?'block':'none'; }
+$('radius').oninput=()=>{$('rv').textContent=$('radius').value;};
+$('radius').onchange=loadData;
+$('access').oninput=()=>{$('av').textContent=$('access').value;S.access=+$('access').value;renderPanels();};
+$('load').onclick=loadData;
+$('addVac').onclick=()=>{S.addMode=!S.addMode;$('addVac').classList.toggle('on',S.addMode);$('addVac').textContent=S.addMode?'공실 추가 모드 ON':'공실 추가 모드';};
+$('svcKey').onchange=()=>lsSet('sk_key',$('svcKey').value);
+$('endpoint').onchange=()=>lsSet('sk_ep',$('endpoint').value);
+$('svcKey').value=lsGet('sk_key')||'a0579560bc22dbe3f7b812bac6132ece28c5eeeb10b97a25cb1b335daf024025'; if(lsGet('sk_ep')) $('endpoint').value=lsGet('sk_ep');
+loadData();
+</script>
+</body>
+</html>
