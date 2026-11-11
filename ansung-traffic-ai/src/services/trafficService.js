@@ -11,7 +11,7 @@ export async function fetchTrafficOverview() {
   };
 }
 
-export async function fetchIntersectionDiagnosis(id) {
+export function fetchIntersectionDiagnosis(id) {
   const item = intersections.find(x => x.id === id);
   if (!item) throw new Error("교차로를 찾을 수 없습니다.");
   return { intersection: item, diagnosis: diagnose(item) };
