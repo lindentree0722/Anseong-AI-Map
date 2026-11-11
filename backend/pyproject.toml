@@ -1,13 +1,16 @@
 [project]
 name = "anseong-ai-map"
 version = "0.1.0"
-description = "Add your description here"
+description = "Anseong traffic and commercial-area analysis API"
 readme = "README.md"
 authors = [
     { name = "lindentree0722", email = "douko1013@gmail.com" }
 ]
 requires-python = ">=3.15"
-dependencies = []
+dependencies = [
+    "fastapi",
+    "uvicorn",
+]
 
 [project.scripts]
 anseong-ai-map = "anseong_ai_map:main"

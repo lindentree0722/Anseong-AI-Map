@@ -57,6 +57,23 @@
 
 ## 개발 방향
 
+### 백엔드 실행
+
+Python 3.15와 uv를 설치한 뒤 저장소 루트에서 실행합니다.
+팀 개발 버전은 `backend/.python-version`의 3.15를 기준으로 합니다.
+
+```powershell
+cd backend
+uv sync --locked
+uv run uvicorn main:app --reload
+```
+
+API 문서는 http://127.0.0.1:8000/docs 에서 확인합니다.
+실행 중인 서버는 `Ctrl+C`로 종료합니다.
+의존성 관리와 현재 API의 제한은 [백엔드 안내](backend/README.md)를 참고하세요.
+
+### 구현 순서
+
 1. 안성시 관련 공공데이터 수집 및 정제
 2. 교통 신호 분석 모델 구현
 3. 공실 추천 및 경로 탐색 기능 개발
