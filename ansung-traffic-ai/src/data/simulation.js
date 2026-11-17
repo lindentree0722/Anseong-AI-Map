@@ -2,31 +2,31 @@
 // 실제 안성시 측정값이나 실제 신호 운영 정보가 아닙니다.
 export const intersections = [
   {
-    id: "ANS-001", name: "안성시청 사거리", area: "봉산동",
+    id: "ANS-001", name: "안성시청 사거리", area: "봉산동", position: [37.0080982, 127.2797684],
     trafficVolume: 920, averageSpeed: 17.8, averageWait: 74,
     congestion: 86, status: "혼잡", greenRatio: 0.38,
     directions: { north: 280, south: 220, east: 250, west: 170 }
   },
   {
-    id: "ANS-002", name: "공도 터미널 교차로", area: "공도읍",
+    id: "ANS-002", name: "공도 터미널 교차로", area: "공도읍", position: [36.9989154, 127.1663727],
     trafficVolume: 810, averageSpeed: 22.4, averageWait: 58,
     congestion: 69, status: "주의", greenRatio: 0.43,
     directions: { north: 190, south: 210, east: 260, west: 150 }
   },
   {
-    id: "ANS-003", name: "중앙대입구 교차로", area: "대덕면",
+    id: "ANS-003", name: "중앙대입구 교차로", area: "대덕면", position: [37.0043816, 127.2276309],
     trafficVolume: 640, averageSpeed: 31.2, averageWait: 31,
     congestion: 38, status: "원활", greenRatio: 0.51,
     directions: { north: 160, south: 170, east: 180, west: 130 }
   },
   {
-    id: "ANS-004", name: "안성IC 진입 교차로", area: "금광면",
+    id: "ANS-004", name: "서안성IC 진입 교차로", area: "원곡면", position: [37.0336458, 127.1602142],
     trafficVolume: 1050, averageSpeed: 14.6, averageWait: 91,
     congestion: 94, status: "혼잡", greenRatio: 0.34,
     directions: { north: 330, south: 270, east: 290, west: 160 }
   },
   {
-    id: "ANS-005", name: "한경국립대 인근", area: "중앙동",
+    id: "ANS-005", name: "한경국립대 인근", area: "중앙동", position: [37.0117775, 127.2634692],
     trafficVolume: 520, averageSpeed: 34.5, averageWait: 24,
     congestion: 25, status: "원활", greenRatio: 0.55,
     directions: { north: 120, south: 140, east: 150, west: 110 }
