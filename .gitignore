@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 backend/dist/
+ansung-traffic-ai/node_modules/
+ansung-traffic-ai/dist/
 .env
 .env.*
 !.env.example

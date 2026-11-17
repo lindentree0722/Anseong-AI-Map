@@ -12,6 +12,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [period, setPeriod] = useState("전체");
   const [loading, setLoading] = useState(true);
+  const [diagnosis, setDiagnosis] = useState(null);
 
   async function load() {
     setLoading(true);
@@ -27,7 +28,27 @@ export default function App() {
   }, [overview, query]);
 
   const selected = overview?.intersections.find(x => x.id === selectedId) || overview?.intersections[0];
-  const diagnosis = selected ? fetchIntersectionDiagnosis(selected.id) : null;
+  useEffect(() => {
+    let active = true;
+
+    async function loadDiagnosis() {
+      if (!selected) {
+        setDiagnosis(null);
+        return;
+      }
+
+      const result = await fetchIntersectionDiagnosis(selected.id);
+      if (active) setDiagnosis(result.diagnosis);
+    }
+
+    setDiagnosis(null);
+    loadDiagnosis();
+
+    return () => {
+      active = false;
+    };
+  }, [selected]);
+
   const summary = overview?.summary;
 
   if (loading || !overview) return <main className="loading">안성맞춤 AI 신호 진단 시스템을 준비하고 있습니다...</main>;
@@ -65,7 +86,7 @@ export default function App() {
         </div>
 
         <div className="right-column">
-          {selected && diagnosis && <DiagnosisPanel item={selected} diagnosis={diagnosis.diagnosis}/>}
+          {selected && diagnosis && <DiagnosisPanel item={selected} diagnosis={diagnosis}/>}
           {selected && <section className="panel selected-stats"><div className="panel-heading"><div><div className="eyebrow">SELECTED INTERSECTION</div><h2>{selected.name}</h2></div><SlidersHorizontal size={18}/></div>
             <div className="selected-stat-grid"><div><small>교통량</small><b>{selected.trafficVolume.toLocaleString()}<em>대/시간</em></b></div><div><small>평균 속도</small><b>{selected.averageSpeed}<em>km/h</em></b></div><div><small>혼잡도</small><b>{selected.congestion}<em>/100</em></b></div><div><small>녹색 신호 비율</small><b>{Math.round(selected.greenRatio * 100)}<em>%</em></b></div></div>
           </section>}
