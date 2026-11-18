@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from "react";
 import { Activity, CarFront, Clock3, Gauge, MapPin, Radio, RefreshCw, Search, SlidersHorizontal, TrafficCone } from "lucide-react";
 import MetricCard from "./components/MetricCard";
@@ -18,6 +19,7 @@ export default function App() {
   const [overview, setOverview] = useState(null);
   const [selectedId, setSelectedId] = useState("ANS-001");
   const [query, setQuery] = useState("");
+<<<<<<<< HEAD:anseong-traffic-ai/src/App.jsx
   const [revision, setRevision] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -33,15 +35,33 @@ export default function App() {
       .finally(() => { if (!request.signal.aborted) setLoading(false); });
     return () => request.abort();
   }, [revision]);
+========
+
+  const [loading, setLoading] = useState(true);
+  const [refresh, setRefresh] = useState(0);
+
+  function load() { setRefresh(value => value + 1); }
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    fetchTrafficOverview().then(result => { if (active) { setOverview(result); setLoading(false); } });
+    return () => { active = false; };
+  }, [refresh]);
+>>>>>>>> a806cfd25f133f8d9e3c680512689302d575c671:frontend/src/pages/traffic/Dashboard.jsx
 
   const filtered = useMemo(() => {
     if (!overview) return [];
     return overview.intersections.filter(x => x.name.includes(query) || x.area.includes(query));
   }, [overview, query]);
 
+<<<<<<<< HEAD:anseong-traffic-ai/src/App.jsx
   const selected = filtered.find(x => x.id === selectedId) || filtered[0];
   const sample = overview?.dataStatus === "sample";
 
+========
+  const selected = overview?.intersections.find(x => x.id === selectedId) || overview?.intersections[0];
+  const diagnosis = selected ? fetchIntersectionDiagnosis(selected.id) : null;
+>>>>>>>> a806cfd25f133f8d9e3c680512689302d575c671:frontend/src/pages/traffic/Dashboard.jsx
   const summary = overview?.summary;
 
   if (error) return <main className="loading" role="alert">교통 정보를 불러오지 못했습니다. <button onClick={load}>다시 시도</button></main>;
@@ -52,9 +72,15 @@ export default function App() {
       <div className="brand"><div className="brand-mark"><TrafficCone size={23}/></div><div><b>안성맞춤 AI</b><small>SMART CITY PLATFORM</small></div></div>
       <div className="side-label">ANALYSIS</div>
       <div className="nav-item active"><Activity size={17}/> 신호 진단 <span>01</span></div>
+<<<<<<<< HEAD:anseong-traffic-ai/src/App.jsx
       <div className="nav-item muted"><MapPin size={17}/> 공실 처방 <span>02</span></div>
       <div className="nav-item muted"><CarFront size={17}/> 멈춤 없는 길 <span>03</span></div>
       <div className="sidebar-bottom"><div className="live-indicator"><i/> {sample ? "시뮬레이션" : "실측 데이터"}</div><p>안성시 교통 분석 프로토타입</p></div>
+========
+      <Link to="/commercial" className="nav-item"><MapPin size={17}/> 공실 처방 <span>02</span></Link>
+      <div className="nav-item muted" title="준비 중" aria-disabled="true"><CarFront size={17}/> 멈춤 없는 길 <span>준비 중</span></div>
+      <div className="sidebar-bottom"><div className="live-indicator"><i/> SIMULATION MODE</div><p>안성시 교통 분석 프로토타입</p></div>
+>>>>>>>> a806cfd25f133f8d9e3c680512689302d575c671:frontend/src/pages/traffic/Dashboard.jsx
     </aside>
 
     <main className="main-content">
@@ -80,7 +106,11 @@ export default function App() {
         </div>
 
         <div className="right-column">
+<<<<<<<< HEAD:anseong-traffic-ai/src/App.jsx
           {selected && <DiagnosisPanel item={selected} diagnosis={selected.diagnosis}/>}
+========
+          {selected && diagnosis && <DiagnosisPanel item={selected} diagnosis={diagnosis.diagnosis}/>}
+>>>>>>>> a806cfd25f133f8d9e3c680512689302d575c671:frontend/src/pages/traffic/Dashboard.jsx
           {selected && <section className="panel selected-stats"><div className="panel-heading"><div><div className="eyebrow">SELECTED INTERSECTION</div><h2>{selected.name}</h2></div><SlidersHorizontal size={18}/></div>
             <div className="selected-stat-grid"><div><small>교통량</small><b>{display(selected.trafficVolume, selected.trafficVolumeUnit === "vehicles/hour" ? "대/시간" : `대/${selected.aggregationIntervalSeconds}초`)}</b></div><div><small>평균 속도</small><b>{display(selected.averageSpeed, " km/h")}</b></div><div><small>혼잡도</small><b>{display(selected.congestion, "/100")}</b></div><div><small>녹색 신호 비율</small><b>{display(selected.greenRatio == null ? null : Math.round(selected.greenRatio * 100), "%")}</b></div></div>
           <p className="small-note">관측 시각 {seoulTime(selected.observedAt)}</p></section>}
