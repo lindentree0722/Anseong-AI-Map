@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import CommercialMap, { type Position, type Store, type Vacancy } from './Map'
 import { genDemo, summarize, recommend, PALETTE } from './model.mjs'
-import { DEFAULT_ENDPOINT, fetchStores } from './api.mjs'
+import { DEFAULT_ENDPOINT, fetchStoresOrDemo } from './api.mjs'
 import './commercial.css'
 const proxyAvailable = import.meta.env.VITE_COMMERCIAL_PROXY_ENABLED === 'true'
 type Mode = 'demo'|'proxy'|'api'
@@ -33,11 +33,13 @@ export default function CommercialPage() {
           setVacs(current => [...data.vacs,...current.filter(v => v.id.startsWith('v'))])
           setStatus('데모 데이터입니다(가상). API 모드로 바꾸면 실제 상가정보를 조회합니다.')
         } else {
-          setVacs(current => current.filter(v => v.id.startsWith('v')))
-          const result = await fetchStores({...requestConfig,mode,center,radius},controller.signal)
+          const result = await fetchStoresOrDemo({...requestConfig,mode,center,radius},controller.signal)
           if (!controller.signal.aborted) {
             setStores(result.stores)
-            setStatus(`상가 ${result.stores.length}곳을 불러왔습니다.${result.limited ? ' 최대 5페이지를 조회해 일부 결과만 표시합니다.' : ''}`)
+            setVacs(current => result.usedDummy ? [...result.vacs,...current.filter(v => v.id.startsWith('v'))] : current.filter(v => v.id.startsWith('v')))
+            setStatus(result.usedDummy
+              ? '연결된 상권 API가 없어 더미 데이터를 표시합니다.'
+              : `상가 ${result.stores.length}곳을 불러왔습니다.${result.limited ? ' 최대 5페이지를 조회해 일부 결과만 표시합니다.' : ''}`)
           }
         }
       } catch (err) {

@@ -1,4 +1,5 @@
-import { parseItems } from './model.mjs'
+import { genDemo, parseItems } from './model.mjs'
+import { loadApiOrDummy } from '../../lib/api-fallback.mjs'
 export const DEFAULT_ENDPOINT = 'https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInRadius'
 export function buildStoreUrl({mode, endpoint, key, center, radius, page}) {
   const base = mode === 'proxy' ? '/api/commercial-service/storeListInRadius' : endpoint.trim()
@@ -34,4 +35,12 @@ export async function fetchStores(options, signal) {
     if (received < 1000) return {stores,limited:false}
   }
   return {stores,limited:true}
+}
+
+export async function fetchStoresOrDemo(options, signal) {
+  const result = await loadApiOrDummy(
+    () => fetchStores(options, signal),
+    () => ({...genDemo(options.center, options.radius), limited:false}),
+  )
+  return {...result.data, usedDummy:result.usedDummy}
 }
