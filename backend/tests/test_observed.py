@@ -41,6 +41,8 @@ def test_observed_segment(observed, monkeypatch):
     assert segment["position"] == [37.01, 127.27]
     assert segment["observedAt"] == "2021-06-25T09:44:00+09:00"
     assert segment["trafficVolume"] is None
+    assert segment["diagnosis"]["level"] == "자료 부족"
+    assert result["summary"]["averageWait"] is None
 
 
 @pytest.mark.parametrize(("body", "status"), [

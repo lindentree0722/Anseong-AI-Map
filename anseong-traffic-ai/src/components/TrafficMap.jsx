@@ -43,7 +43,7 @@ export default function TrafficMap({ intersections, selectedId, onSelect }) {
       />
       <MapViewport intersections={intersections} selectedId={selectedId} />
       {intersections.map(item => {
-        const color = item.congestion >= 75 ? "#f17b80" : item.congestion >= 50 ? "#e8b85f" : "#65c99b";
+        const color = item.congestion == null ? "#8491a3" : item.congestion >= 75 ? "#f17b80" : item.congestion >= 50 ? "#e8b85f" : "#65c99b";
         const selected = selectedId === item.id;
 
         return <CircleMarker
@@ -55,13 +55,13 @@ export default function TrafficMap({ intersections, selectedId, onSelect }) {
         >
           <Popup>
             <strong>{item.name}</strong><br />
-            {item.area} · 혼잡도 {item.congestion}/100<br />
-            평균 대기 {item.averageWait}초
+            {item.area} · 혼잡도 {item.congestion == null ? "자료 없음" : `${item.congestion}/100`}<br />
+            평균 대기 {item.averageWait == null ? "자료 없음" : `${item.averageWait}초`}
           </Popup>
         </CircleMarker>;
       })}
     </MapContainer>
-    <div className="map-legend"><span><i className="dot bad-dot"/>혼잡</span><span><i className="dot warn-dot"/>주의</span><span><i className="dot good-dot"/>원활</span></div>
-    <div className="map-disclaimer">지도: OpenStreetMap · 위치/교통량은 시뮬레이션</div>
+    <div className="map-legend"><span><i className="dot bad-dot"/>혼잡</span><span><i className="dot warn-dot"/>주의</span><span><i className="dot good-dot"/>원활</span><span><i className="dot unknown-bg"/>자료 없음</span></div>
+    <div className="map-disclaimer">지도: OpenStreetMap</div>
   </div>;
 }

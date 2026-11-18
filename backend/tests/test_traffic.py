@@ -19,9 +19,11 @@ def test_sample_overview():
     overview = response.json()
     assert overview["source"] == "안성시 도로 구간 예시"
     assert overview["dataStatus"] == "sample"
-    assert overview["generatedAt"] == "2026-11-18T08:05:00+09:00"
-    assert overview["hourlyTraffic"] is None
-    assert overview["summary"] is None
+    assert overview["generatedAt"] == "2026-11-18T20:05:00+09:00"
+    assert len(overview["hourlyTraffic"]) == 15
+    assert overview["summary"] == {
+        "count": 6, "congested": 2, "averageWait": 55.6, "averageSpeed": 26.2,
+    }
     segment = overview["intersections"][0]
     assert segment["position"] == [37.007, 127.279]
     assert segment["observedAt"] == "2026-11-18T08:00:00+09:00"
@@ -31,6 +33,23 @@ def test_sample_overview():
     assert segment["averageWait"] is None
     assert segment["greenRatio"] is None
     assert segment["directions"] is None
+
+
+@pytest.mark.parametrize(("score", "wait", "green", "speed", "level"), [
+    (75, 30, 0.5, 25, "개선 검토 필요"),
+    (45, 60, 0.5, 25, "개선 검토 필요"),
+    (45, 30, 0.38, 25, "개선 검토 필요"),
+    (50, 30, 0.5, 25, "관찰 필요"),
+    (0, 0, 0.5, 20, "관찰 필요"),
+    (0, 0, 0.5, 25, "양호"),
+    (None, None, None, 25, "자료 부족"),
+])
+def test_signal_diagnosis(score, wait, green, speed, level):
+    row = json.loads(sample_path.read_text(encoding="utf-8"))["intersections"][0]
+    row.update(congestion=score, averageWait=wait, greenRatio=green, averageSpeed=speed)
+    result = traffic.TrafficSegment.model_validate(row).diagnosis
+    assert result.level == level
+    assert result.findings and result.actions
 
 
 def test_empty_overview(tmp_path, monkeypatch):
