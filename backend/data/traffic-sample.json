@@ -1,0 +1,21 @@
+{
+  "source": "안성시 도로 구간 예시",
+  "dataStatus": "sample",
+  "generatedAt": "2026-11-18T08:05:00+09:00",
+  "intersections": [
+    {
+      "id": "sample-01",
+      "sourceId": "sample-01",
+      "name": "안성 도로 구간 예시",
+      "area": "안성시",
+      "position": [37.007, 127.279],
+      "observedAt": "2026-11-18T08:00:00+09:00",
+      "trafficVolume": 24,
+      "trafficVolumeUnit": "vehicles/interval",
+      "aggregationIntervalSeconds": 300,
+      "averageSpeed": 36.5
+    }
+  ],
+  "hourlyTraffic": null,
+  "summary": null
+}
