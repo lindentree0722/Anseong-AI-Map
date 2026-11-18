@@ -1,0 +1,12 @@
+html { margin: 0; scroll-padding-top: 70px; }
+body { margin: 0; }
+.app-navigation { position: sticky; top: 0; z-index: 2000; height: 60px; box-sizing: border-box; display: flex; align-items: center; gap: 24px; padding: 0 24px; background: #fff; color: #25322e; border-bottom: 1px solid #ddd; font: 14px/1.4 system-ui, sans-serif; }
+.app-navigation a { color: inherit; text-decoration: none; white-space: nowrap; padding: 10px 12px; border-radius: 6px; }
+.app-navigation .app-brand { font-weight: 750; padding-left: 0; }
+.app-navigation > div { display: flex; gap: 4px; overflow-x: auto; }
+.app-navigation a.active { background: #edf2ed; font-weight: 700; }
+.app-navigation a:focus-visible { outline: 2px solid #55745e; outline-offset: -2px; }
+.app-message { padding: 40px 24px; font-family: system-ui, sans-serif; }
+.app-skip { position: fixed; top: -100px; z-index: 3000; background: white; padding: 12px; }
+.app-skip:focus { top: 0; }
+@media(max-width:600px) { .app-navigation { padding: 0 10px; gap: 8px; } .app-navigation .app-brand { display:none; } }

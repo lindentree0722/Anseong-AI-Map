@@ -7,3 +7,6 @@ ansung-traffic-ai/dist/
 .env
 .env.*
 !.env.example
+
+frontend/node_modules/
+frontend/dist/
