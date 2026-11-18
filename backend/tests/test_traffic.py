@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+import traffic
 
 
 client = TestClient(main.app)
@@ -37,7 +38,7 @@ def test_empty_overview(tmp_path, monkeypatch):
     data["intersections"] = []
     path = tmp_path / "empty.json"
     path.write_text(json.dumps(data), encoding="utf-8")
-    monkeypatch.setattr(main, "traffic_sample_path", path)
+    monkeypatch.setattr(traffic, "SAMPLE_PATH", path)
 
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -49,7 +50,7 @@ def test_unavailable_overview(content, tmp_path, monkeypatch):
     path = tmp_path / "bad.json"
     if content is not None:
         path.write_text(content, encoding="utf-8")
-    monkeypatch.setattr(main, "traffic_sample_path", path)
+    monkeypatch.setattr(traffic, "SAMPLE_PATH", path)
 
     response = client.get(endpoint)
     assert response.status_code == 503
@@ -70,6 +71,6 @@ def test_invalid_segment(field, value, tmp_path, monkeypatch):
     data["intersections"][0][field] = value
     path = tmp_path / "invalid-segment.json"
     path.write_text(json.dumps(data), encoding="utf-8")
-    monkeypatch.setattr(main, "traffic_sample_path", path)
+    monkeypatch.setattr(traffic, "SAMPLE_PATH", path)
 
     assert client.get(endpoint).status_code == 503
