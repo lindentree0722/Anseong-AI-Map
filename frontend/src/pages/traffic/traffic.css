@@ -21,6 +21,8 @@
 .page-traffic .dashboard-tabs button.active { border-bottom-color: #76adff; color: #a9cbff; font-weight: 700; }
 .page-traffic .signal-search-link { border: 1px solid #2b3a50; border-radius: 8px; padding: 8px 10px; color: #aebbd0; font-size: 11px; text-decoration: none; white-space: nowrap; }
 .page-traffic .signal-search-link:hover { border-color: #76adff; color: #a9cbff; }
+.page-traffic .signal-mode-control { display: flex; align-items: center; gap: 5px; color: #aebbd0; font-size: 10px; }
+.page-traffic .signal-mode-select { border: 1px solid #2b3a50; border-radius: 7px; padding: 7px 8px; background: #152136; color: #e9eef7; font-size: 11px; }
 .page-traffic .optimizer-host { margin: 14px 0; padding: 24px; border-radius: 12px; }
 .page-traffic .signal-link-panel .signal-status-badge { border-radius: 20px; padding: 5px 9px; font-size: 10px; font-weight: 700; }
 .page-traffic .signal-link-panel .signal-status-badge.green { background: #1c3a30; color: #7bd0a6; }

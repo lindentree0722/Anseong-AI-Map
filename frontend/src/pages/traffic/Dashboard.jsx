@@ -8,8 +8,7 @@ import { TrafficChart, WaitChart } from "./components/TrafficChart";
 import { fetchTrafficOverview, fetchIntersectionDiagnosis } from "./services/trafficService";
 import SignalStatusPanel from "./components/SignalStatusPanel";
 import { TrafficOptimizer } from "../signals/components/TrafficOptimizer";
-import { api } from "../signals/lib/api";
-import { readJson, validateList } from "../signals/lib/responses.mjs";
+import { listSignals } from "../signals/lib/signal-data";
 import { statusMeta } from "../signals/components/signal-utils";
 import "../signals/signals.css";
 
@@ -18,6 +17,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState("ANS-001");
   const [query, setQuery] = useState("");
   const [signalItems, setSignalItems] = useState([]);
+  const [signalMode, setSignalMode] = useState("demo");
   const [signalLoading, setSignalLoading] = useState(true);
   const [signalError, setSignalError] = useState("");
   const [signalRefresh, setSignalRefresh] = useState(0);
@@ -40,8 +40,7 @@ export default function App() {
     setSignalError("");
     async function loadSignals() {
       try {
-        const params = new URLSearchParams({ q: "", status: "all", limit: "20", offset: "0" });
-        const data = validateList(await readJson(await api(`traffic-signals?${params}`, { signal: controller.signal })));
+        const data = await listSignals({ mode: signalMode, q: "", status: "all", limit: 20, offset: 0, signal: controller.signal });
         if (!controller.signal.aborted) setSignalItems(data.items);
       } catch (error) {
         if (!controller.signal.aborted) {
@@ -54,7 +53,7 @@ export default function App() {
     }
     void loadSignals();
     return () => controller.abort();
-  }, [signalRefresh]);
+  }, [signalRefresh, signalMode]);
 
   const filtered = useMemo(() => {
     if (!overview) return [];
@@ -80,7 +79,7 @@ export default function App() {
 
     <main className="main-content">
       <header className="topbar"><div><div className="breadcrumb">안성맞춤 AI <span>/</span> 교통·신호 분석</div><h1>교통·신호 통합 대시보드</h1></div>
-        <div className="top-actions"><span className="source-badge"><Radio size={14}/> 가상 데이터 사용 중</span><Link to="/signals" className="signal-search-link">신호 검색</Link><button className="icon-button" onClick={load} title="새로고침"><RefreshCw size={17}/></button></div>
+        <div className="top-actions"><span className="source-badge"><Radio size={14}/> 교통 시뮬레이션</span><label className="signal-mode-control"><span>신호</span><select className="signal-mode-select" aria-label="신호 데이터 소스" value={signalMode} onChange={event => setSignalMode(event.target.value)}><option value="demo">더미</option><option value="api">API</option></select></label><Link to="/signals" className="signal-search-link">신호 검색</Link><button className="icon-button" onClick={load} title="새로고침"><RefreshCw size={17}/></button></div>
       </header>
 
       <section className="welcome-row"><div><h2>교차로별 교통량과 신호 현황을 함께 확인합니다.</h2><p>지도에서 지점을 선택하면 기존 교통량으로 방향별 분석과 진단을 자동으로 보여줍니다.</p></div><div className="updated"><Clock3 size={14}/> {new Date(overview.generatedAt).toLocaleString("ko-KR")}</div></section>
@@ -114,7 +113,7 @@ export default function App() {
           {selected && <section className="panel selected-stats"><div className="panel-heading"><div><div className="eyebrow">SELECTED INTERSECTION</div><h2>{selected.name}</h2></div><SlidersHorizontal size={18}/></div>
             <div className="selected-stat-grid"><div><small>교통량</small><b>{selected.trafficVolume.toLocaleString()}<em>대/시간</em></b></div><div><small>평균 속도</small><b>{selected.averageSpeed}<em>km/h</em></b></div><div><small>혼잡도</small><b>{selected.congestion}<em>/100</em></b></div><div><small>녹색 신호 비율</small><b>{Math.round(selected.greenRatio * 100)}<em>%</em></b></div></div>
           </section>}
-          {selected && <SignalStatusPanel signal={selectedSignal} loading={signalLoading} error={signalError} refreshKey={signalRefresh}/>}
+          {selected && <SignalStatusPanel signal={selectedSignal} mode={signalMode} loading={signalLoading} error={signalError} refreshKey={signalRefresh}/>}
         </div>
       </section>
 

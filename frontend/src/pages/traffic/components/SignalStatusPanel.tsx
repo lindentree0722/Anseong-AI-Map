@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { Signal, SignalHistory } from '../../signals/components/signal-utils'
-import { api } from '../../signals/lib/api'
 import { formatDate, formatSeconds, statusMeta } from '../../signals/components/signal-utils'
-import { readJson, validateDetail } from '../../signals/lib/responses.mjs'
+import { getSignalDetail, type SignalDataMode } from '../../signals/lib/signal-data'
 
-type Props = { signal: Signal | undefined; loading: boolean; error: string; refreshKey: number }
+type Props = { signal: Signal | undefined; mode: SignalDataMode; loading: boolean; error: string; refreshKey: number }
 
-export default function SignalStatusPanel({ signal, loading, error, refreshKey }: Props) {
+export default function SignalStatusPanel({ signal, mode, loading, error, refreshKey }: Props) {
   const [detail, setDetail] = useState<{ signal: Signal; history: SignalHistory[] } | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
@@ -26,7 +25,7 @@ export default function SignalStatusPanel({ signal, loading, error, refreshKey }
     setDetailLoading(true)
     async function load() {
       try {
-        const data = validateDetail(await readJson(await api(`traffic-signals/${signalId}`, { signal: controller.signal })))
+        const data = await getSignalDetail(mode, signalId, controller.signal)
         if (!controller.signal.aborted) setDetail(data)
       } catch (err) {
         if (!controller.signal.aborted) setDetailError(err instanceof Error ? err.message : '신호 이력을 불러오지 못했습니다.')
@@ -36,7 +35,7 @@ export default function SignalStatusPanel({ signal, loading, error, refreshKey }
     }
     void load()
     return () => controller.abort()
-  }, [signal?.id, refreshKey])
+  }, [signal?.id, mode, refreshKey])
 
   return <section className="panel signal-link-panel">
     <div className="panel-heading">
@@ -51,7 +50,7 @@ export default function SignalStatusPanel({ signal, loading, error, refreshKey }
               <strong>{detail?.signal.name ?? signal.name}</strong>
               <span>{formatSeconds((detail?.signal ?? signal).remaining_seconds)}</span>
             </div>
-            <p className="signal-source-note">별도 API에 저장된 스냅샷 · 갱신 {formatDate((detail?.signal ?? signal).updated_at)} · 실시간 신호가 아닐 수 있습니다.</p>
+            <p className="signal-source-note">{mode === 'demo' ? '개발용 더미 데이터 · 실시간 신호 아님' : '별도 API 저장 스냅샷 · 실시간 신호가 아닐 수 있음'} · 갱신 {formatDate((detail?.signal ?? signal).updated_at)}</p>
             <h3 className="signal-history-title">최근 신호 이력</h3>
             {detailLoading ? <p className="signal-message" role="status">신호 이력을 불러오는 중입니다.</p>
               : detailError ? <p className="signal-message error" role="alert">{detailError}</p>
