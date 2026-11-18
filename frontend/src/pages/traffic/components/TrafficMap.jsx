@@ -1,26 +1,86 @@
-function pinPosition(index) {
-  const positions = [
-    { left: "22%", top: "28%" }, { left: "62%", top: "22%" },
-    { left: "42%", top: "55%" }, { left: "76%", top: "68%" },
-    { left: "18%", top: "76%" }
-  ];
-  return positions[index % positions.length];
+import { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { ANSEONG_MAP_BOUNDS, ANSEONG_MAP_CENTER, ANSEONG_MAP_MAX_ZOOM, ANSEONG_MAP_MIN_ZOOM } from "../../../shared/anseong-map";
+import { statusMeta } from "../../signals/components/signal-utils";
+
+const positions = {
+  "ANS-001": [37.008, 127.2797],
+  "ANS-002": [36.998, 127.172],
+  "ANS-003": [36.835, 127.177],
+  "ANS-004": [37.05, 127.302],
+  "ANS-005": [37.011, 127.263]
+};
+
+function markerColor(congestion) {
+  return congestion >= 75 ? "#f17b80" : congestion >= 50 ? "#e8b85f" : "#65c99b";
 }
 
-export default function TrafficMap({ intersections, selectedId, onSelect }) {
-  return <div className="map-panel">
-    <div className="map-grid"/>
-    <div className="map-road road-a"/><div className="map-road road-b"/><div className="map-road road-c"/>
-    <div className="map-label label-one">안성시 시뮬레이션 지도</div>
-    <div className="map-label label-two">북</div>
-    {intersections.map((item, i) => {
-      const pos = pinPosition(i);
-      return <button key={item.id} className={`map-pin ${item.congestion >= 75 ? "bad" : item.congestion >= 50 ? "warn" : "good"} ${selectedId === item.id ? "selected" : ""}`}
-        style={pos} onClick={() => onSelect(item.id)} title={item.name}>
-        <span/>{i + 1}
-      </button>;
-    })}
-    <div className="map-legend"><span><i className="dot bad-dot"/>혼잡</span><span><i className="dot warn-dot"/>주의</span><span><i className="dot good-dot"/>원활</span></div>
-    <div className="map-disclaimer">실제 지도가 아닌 교차로 배치 예시 · 시뮬레이션</div>
+export default function TrafficMap({ intersections, signals, selectedId, onSelect }) {
+  const container = useRef(null);
+  const map = useRef(null);
+  const markers = useRef(null);
+
+  useEffect(() => {
+    if (!container.current) return;
+    const instance = L.map(container.current, {
+      maxBounds: ANSEONG_MAP_BOUNDS,
+      maxBoundsViscosity: 1,
+      minZoom: ANSEONG_MAP_MIN_ZOOM,
+      maxZoom: ANSEONG_MAP_MAX_ZOOM,
+      scrollWheelZoom: true
+    }).setView(ANSEONG_MAP_CENTER, 11);
+    const markerLayer = L.layerGroup().addTo(instance);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: ANSEONG_MAP_MAX_ZOOM,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(instance);
+    map.current = instance;
+    markers.current = markerLayer;
+    const observer = new ResizeObserver(() => instance.invalidateSize());
+    observer.observe(container.current);
+
+    return () => {
+      observer.disconnect();
+      instance.remove();
+      map.current = null;
+      markers.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!markers.current) return;
+    markers.current.clearLayers();
+    intersections.forEach(item => {
+      const position = positions[item.id];
+      if (!position) return;
+      const selected = item.id === selectedId;
+      const signal = signals.find(entry => entry.intersection_id === item.id);
+      const popup = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = item.name;
+      popup.append(title, document.createElement("br"), document.createTextNode(`${item.area} · 혼잡 ${item.congestion}/100 · ${signal ? `신호 ${statusMeta[signal.status].label}` : "신호 정보 미연계"} · 시뮬레이션 위치`));
+      L.circleMarker(position, {
+        radius: selected ? 9 : 7,
+        color: "#fff",
+        weight: 2,
+        fillColor: markerColor(item.congestion),
+        fillOpacity: 0.95
+      }).bindPopup(popup).on("click", () => onSelect(item.id)).addTo(markers.current);
+    });
+  }, [intersections, signals, selectedId, onSelect]);
+
+  useEffect(() => {
+    const position = positions[selectedId];
+    if (position) map.current?.panTo(position, { animate: true });
+  }, [selectedId]);
+
+  return <div className="traffic-map-wrap">
+    <div className="map-panel" ref={container} aria-label="안성시 교통 시뮬레이션 지도"/>
+    <div className="traffic-map-legend" aria-label="혼잡도 범례">
+      <span><i className="dot bad-dot"/>혼잡</span>
+      <span><i className="dot warn-dot"/>주의</span>
+      <span><i className="dot good-dot"/>원활</span>
+    </div>
   </div>;
 }

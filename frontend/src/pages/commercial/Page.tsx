@@ -82,7 +82,7 @@ export default function CommercialPage() {
           <label htmlFor="commercial-access">접근성 점수(신호 진단 연계 임시 입력): {access}</label><input id="commercial-access" type="range" min="0" max="100" step="5" value={access} onChange={e => setAccess(Number(e.target.value))}/>
           <div className="row" style={{marginTop:10}}><button className="pri" onClick={analyze} disabled={loading}>{loading ? '조회 중…' : '이 위치 분석'}</button><button className={addMode ? 'on' : ''} aria-pressed={addMode} onClick={() => setAddMode(v => !v)}>공실 추가 모드{addMode ? ' ON' : ''}</button></div>
           <div id="status" className={error ? 'err' : ''} role={error ? 'alert' : 'status'}>{status}</div>
-          <div className="note">지도를 클릭하면 분석 중심이 이동합니다. ‘공실 추가 모드’에서는 클릭한 위치에 공실 후보가 추가됩니다. 공실 위치는 상가정보 API에 없으므로 별도 자료나 직접 입력이 필요합니다.</div>
+          <div className="note">지도는 안성 주변으로 이동 범위를 제한했으며 마우스 휠로 확대·축소할 수 있습니다. 지도를 클릭하면 분석 중심이 이동합니다. ‘공실 추가 모드’에서는 클릭한 위치에 공실 후보가 추가됩니다. 공실 위치는 상가정보 API에 없으므로 별도 자료나 직접 입력이 필요합니다.</div>
         </section>
         <section className="card"><h2>상권 요약</h2><div className="kpis"><div className="kpi"><b>{summary.count}</b><small>업소 수</small></div><div className="kpi"><b>{summary.count ? summary.density : '-'}</b><small>업소/㎢</small></div><div className="kpi"><b>{summary.count ? summary.diversity : '-'}</b><small>업종 다양성(0~100)</small></div></div></section>
         <section className="card"><h2>업종 분포 <small style={{fontWeight:400,color:'var(--sub)'}}>(클릭하면 지도에서 숨김/표시)</small></h2>

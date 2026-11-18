@@ -11,7 +11,7 @@ export default function App() {
     <a className="app-skip" href="#app-content">본문으로 이동</a>
     <nav className="app-navigation" aria-label="주 메뉴">
       <Link className="app-brand" to="/">안성맞춤 AI</Link>
-      <div>{[['/', '소개'], ['/signals', '신호 진단'], ['/commercial', '상권 분석'], ['/traffic', '교통 대시보드']].map(([to, label]) => <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>)}</div>
+      <div>{[['/', '소개'], ['/traffic', '교통·신호 통합'], ['/commercial', '상권 분석']].map(([to, label]) => <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>)}</div>
     </nav>
     <div id="app-content" tabIndex={-1}>
       <Suspense fallback={<p className="app-message" role="status">화면을 불러오는 중입니다…</p>}>
