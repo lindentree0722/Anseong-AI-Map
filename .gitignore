@@ -2,8 +2,6 @@
 __pycache__/
 *.py[cod]
 backend/dist/
-anseong-traffic-ai/node_modules/
-anseong-traffic-ai/dist/
 .env
 .env.*
 !.env.example

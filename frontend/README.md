@@ -59,11 +59,13 @@ npm run build
 
 ## 디자인과 기존 파일
 
-기존 색상·배치·콘텐츠를 최대한 유지하고 최상단 공통 메뉴를 추가했습니다. 교통 대시보드는 정현수 브랜치의 도식 지도를 그대로 사용하며 main의 Leaflet 지도 개선과 합치지 않았습니다.
+교통 대시보드는 Leaflet 지도에 API가 반환한 위치를 표시합니다. 지도 또는 목록에서 지점을 선택하면 해당 지점의 신호 진단 결과를 확인할 수 있습니다.
 
 신호 진단 원본의 Pretendard/Geist 폰트 바이너리가 없어 시스템 대체 글꼴을 사용합니다. 소개·교통 화면의 Google Fonts와 지도 타일은 외부 연결에 의존합니다. 소개의 로그인과 교통 대시보드의 경로 탐색은 미구현 상태로 표시합니다.
 
 교통 대시보드는 `frontend/src/pages/traffic`에 통합했습니다. 로컬 백엔드를 8000번 포트에서 실행하면 `/traffic` 화면이 `/api/traffic-overview`를 통해 진단 결과를 읽습니다.
+
+배포 환경에서는 `/api/traffic-overview`를 FastAPI의 `/traffic/overview`로 전달하세요. 샘플 데이터와 진단 규칙은 `backend/data/traffic-sample.json`과 `backend/traffic.py`에서 관리합니다.
 
 ## 배포
 

@@ -11,3 +11,9 @@
 .page-traffic .map-legend, .page-traffic .map-disclaimer { z-index: 2; }
 .page-traffic .map-legend { bottom: 34px; }
 .page-traffic .unknown-bg { background: #8491a3; }
+.page-traffic .map-panel { height: 280px; }
+.page-traffic .map-disclaimer { padding: 3px 6px; border-radius: 4px; background: #101b2bdc; }
+.page-traffic .leaflet-container { font-family: 'Noto Sans KR', sans-serif; }
+.page-traffic .leaflet-popup-content-wrapper, .page-traffic .leaflet-popup-tip { background: #111d2e; color: #e9eef7; }
+.page-traffic .leaflet-popup-content { font-size: 11px; line-height: 1.7; }
+.page-traffic .leaflet-control-attribution { font-size: 9px !important; }
