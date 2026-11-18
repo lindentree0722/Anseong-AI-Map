@@ -1,1 +1,3 @@
-export default function Page() { return <main className="page-traffic app-message"><h1>교통 대시보드</h1></main> }
+import Dashboard from './Dashboard'
+import './traffic.css'
+export default function TrafficPage() { return <div className="page-traffic"><Dashboard /></div> }
