@@ -2,6 +2,9 @@
 
 Python 3.15와 uv를 사용합니다. 저장소 루트에서 실행하세요.
 
+2026-11-21 Windows 환경에서 `uv sync --project backend --locked`가 성공했습니다.
+이때 uv가 선택한 인터프리터는 **CPython 3.15.0b3(베타)**입니다. 정식 Python 3.15에서의 호환성을 검증한 결과는 아닙니다.
+
 ```powershell
 cd backend
 uv sync --locked
@@ -11,7 +14,28 @@ uv run uvicorn main:app --reload
 - API 문서: http://127.0.0.1:8000/docs
 - 장소 조회: `GET /places`
 - 장소 등록: `POST /places` (JSON 객체 배열)
+- 장소 전체 삭제: `DELETE /places`
 - 교통 개요: `GET /traffic/overview`
+
+### 임시 장소 API
+
+등록 요청은 아래 형식의 배열입니다. `name`은 앞뒤 공백을 제거한 뒤 비어 있지 않아야 하고,
+`position`은 위도(-90~90), 경도(-180~180) 순서의 숫자 두 개입니다.
+필드 누락, 추가 필드, 문자열·불리언 좌표, 범위를 벗어난 좌표는 422로 거부합니다.
+배열 중 한 항목이라도 잘못되면 아무 항목도 저장하지 않습니다.
+
+```json
+[{"name": "안성시청", "position": [37.008, 127.279]}]
+```
+
+`GET /places`는 장소 배열을 반환합니다. 등록과 삭제는 기존의 `message`, `places` 응답 구조를 유지합니다.
+빈 배열 등록은 기존 목록을 유지하며, 빈 목록의 조회·삭제도 성공합니다.
+기존 임의 JSON 객체를 보내던 외부 호출자는 위 형식으로 변경해야 합니다. 저장소 내 프런트엔드는 이 API를 호출하지 않습니다.
+
+장소는 프로토타입용 **프로세스 메모리**에만 저장됩니다. 재시작하면 사라지고 여러 워커 간에 공유되지 않습니다.
+`/docs`의 각 장소 API에도 이 제한을 표시합니다. 현재 인증이 없으므로 공개 배포 전에 쓰기·전체 삭제 권한을 제한해야 합니다.
+
+### 교통 개요 API
 
 기본 설정에서 교통 개요는 `data/traffic-sample.json`을 읽어 `dataStatus: "sample"`로 반환합니다.
 더미 데이터를 수정하려면 이 JSON 파일을 편집하고 같은 주소로 다시 조회하세요. API 키 없이 사용할 수 있습니다.
@@ -37,12 +61,16 @@ uv run uvicorn main:app --reload
 
 실측 응답에는 수집 시각과 구간 속도가 포함됩니다. 제공기관 문서에서 교통량의 집계 구간과 단위를 특정할 수 없어 교통량은 `null`로 제공합니다. 결과 없음은 200과 빈 배열, 원천 응답 형식 오류는 502, 설정 누락·인증 실패·요청 시간 초과는 503입니다. [공식 구간 소통정보 조회 규격](https://openapigits.gg.go.kr/api/jsp/manual_getRoadLinkTrafficInfo.jsp)
 
-저장소 루트에서 교통 API 테스트를 실행합니다.
+저장소 루트에서 장소·교통 API 테스트를 실행합니다.
 
 ```powershell
 uv sync --project backend --locked
 uv run --project backend python -B -m pytest backend/tests -q
 ```
+
+2026-11-21 결과: **47개 통과**. 장소 입력 검증, 일괄 등록 실패 시 기존 데이터 보존,
+조회·전체 삭제, 테스트 간 목록 초기화, OpenAPI 계약 및 기존 교통 테스트를 확인했습니다.
+Starlette의 `httpx` TestClient 사용 중단 예정 경고 1건이 있습니다. 브라우저 조작 및 실제 외부 API 호출은 이번 검증에 포함하지 않았습니다.
 
 장소 데이터는 메모리에 저장되며 서버 재시작 시 초기화됩니다.
 `anseong-ai-map` 명령은 현재 인사 메시지만 출력합니다. API는 위의 uvicorn 명령으로 실행하세요.
