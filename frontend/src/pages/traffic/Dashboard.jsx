@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from "react";
-import { Activity, CarFront, Clock3, Gauge, MapPin, Radio, RefreshCw, Search, SlidersHorizontal, TrafficCone } from "lucide-react";
+import { Clock3, Gauge, MapPin, Radio, RefreshCw, Search, SlidersHorizontal, TrafficCone } from "lucide-react";
 import MetricCard from "./components/MetricCard";
 import TrafficMap from "./components/TrafficMap";
 import DiagnosisPanel from "./components/DiagnosisPanel";
@@ -35,15 +34,6 @@ export default function App() {
   if (loading || !overview) return <main className="loading">안성맞춤 AI 신호 진단 시스템을 준비하고 있습니다...</main>;
 
   return <div className="app-shell">
-    <aside className="sidebar">
-      <div className="brand"><div className="brand-mark"><TrafficCone size={23}/></div><div><b>안성맞춤 AI</b><small>SMART CITY PLATFORM</small></div></div>
-      <div className="side-label">ANALYSIS</div>
-      <div className="nav-item active"><Activity size={17}/> 신호 진단 <span>01</span></div>
-      <Link to="/commercial" className="nav-item"><MapPin size={17}/> 공실 처방 <span>02</span></Link>
-      <div className="nav-item muted" title="준비 중" aria-disabled="true"><CarFront size={17}/> 멈춤 없는 길 <span>준비 중</span></div>
-      <div className="sidebar-bottom"><div className="live-indicator"><i/> SIMULATION MODE</div><p>안성시 교통 분석 프로토타입</p></div>
-    </aside>
-
     <main className="main-content">
       <header className="topbar"><div><div className="breadcrumb">안성맞춤 AI <span>/</span> 교통 분석</div><h1>신호 진단 대시보드</h1></div>
         <div className="top-actions"><span className="source-badge"><Radio size={14}/> 가상 데이터 사용 중</span><button className="icon-button" onClick={load} title="새로고침"><RefreshCw size={17}/></button></div>
