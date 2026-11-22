@@ -28,7 +28,7 @@ export default function HomePage() {
  <a className="logo" href="#" aria-label="안성시"><img src={image2} alt="안성맞춤도시 안성 City of Masters" /></a>
  <div className="acts">
   <button type="button" className="abtn" id="btnLogin" disabled title="로그인 기능은 준비 중입니다"><svg viewBox="0 0 16 16"><circle cx="8" cy="5.2" r="2.8"/><path d="M2.5 14c.6-3 3-4.4 5.5-4.4s4.9 1.4 5.5 4.4"/></svg>로그인</button>
-  <Link className="abtn" to="/traffic"><svg viewBox="0 0 16 16"><path d="M1.5 3.5l4-1.5 5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5zM5.5 2v10.5M10.5 3.5V14"/></svg>지도로 이동</Link>
+  <Link className="abtn" to="/commercial"><svg viewBox="0 0 16 16"><path d="M1.5 3.5l4-1.5 5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5zM5.5 2v10.5M10.5 3.5V14"/></svg>지도로 이동</Link>
  </div>
 </div>
 <header className="hero">

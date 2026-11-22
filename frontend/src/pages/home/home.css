@@ -60,11 +60,11 @@
 .page-home .abtn:hover,.page-home .abtn:focus-visible{background:#fff;color:#2b2a26}
 @media (max-width:560px){.page-home .bar{padding-left:14px;padding-right:14px}.page-home .logo img{height:68px}.page-home .logo{display:block;filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 7px rgba(255,255,255,.65))}.page-home .abtn{height:38px;padding:0 14px;font-size:13px}.page-home .abtn svg{display:none}}
 
-.page-home { position: relative; isolation: isolate; min-height: 100vh; }
-.page-home .bg { top: 0; }
-.page-home .bar { top: 0; }
+.page-home { position: relative; isolation: isolate; min-height: calc(100vh - 60px); }
+.page-home .bg { top: 60px; }
+.page-home .bar { top: 60px; }
 .page-home .acts a { text-decoration: none; }
 .page-home .abtn:disabled { opacity: .65; cursor: not-allowed; }
-.page-home .hero { min-height: 100svh; }
+.page-home .hero { min-height: calc(100svh - 60px); }
 .page-home .s { scroll-margin-top: 70px; }
 .page-home .grid { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
