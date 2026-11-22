@@ -4,7 +4,8 @@ import { SignalList } from './components/SignalList'
 import { TrafficOptimizer } from './components/TrafficOptimizer'
 import type { Signal, SignalHistory, SignalStatus } from './components/signal-utils'
 import { api } from './lib/api'
-import { readJson, validateList, validateDetail } from './lib/responses.mjs'
+import { getDummySignalDetail, getDummySignalList, readJson, validateList, validateDetail } from './lib/responses.mjs'
+import { loadApiOrDummy } from '../../lib/api-fallback.mjs'
 import './signals.css'
 type Filter = 'all' | SignalStatus
 const filters: {value: Filter; label: string}[] = [
@@ -34,8 +35,14 @@ export default function SignalsPage() {
     const timer = window.setTimeout(async () => {
       try {
         const params = new URLSearchParams({q:query.trim(),status:filter,limit:'20',offset:'0'})
-        const data = validateList(await readJson(await api(`traffic-signals?${params}`, {signal:controller.signal})))
-        if (!controller.signal.aborted) { setItems(data.items); setTotal(data.total) }
+        const result = await loadApiOrDummy(
+          async () => validateList(await readJson(await api(`traffic-signals?${params}`, {signal:controller.signal}))),
+          () => getDummySignalList(query, filter),
+        )
+        if (!controller.signal.aborted) {
+          setItems(result.data.items); setTotal(result.data.total)
+          if (result.usedDummy) setSyncNote('연결된 신호 API가 없어 더미 데이터를 표시합니다.')
+        }
       } catch (err) {
         if (!controller.signal.aborted) { setItems([]); setTotal(0); setError(err instanceof Error ? err.message : '신호 API에 연결할 수 없습니다.') }
       } finally { if (!controller.signal.aborted) setLoading(false) }
@@ -67,8 +74,14 @@ export default function SignalsPage() {
     setHistory([]); setDetailError(''); setDetailLoading(true)
     async function load() {
       try {
-        const data = validateDetail(await readJson(await api(`traffic-signals/${selectedId}`, {signal:controller.signal})))
-        if (!controller.signal.aborted) { setSelected(data.signal); setHistory(data.history) }
+        const result = await loadApiOrDummy(
+          async () => validateDetail(await readJson(await api(`traffic-signals/${selectedId}`, {signal:controller.signal}))),
+          () => getDummySignalDetail(selectedId),
+        )
+        if (!controller.signal.aborted) {
+          setSelected(result.data.signal); setHistory(result.data.history)
+          if (result.usedDummy) setSyncNote('연결된 신호 API가 없어 더미 데이터를 표시합니다.')
+        }
       } catch (err) {
         if (!controller.signal.aborted) setDetailError(err instanceof Error ? err.message : '상세 정보를 불러오지 못했습니다.')
       } finally { if (!controller.signal.aborted) setDetailLoading(false) }

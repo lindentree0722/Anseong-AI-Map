@@ -2,6 +2,7 @@ import {test} from 'node:test'
 import assert from 'node:assert/strict'
 import {genDemo,parseItems,summarize,recommend,dist} from '../src/pages/commercial/model.mjs'
 import {buildStoreUrl,fetchStores} from '../src/pages/commercial/api.mjs'
+import * as commercialApi from '../src/pages/commercial/api.mjs'
 const center = {lat:37.008,lng:127.2797}
 test('동일 위치의 데모 생성은 재현 가능하고 기존 반경별 개수를 유지한다', () => {
   const data = genDemo(center,500)
@@ -39,4 +40,17 @@ test('서비스키 인코딩과 프록시 경로를 분리한다', () => {
 test('API 오류 응답의 내용에 키가 있어도 사용자 오류에 노출하지 않는다', async t => {
   t.mock.method(globalThis,'fetch',async () => new Response('sensitive-key',{status:403}))
   await assert.rejects(fetchStores({mode:'proxy',endpoint:'',key:'',center,radius:500},new AbortController().signal), error => error.message.includes('403') && !error.message.includes('sensitive'))
+})
+test('상권 API가 없으면 현재 위치 기준 더미 상권을 반환한다', async t => {
+  assert.equal(typeof commercialApi.fetchStoresOrDemo, 'function')
+  t.mock.method(globalThis, 'fetch', async () => new Response('', {status:404}))
+
+  const result = await commercialApi.fetchStoresOrDemo(
+    {mode:'proxy',endpoint:'',key:'',center,radius:500},
+    new AbortController().signal,
+  )
+
+  assert.equal(result.usedDummy, true)
+  assert.equal(result.stores.length, 150)
+  assert.equal(result.vacs.length, 6)
 })

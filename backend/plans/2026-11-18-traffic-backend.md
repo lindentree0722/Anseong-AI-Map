@@ -6,7 +6,7 @@
 
 **기술** · Python 3.15, uv, FastAPI, Pydantic, pytest
 
-**요구사항** · [실제 데이터 연동 준비](../../../ansung-traffic-ai/필요데이터.md)
+**요구사항** · [실제 데이터 연동 준비](../../frontend/필요데이터.md)
 
 ## 1. 교통 조회 API와 샘플 검증
 

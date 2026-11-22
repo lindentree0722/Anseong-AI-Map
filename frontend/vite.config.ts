@@ -6,6 +6,10 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: { 'import.meta.env.VITE_COMMERCIAL_PROXY_ENABLED': JSON.stringify(Boolean(env.COMMERCIAL_API_TARGET).toString()) },
     server: { proxy: {
+      '/api/traffic-overview': {
+        target: 'http://127.0.0.1:8000',
+        rewrite: path => path.replace(/^\/api\/traffic-overview/, '/traffic/overview'),
+      },
       ...(env.COMMERCIAL_API_TARGET ? {
         '/api/commercial-service': { target: env.COMMERCIAL_API_TARGET, changeOrigin: true, rewrite: (path: string) => path.replace(/^\/api\/commercial-service/, '/api') },
       } : {}),

@@ -1,21 +1,189 @@
 {
   "source": "안성시 도로 구간 예시",
   "dataStatus": "sample",
-  "generatedAt": "2026-11-18T08:05:00+09:00",
+  "generatedAt": "2026-11-18T20:05:00+09:00",
   "intersections": [
     {
       "id": "sample-01",
       "sourceId": "sample-01",
       "name": "안성 도로 구간 예시",
       "area": "안성시",
-      "position": [37.007, 127.279],
+      "position": [
+        37.007,
+        127.279
+      ],
       "observedAt": "2026-11-18T08:00:00+09:00",
       "trafficVolume": 24,
       "trafficVolumeUnit": "vehicles/interval",
       "aggregationIntervalSeconds": 300,
       "averageSpeed": 36.5
+    },
+    {
+      "id": "ANS-001",
+      "name": "안성시청 사거리",
+      "area": "봉산동",
+      "position": [
+        37.0080982,
+        127.2797684
+      ],
+      "trafficVolume": 920,
+      "averageSpeed": 17.8,
+      "averageWait": 74,
+      "congestion": 86,
+      "greenRatio": 0.38,
+      "sourceId": "ANS-001",
+      "observedAt": "2026-11-18T20:00:00+09:00",
+      "trafficVolumeUnit": "vehicles/hour",
+      "aggregationIntervalSeconds": 3600
+    },
+    {
+      "id": "ANS-002",
+      "name": "공도 터미널 교차로",
+      "area": "공도읍",
+      "position": [
+        36.9989154,
+        127.1663727
+      ],
+      "trafficVolume": 810,
+      "averageSpeed": 22.4,
+      "averageWait": 58,
+      "congestion": 69,
+      "greenRatio": 0.43,
+      "sourceId": "ANS-002",
+      "observedAt": "2026-11-18T20:00:00+09:00",
+      "trafficVolumeUnit": "vehicles/hour",
+      "aggregationIntervalSeconds": 3600
+    },
+    {
+      "id": "ANS-003",
+      "name": "중앙대입구 교차로",
+      "area": "대덕면",
+      "position": [
+        37.0043816,
+        127.2276309
+      ],
+      "trafficVolume": 640,
+      "averageSpeed": 31.2,
+      "averageWait": 31,
+      "congestion": 38,
+      "greenRatio": 0.51,
+      "sourceId": "ANS-003",
+      "observedAt": "2026-11-18T20:00:00+09:00",
+      "trafficVolumeUnit": "vehicles/hour",
+      "aggregationIntervalSeconds": 3600
+    },
+    {
+      "id": "ANS-004",
+      "name": "서안성IC 진입 교차로",
+      "area": "원곡면",
+      "position": [
+        37.0336458,
+        127.1602142
+      ],
+      "trafficVolume": 1050,
+      "averageSpeed": 14.6,
+      "averageWait": 91,
+      "congestion": 94,
+      "greenRatio": 0.34,
+      "sourceId": "ANS-004",
+      "observedAt": "2026-11-18T20:00:00+09:00",
+      "trafficVolumeUnit": "vehicles/hour",
+      "aggregationIntervalSeconds": 3600
+    },
+    {
+      "id": "ANS-005",
+      "name": "한경국립대 인근",
+      "area": "중앙동",
+      "position": [
+        37.0117775,
+        127.2634692
+      ],
+      "trafficVolume": 520,
+      "averageSpeed": 34.5,
+      "averageWait": 24,
+      "congestion": 25,
+      "greenRatio": 0.55,
+      "sourceId": "ANS-005",
+      "observedAt": "2026-11-18T20:00:00+09:00",
+      "trafficVolumeUnit": "vehicles/hour",
+      "aggregationIntervalSeconds": 3600
     }
   ],
-  "hourlyTraffic": null,
-  "summary": null
+  "hourlyTraffic": [
+    {
+      "time": "06시",
+      "volume": 310,
+      "wait": 22
+    },
+    {
+      "time": "07시",
+      "volume": 580,
+      "wait": 43
+    },
+    {
+      "time": "08시",
+      "volume": 920,
+      "wait": 76
+    },
+    {
+      "time": "09시",
+      "volume": 790,
+      "wait": 62
+    },
+    {
+      "time": "10시",
+      "volume": 540,
+      "wait": 39
+    },
+    {
+      "time": "11시",
+      "volume": 490,
+      "wait": 34
+    },
+    {
+      "time": "12시",
+      "volume": 610,
+      "wait": 45
+    },
+    {
+      "time": "13시",
+      "volume": 570,
+      "wait": 41
+    },
+    {
+      "time": "14시",
+      "volume": 550,
+      "wait": 38
+    },
+    {
+      "time": "15시",
+      "volume": 680,
+      "wait": 49
+    },
+    {
+      "time": "16시",
+      "volume": 820,
+      "wait": 67
+    },
+    {
+      "time": "17시",
+      "volume": 980,
+      "wait": 82
+    },
+    {
+      "time": "18시",
+      "volume": 1120,
+      "wait": 94
+    },
+    {
+      "time": "19시",
+      "volume": 870,
+      "wait": 71
+    },
+    {
+      "time": "20시",
+      "volume": 620,
+      "wait": 46
+    }
+  ]
 }

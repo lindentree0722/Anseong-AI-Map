@@ -1,26 +1,67 @@
-function pinPosition(index) {
-  const positions = [
-    { left: "22%", top: "28%" }, { left: "62%", top: "22%" },
-    { left: "42%", top: "55%" }, { left: "76%", top: "68%" },
-    { left: "18%", top: "76%" }
-  ];
-  return positions[index % positions.length];
+import { useEffect, useRef } from "react";
+import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+
+const ANSEONG_BOUNDS = [
+  [36.8939866, 127.1020157],
+  [37.1558891, 127.5165912]
+];
+
+function MapViewport({ intersections, selectedId }) {
+  const map = useMap();
+  const previousSelectedId = useRef(selectedId);
+  const focused = intersections.find(item => item.id === selectedId) || intersections[0];
+
+  useEffect(() => {
+    map.fitBounds(ANSEONG_BOUNDS, { padding: [12, 12] });
+  }, [map]);
+
+  useEffect(() => {
+    if (previousSelectedId.current !== selectedId && focused) {
+      map.flyTo(focused.position, Math.max(map.getZoom(), 13), { duration: 0.5 });
+    }
+    previousSelectedId.current = selectedId;
+  }, [focused, map, selectedId]);
+
+  return null;
 }
 
 export default function TrafficMap({ intersections, selectedId, onSelect }) {
   return <div className="map-panel">
-    <div className="map-grid"/>
-    <div className="map-road road-a"/><div className="map-road road-b"/><div className="map-road road-c"/>
-    <div className="map-label label-one">안성시 시뮬레이션 지도</div>
-    <div className="map-label label-two">북</div>
-    {intersections.map((item, i) => {
-      const pos = pinPosition(i);
-      return <button key={item.id} className={`map-pin ${item.congestion >= 75 ? "bad" : item.congestion >= 50 ? "warn" : "good"} ${selectedId === item.id ? "selected" : ""}`}
-        style={pos} onClick={() => onSelect(item.id)} title={item.name}>
-        <span/>{i + 1}
-      </button>;
-    })}
-    <div className="map-legend"><span><i className="dot bad-dot"/>혼잡</span><span><i className="dot warn-dot"/>주의</span><span><i className="dot good-dot"/>원활</span></div>
-    <div className="map-disclaimer">실제 지도가 아닌 교차로 배치 예시 · 시뮬레이션</div>
+    <MapContainer
+      className="leaflet-map"
+      center={[37.02493785, 127.30930345]}
+      zoom={9}
+      minZoom={9}
+      maxBounds={ANSEONG_BOUNDS}
+      maxBoundsViscosity={1}
+      scrollWheelZoom={true}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <MapViewport intersections={intersections} selectedId={selectedId} />
+      {intersections.map(item => {
+        const color = item.congestion == null ? "#8491a3" : item.congestion >= 75 ? "#f17b80" : item.congestion >= 50 ? "#e8b85f" : "#65c99b";
+        const selected = selectedId === item.id;
+
+        return <CircleMarker
+          key={item.id}
+          center={item.position}
+          radius={selected ? 10 : 8}
+          pathOptions={{ color: "#ffffff", weight: selected ? 3 : 2, fillColor: color, fillOpacity: 1 }}
+          eventHandlers={{ click: () => onSelect(item.id) }}
+        >
+          <Popup>
+            <strong>{item.name}</strong><br />
+            {item.area} · 혼잡도 {item.congestion == null ? "자료 없음" : `${item.congestion}/100`}<br />
+            평균 대기 {item.averageWait == null ? "자료 없음" : `${item.averageWait}초`}
+          </Popup>
+        </CircleMarker>;
+      })}
+    </MapContainer>
+    <div className="map-legend"><span><i className="dot bad-dot"/>혼잡</span><span><i className="dot warn-dot"/>주의</span><span><i className="dot good-dot"/>원활</span><span><i className="dot unknown-bg"/>자료 없음</span></div>
+    <div className="map-disclaimer">지도: OpenStreetMap</div>
   </div>;
 }

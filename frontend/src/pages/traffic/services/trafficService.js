@@ -1,18 +1,31 @@
-import { intersections, hourlyTraffic, getSummary, diagnose } from "../data/simulation";
+import { loadApiOrDummy } from "../../../lib/api-fallback.mjs";
+import { diagnose, getSummary, hourlyTraffic, intersections } from "../data/simulation.js";
 
-// 향후 실제 API로 교체할 수 있도록 데이터 접근을 한 곳에 모았습니다.
-export async function fetchTrafficOverview() {
+function dummyOverview() {
+  const generatedAt = new Date().toISOString();
+  const rows = intersections.map(item => ({
+    ...item,
+    sourceId: item.id,
+    observedAt: generatedAt,
+    trafficVolumeUnit: "vehicles/hour",
+    aggregationIntervalSeconds: 3600,
+    diagnosis: diagnose(item)
+  }));
   return {
-    source: "SIMULATION",
-    generatedAt: new Date().toISOString(),
-    intersections,
+    source: "프런트엔드 더미 데이터",
+    dataStatus: "sample",
+    generatedAt,
+    intersections: rows,
     hourlyTraffic,
-    summary: getSummary(intersections)
+    summary: getSummary(rows)
   };
 }
 
-export function fetchIntersectionDiagnosis(id) {
-  const item = intersections.find(x => x.id === id);
-  if (!item) throw new Error("교차로를 찾을 수 없습니다.");
-  return { intersection: item, diagnosis: diagnose(item) };
+export async function fetchTrafficOverview(signal) {
+  const result = await loadApiOrDummy(async () => {
+    const response = await fetch("/api/traffic-overview", { signal });
+    if (!response.ok) throw new Error("교통 정보를 불러오지 못했습니다.");
+    return response.json();
+  }, dummyOverview);
+  return result.data;
 }

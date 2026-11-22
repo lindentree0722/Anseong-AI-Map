@@ -39,6 +39,12 @@ npm run build
 | `VITE_SIGNAL_DATA_PROXY_URL` | 미설정 | 선택적인 외부 데이터 동기화 URL; 인증 비밀을 포함하지 않는 주소만 사용 |
 | `COMMERCIAL_API_TARGET` | 미설정 | 선택적인 상권 프록시 서버 |
 
+## API 미구현·연결 실패 처리
+
+백엔드 API가 아직 없거나 요청·응답 검증에 실패하면 화면은 같은 응답 구조의 더미 데이터를 사용합니다. 교통, 신호, 상권 화면은 더미 사용 여부를 사용자에게 표시합니다. 요청 취소는 폴백하지 않고 그대로 중단합니다.
+
+새 백엔드 기능을 연결할 때는 `src/lib/api-fallback.mjs`의 `loadApiOrDummy`를 사용하고, API 응답과 동일한 필드의 더미 생성 함수를 함께 추가하세요. API 성공 응답이 있으면 해당 값을 우선하며, 더미 값에는 출처를 명시해야 합니다.
+
 ### 신호 진단
 
 - 프론트의 `/api/signals-service/*`를 별도 신호 API의 `/api/*`로 전달합니다.
@@ -59,11 +65,13 @@ npm run build
 
 ## 디자인과 기존 파일
 
-기존 색상·배치·콘텐츠를 최대한 유지하고 최상단 공통 메뉴를 추가했습니다. 교통 대시보드는 정현수 브랜치의 도식 지도를 그대로 사용하며 main의 Leaflet 지도 개선과 합치지 않았습니다.
+교통 대시보드는 Leaflet 지도에 API가 반환한 위치를 표시합니다. 지도 또는 목록에서 지점을 선택하면 해당 지점의 신호 진단 결과를 확인할 수 있습니다.
 
 신호 진단 원본의 Pretendard/Geist 폰트 바이너리가 없어 시스템 대체 글꼴을 사용합니다. 소개·교통 화면의 Google Fonts와 지도 타일은 외부 연결에 의존합니다. 소개의 로그인과 교통 대시보드의 경로 탐색은 미구현 상태로 표시합니다.
 
-기존 `frontend/asdf.html`, 루트의 `ansung-traffic-ai`, `backend` 및 비교용 워크트리는 보존했습니다. 새 작업은 `frontend/src/pages` 안에서 이어갑니다.
+교통 대시보드는 `frontend/src/pages/traffic`에 통합했습니다. 로컬 백엔드를 8000번 포트에서 실행하면 `/traffic` 화면이 `/api/traffic-overview`를 통해 진단 결과를 읽습니다.
+
+배포 환경에서는 `/api/traffic-overview`를 FastAPI의 `/traffic/overview`로 전달하세요. 샘플 데이터와 진단 규칙은 `backend/data/traffic-sample.json`과 `backend/traffic.py`에서 관리합니다.
 
 ## 배포
 
