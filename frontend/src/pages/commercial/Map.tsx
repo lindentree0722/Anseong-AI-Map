@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { ANSEONG_MAP_BOUNDS, ANSEONG_MAP_CENTER, ANSEONG_MAP_MAX_ZOOM, ANSEONG_MAP_MIN_ZOOM } from '../../shared/anseong-map'
 export type Position = {lat:number; lng:number}
 export type Store = Position & {name:string; cat:string; sub?:string; addr?:string}
 export type Vacancy = Position & {id:string; name:string; vacant?:boolean}
@@ -17,14 +18,20 @@ export default function CommercialMap({center,radius,stores,vacs,hidden,colors,s
   const [tileError,setTileError] = useState(false)
   useEffect(() => {
     if (!container.current) return
-    const instance = L.map(container.current).setView([37.008,127.2797],15)
+    const instance = L.map(container.current,{
+      maxBounds:ANSEONG_MAP_BOUNDS,
+      maxBoundsViscosity:1,
+      minZoom:ANSEONG_MAP_MIN_ZOOM,
+      maxZoom:ANSEONG_MAP_MAX_ZOOM,
+      scrollWheelZoom:true,
+    }).setView(ANSEONG_MAP_CENTER,15)
     map.current = instance
-    const street = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'}).addTo(instance)
-    const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'})
+    const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:ANSEONG_MAP_MAX_ZOOM,attribution:'&copy; OpenStreetMap contributors'}).addTo(instance)
+    const street = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:ANSEONG_MAP_MAX_ZOOM,maxNativeZoom:18,attribution:'Tiles &copy; Esri'})
     const onError = () => setTileError(true)
     street.on('tileerror',onError); osm.on('tileerror',onError)
     instance.on('baselayerchange', () => setTileError(false))
-    L.control.layers({'Esri 거리지도':street,'OpenStreetMap':osm}).addTo(instance)
+    L.control.layers({'OpenStreetMap':osm,'Esri 거리지도':street}).addTo(instance)
     const observer = new ResizeObserver(() => instance.invalidateSize())
     observer.observe(container.current)
     return () => { observer.disconnect(); instance.remove(); map.current = null }

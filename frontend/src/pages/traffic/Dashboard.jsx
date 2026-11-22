@@ -5,16 +5,27 @@ import TrafficMap from "./components/TrafficMap";
 import DiagnosisPanel from "./components/DiagnosisPanel";
 import { TrafficChart, WaitChart } from "./components/TrafficChart";
 import { fetchTrafficOverview, fetchIntersectionDiagnosis } from "./services/trafficService";
+import SignalStatusPanel from "./components/SignalStatusPanel";
+import { TrafficOptimizer } from "../signals/components/TrafficOptimizer";
+import { listSignals } from "../signals/lib/signal-data";
+import { statusMeta } from "../signals/components/signal-utils";
+import "../signals/signals.css";
 
 export default function App() {
   const [overview, setOverview] = useState(null);
   const [selectedId, setSelectedId] = useState("ANS-001");
   const [query, setQuery] = useState("");
+  const [signalItems, setSignalItems] = useState([]);
+  const [signalMode, setSignalMode] = useState("demo");
+  const [signalLoading, setSignalLoading] = useState(true);
+  const [signalError, setSignalError] = useState("");
+  const [signalRefresh, setSignalRefresh] = useState(0);
+  const [activeView, setActiveView] = useState("overview");
 
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(0);
 
-  function load() { setRefresh(value => value + 1); }
+  function load() { setRefresh(value => value + 1); setSignalRefresh(value => value + 1); }
   useEffect(() => {
     let active = true;
     setLoading(true);
@@ -22,25 +33,53 @@ export default function App() {
     return () => { active = false; };
   }, [refresh]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    setSignalLoading(true);
+    setSignalError("");
+    async function loadSignals() {
+      try {
+        const data = await listSignals({ mode: signalMode, q: "", status: "all", limit: 20, offset: 0, signal: controller.signal });
+        if (!controller.signal.aborted) setSignalItems(data.items);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setSignalItems([]);
+          setSignalError(error instanceof Error ? error.message : "신호 API에 연결할 수 없습니다.");
+        }
+      } finally {
+        if (!controller.signal.aborted) setSignalLoading(false);
+      }
+    }
+    void loadSignals();
+    return () => controller.abort();
+  }, [signalRefresh, signalMode]);
+
   const filtered = useMemo(() => {
     if (!overview) return [];
     return overview.intersections.filter(x => x.name.includes(query) || x.area.includes(query));
   }, [overview, query]);
 
   const selected = overview?.intersections.find(x => x.id === selectedId) || overview?.intersections[0];
+  const selectedSignal = signalItems.find(signal => signal.intersection_id === selected?.id);
   const diagnosis = selected ? fetchIntersectionDiagnosis(selected.id) : null;
   const summary = overview?.summary;
 
-  if (loading || !overview) return <main className="loading">안성맞춤 AI 신호 진단 시스템을 준비하고 있습니다...</main>;
+  if (loading || !overview) return <main className="loading">안성맞춤 AI 교통·신호 통합 화면을 준비하고 있습니다...</main>;
 
   return <div className="app-shell">
     <main className="main-content">
-      <header className="topbar"><div><div className="breadcrumb">안성맞춤 AI <span>/</span> 교통 분석</div><h1>신호 진단 대시보드</h1></div>
-        <div className="top-actions"><span className="source-badge"><Radio size={14}/> 가상 데이터 사용 중</span><button className="icon-button" onClick={load} title="새로고침"><RefreshCw size={17}/></button></div>
+      <header className="topbar"><div><div className="breadcrumb">안성맞춤 AI <span>/</span> 교통·신호 분석</div><h1>교통·신호 통합 대시보드</h1></div>
+        <div className="top-actions"><span className="source-badge"><Radio size={14}/> 교통 시뮬레이션</span><label className="signal-mode-control"><span>신호</span><select className="signal-mode-select" aria-label="신호 데이터 소스" value={signalMode} onChange={event => setSignalMode(event.target.value)}><option value="demo">더미</option><option value="api">API</option></select></label><Link to="/signals" className="signal-search-link">신호 검색</Link><button className="icon-button" onClick={load} title="새로고침"><RefreshCw size={17}/></button></div>
       </header>
 
-      <section className="welcome-row"><div><h2>안성시 교통 흐름을 한눈에 분석합니다.</h2><p>교차로별 교통량과 대기시간을 확인하고 개선 검토 구간을 찾아보세요.</p></div><div className="updated"><Clock3 size={14}/> {new Date(overview.generatedAt).toLocaleString("ko-KR")}</div></section>
+      <section className="welcome-row"><div><h2>교차로별 교통량과 신호 현황을 함께 확인합니다.</h2><p>지도에서 지점을 선택하면 기존 교통량으로 방향별 분석과 진단을 자동으로 보여줍니다.</p></div><div className="updated"><Clock3 size={14}/> {new Date(overview.generatedAt).toLocaleString("ko-KR")}</div></section>
 
+      <nav className="dashboard-tabs" aria-label="통합 대시보드 기능">
+        <button type="button" className={activeView === "overview" ? "active" : ""} onClick={() => setActiveView("overview")}>교통·신호 현황</button>
+        <button type="button" className={activeView === "optimizer" ? "active" : ""} onClick={() => setActiveView("optimizer")}>직접 입력·파일 분석</button>
+      </nav>
+
+      {activeView === "optimizer" ? <div className="page-signals optimizer-host"><TrafficOptimizer/></div> : <>
       <section className="metric-grid">
         <MetricCard label="분석 교차로" value={summary.count} unit="개" hint="등록된 시뮬레이션 지점" icon={MapPin}/>
         <MetricCard label="혼잡 교차로" value={summary.congested} unit="개" hint="혼잡도 75점 이상" icon={TrafficCone} tone="red"/>
@@ -52,8 +91,11 @@ export default function App() {
         <div className="panel map-section">
           <div className="panel-heading"><div><div className="eyebrow">INTERSECTION MONITORING</div><h2>교차로 교통 현황</h2></div><span className="count-label">{filtered.length}개 지점</span></div>
           <div className="map-search"><Search size={16}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="교차로 또는 지역 검색"/></div>
-          <TrafficMap intersections={filtered} selectedId={selectedId} onSelect={setSelectedId}/>
-          <div className="intersection-list">{filtered.map(x => <button key={x.id} onClick={() => setSelectedId(x.id)} className={`intersection-row ${selectedId === x.id ? "chosen" : ""}`}><span className={`mini-status ${x.congestion >= 75 ? "red-bg" : x.congestion >= 50 ? "yellow-bg" : "green-bg"}`}/><span className="intersection-name"><b>{x.name}</b><small>{x.area}</small></span><span className="intersection-wait">{x.averageWait}초<small>대기시간</small></span><span className={`status-pill ${x.congestion >= 75 ? "red" : x.congestion >= 50 ? "yellow" : "green"}`}>{x.status}</span></button>)}</div>
+          <TrafficMap intersections={filtered} signals={signalItems} selectedId={selectedId} onSelect={setSelectedId}/>
+          <div className="intersection-list">{filtered.map(x => {
+            const signal = signalItems.find(item => item.intersection_id === x.id);
+            return <button key={x.id} onClick={() => setSelectedId(x.id)} className={`intersection-row ${selectedId === x.id ? "chosen" : ""}`}><span className={`mini-status ${x.congestion >= 75 ? "red-bg" : x.congestion >= 50 ? "yellow-bg" : "green-bg"}`}/><span className="intersection-name"><b>{x.name}</b><small>{x.area} · 신호 {signal ? statusMeta[signal.status].label : "미연계"}</small></span><span className="intersection-wait">{x.averageWait}초<small>대기시간</small></span><span className={`status-pill ${x.congestion >= 75 ? "red" : x.congestion >= 50 ? "yellow" : "green"}`}>{x.status}</span></button>;
+          })}</div>
         </div>
 
         <div className="right-column">
@@ -61,6 +103,7 @@ export default function App() {
           {selected && <section className="panel selected-stats"><div className="panel-heading"><div><div className="eyebrow">SELECTED INTERSECTION</div><h2>{selected.name}</h2></div><SlidersHorizontal size={18}/></div>
             <div className="selected-stat-grid"><div><small>교통량</small><b>{selected.trafficVolume.toLocaleString()}<em>대/시간</em></b></div><div><small>평균 속도</small><b>{selected.averageSpeed}<em>km/h</em></b></div><div><small>혼잡도</small><b>{selected.congestion}<em>/100</em></b></div><div><small>녹색 신호 비율</small><b>{Math.round(selected.greenRatio * 100)}<em>%</em></b></div></div>
           </section>}
+          {selected && <SignalStatusPanel signal={selectedSignal} mode={signalMode} loading={signalLoading} error={signalError} refreshKey={signalRefresh}/>}
         </div>
       </section>
 
@@ -69,7 +112,8 @@ export default function App() {
         <div className="panel"><div className="panel-heading"><div><div className="eyebrow">AVERAGE WAITING TIME</div><h2>시간대별 평균 대기시간</h2></div><span className="unit-label">초</span></div><WaitChart data={overview.hourlyTraffic}/></div>
       </section>
 
-      <footer className="footer-note"><span>ⓘ 데이터 안내</span> 본 화면의 교통량, 속도, 대기시간, 교차로 위치는 기능 검증용 시뮬레이션 데이터입니다. 실제 안성시 교통 측정값이 아닙니다.</footer>
+      <footer className="footer-note"><span>ⓘ 데이터 안내</span> 교통량·속도·위치는 시뮬레이션 자료이며, 신호는 별도 API에 저장된 스냅샷입니다. 두 자료는 실시간 안성시 운영 정보로 보장되지 않습니다.</footer>
+      </>}
     </main>
   </div>;
 }

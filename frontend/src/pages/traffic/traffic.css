@@ -7,16 +7,3 @@
 .page-traffic .nav-item { text-decoration: none; }
 .page-traffic .app-shell, .page-traffic .sidebar, .page-traffic .loading { min-height: 100vh; }
 .page-traffic .main-content { min-width: 0; }
-.page-traffic .nav-item:focus-visible { outline: 2px solid #78aaff; outline-offset: 2px; }
-.page-traffic, .page-traffic .app-shell, .page-traffic .loading { background: #2b2d31; }
-.page-traffic .metric-card, .page-traffic .panel { background: #1b1d21; border-color: #3b3e43; }
-.page-traffic .brand-mark, .page-traffic .metric-icon, .page-traffic .icon-button,
-.page-traffic .intersection-row.chosen, .page-traffic .diagnosis-intro { background: #303338; }
-.page-traffic .brand-mark, .page-traffic .metric-icon { color: #c3c8d0; }
-.page-traffic .map-search, .page-traffic .selected-stat-grid>div { background: #24272b; }
-.page-traffic .map-search, .page-traffic .map-panel { border-color: #41454b; }
-.page-traffic .map-panel { background: #25282c; }
-.page-traffic .map-grid { background-image: linear-gradient(#42464c 1px,transparent 1px),linear-gradient(90deg,#42464c 1px,transparent 1px); }
-.page-traffic .map-road { background: #5b6067; border-color: #3d4147; }
-.page-traffic .map-legend { background: #1b1d21dc; }
-.page-traffic .intersection-row { border-bottom-color: #393c42; }
