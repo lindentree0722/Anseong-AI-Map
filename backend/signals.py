@@ -80,28 +80,12 @@ COLUMNS = [
     "wtStsgSttsNm",
 ]
 PLACES = [
-    ("서울특별시", "1100000000", "20035"),
-    ("서울특별시", "1100000000", "20036"),
-    ("서울특별시", "1100000000", "20037"),
-    ("경기도 성남시", "4113500000", "31001"),
-    ("경기도 수원시", "4111100000", "31002"),
     ("경기도 안성시", "4155000000", "41550"),
     ("경기도 안성시", "4155000000", "41551"),
     ("경기도 안성시", "4155000000", "41552"),
     ("경기도 안성시", "4155000000", "41553"),
     ("경기도 안성시", "4155000000", "41554"),
     ("경기도 안성시", "4155000000", "41555"),
-    ("인천광역시", "2800000000", "28001"),
-    ("부산광역시", "2600000000", "26001"),
-    ("부산광역시", "2600000000", "26002"),
-    ("대구광역시", "2700000000", "27001"),
-    ("광주광역시", "2900000000", "29001"),
-    ("대전광역시", "3000000000", "30001"),
-    ("울산광역시", "3100000000", "31001"),
-    ("세종특별자치시", "3611000000", "36101"),
-    ("강원특별자치도 춘천시", "5111000000", "51101"),
-    ("충청북도 청주시", "4311100000", "43101"),
-    ("전라북도 전주시", "4511100000", "45101"),
 ]
 
 
@@ -272,6 +256,13 @@ def coordinates_for(local_government: str) -> tuple[float, float]:
             return coordinates
     return (36.5, 127.8)
 
+
+# Hide non-Anseong rows from the previous 22-row seed without modifying saved data.
+VISIBLE_SIGNAL = """NOT (
+    d.lclgvNm IS NOT '경기도 안성시'
+    AND d.totalCount IS '22' AND d.regId IS 'v2x' AND d.regDt IS '2026-11-11'
+    AND coalesce(d.totDt, '') GLOB '2026-11-11 10:??:01.587'
+)"""
 
 SIGNAL_ROWS = """
     SELECT d.rowid, d.*, o.status AS override_status,
@@ -449,7 +440,7 @@ def list_traffic_signals(
 ):
     refresh_live_data()
     limit, offset, query = min(max(limit, 1), 100), max(offset, 0), q.strip()
-    conditions, values = [], []
+    conditions, values = [VISIBLE_SIGNAL], []
     if query:
         like = f"%{query}%"
         conditions.append("(d.lclgvNm LIKE ? OR d.crsrdId LIKE ? OR d.item LIKE ?)")
@@ -459,7 +450,7 @@ def list_traffic_signals(
             "COALESCE(o.status, CASE WHEN lower(d.ntStsgSttsNm) LIKE '%protected%' OR lower(d.ntStsgSttsNm) LIKE '%allowed%' THEN 'green' WHEN lower(d.ntStsgSttsNm) LIKE '%caution%' OR lower(d.ntStsgSttsNm) LIKE '%yellow%' THEN 'yellow' ELSE 'red' END) = ?"
         )
         values.append(status)
-    where = f" WHERE {' AND '.join(conditions)}" if conditions else ""
+    where = f" WHERE {' AND '.join(conditions)}"
     sql = f"{SIGNAL_ROWS}{where} ORDER BY d.totDt DESC, d.crsrdId ASC LIMIT ? OFFSET ?"
     with closing(get_db()) as conn, conn:
         conn.execute("BEGIN")
@@ -486,7 +477,9 @@ def list_traffic_signals(
 def get_traffic_signal(signal_id: int):
     with closing(get_db()) as conn, conn:
         conn.execute("BEGIN")
-        row = conn.execute(f"{SIGNAL_ROWS} WHERE d.rowid = ?", (signal_id,)).fetchone()
+        row = conn.execute(
+            f"{SIGNAL_ROWS} WHERE d.rowid = ? AND {VISIBLE_SIGNAL}", (signal_id,)
+        ).fetchone()
         history = conn.execute(
             "SELECT id, status, remaining_seconds, recorded_at FROM signal_history WHERE signal_id = ? ORDER BY recorded_at DESC, id DESC LIMIT 8",
             (signal_id,),
@@ -524,7 +517,8 @@ def update_signal(signal_id: int, update: SignalUpdate):
     with closing(get_db()) as conn:
         conn.execute("BEGIN IMMEDIATE")
         if not conn.execute(
-            "SELECT rowid FROM dfp_7582edcc WHERE rowid = ?", (signal_id,)
+            f"SELECT d.rowid FROM dfp_7582edcc d WHERE d.rowid = ? AND {VISIBLE_SIGNAL}",
+            (signal_id,),
         ).fetchone():
             raise HTTPException(
                 status_code=404, detail="신호등 정보를 찾을 수 없습니다."

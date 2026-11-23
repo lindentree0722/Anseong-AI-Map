@@ -38,7 +38,7 @@ Render에서 저장소 루트를 사용하는 **Docker / Free Web Service** 하�
 | --- | --- |
 | `CORS_ORIGINS` | 별도 출처에서 API를 호출할 때 허용할 주소를 쉼표로 지정합니다. 기본값은 `http://localhost:5173,http://127.0.0.1:5173`입니다. 같은 Render 주소에서 화면과 API를 사용하면 추가 설정이 필요 없습니다. |
 | `COMMERCIAL_SERVICE_KEY` | 상권 분석의 서버 호출에 사용하는 공공데이터포털 키입니다. 키가 없으면 화면에 더미 데이터 사용이 표시됩니다. |
-| `TRAFFIC_SIGNAL_API_URL`, `TRAFFIC_SIGNAL_API_KEY` | 신호 관측 데이터를 가져올 서버 측 원천 API 설정입니다. 미설정 상태에서는 저장된 스냅샷이나 초기 샘플을 사용합니다. |
+| `TRAFFIC_SIGNAL_API_URL`, `TRAFFIC_SIGNAL_API_KEY` | 신호 관측 데이터를 가져올 서버 측 원천 API 설정입니다. 미설정 상태에서는 저장된 스냅샷이나 초기 안성시 샘플을 사용합니다. |
 | `SIGNAL_DB_PATH` | 별도 신호 SQLite 파일을 사용하거나 기존 8001번 서버의 DB 복사본을 가져올 때 지정합니다. 기본값은 장소와 같은 SQLite 파일입니다. |
 
 신호 응답의 숫자 ID는 해당 스냅샷 내 상세 조회에 사용합니다. 스냅샷을 교체하면 ID가 재사용될 수 있습니다.

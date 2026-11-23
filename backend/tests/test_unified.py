@@ -1,3 +1,4 @@
+from contextlib import closing
 from io import BytesIO
 from urllib.parse import parse_qs, urlsplit
 
@@ -38,6 +39,31 @@ def test_unified_routes(tmp_path, monkeypatch):
             response.headers["access-control-allow-origin"] == "http://localhost:5173"
         )
 
+        samples = client.get("/api/traffic-signals", params={"limit": 100}).json()
+        assert samples["total"] == 6
+        assert {row["location"] for row in samples["items"]} == {"경기도 안성시"}
+
+        with closing(main.signals.get_db()) as conn, conn:
+            main.signals.insert_row(
+                conn,
+                {
+                    "lclgvNm": "서울특별시",
+                    "crsrdId": "20035",
+                    "totalCount": "22",
+                    "regId": "v2x",
+                    "regDt": "2026-11-11",
+                    "totDt": "2026-11-11 10:04:01.587",
+                },
+            )
+            legacy_id = conn.execute("SELECT MAX(rowid) FROM dfp_7582edcc").fetchone()[
+                0
+            ]
+        assert (
+            client.get("/api/traffic-signals", params={"q": "서울"}).json()["total"]
+            == 0
+        )
+        assert client.get(f"/api/traffic-signals/{legacy_id}").status_code == 404
+
         response = client.get("/api/traffic-signals", params={"q": "안성", "limit": 1})
         payload = response.json()
         assert payload["total"] > 1
@@ -62,7 +88,7 @@ def test_unified_routes(tmp_path, monkeypatch):
         rows = [
             {
                 "crsrdId": "test-1",
-                "lclgvNm": "안성",
+                "lclgvNm": "서울특별시",
                 "totDt": "2026-11-24 10:00:00",
                 "ntStsgSttsNm": "protected-Movement-Allowed",
                 "ntStsgRmndCs": "250",

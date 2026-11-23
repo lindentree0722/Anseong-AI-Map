@@ -44,7 +44,7 @@ export default function SignalsPage() {
           setSyncNote(result.usedDummy
             ? '연결된 신호 API가 없어 더미 데이터를 표시합니다.'
             : result.data.source === 'mock'
-              ? '서버에서 제공하는 샘플 신호입니다.'
+              ? '안성시 샘플 신호입니다.'
               : '수집 시점의 저장 신호를 표시합니다.')
         }
       } catch (err) {
@@ -94,7 +94,7 @@ export default function SignalsPage() {
     return () => controller.abort()
   }, [selectedId, detailRefresh])
   const openDetail = (item: Signal) => setSelected(item)
-  const resultLabel = useMemo(() => query.trim() ? `“${query.trim()}” 검색 결과` : '전국 신호등 현황', [query])
+  const resultLabel = useMemo(() => query.trim() ? `“${query.trim()}” 검색 결과` : '신호등 현황', [query])
   return <div className="page-signals"><div className="app-shell">
     <header className="hero"><div className="container"><p className="brand-mark">신호등 지금 <span>저장 데이터</span></p><h1>{view === 'signals' ? <>지금 지나갈 곳의<br />신호를 빠르게 확인하세요.</> : <>교통량을 살펴보고<br />신호 개선안을 확인하세요.</>}</h1>{view === 'signals' && <><label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="시·구·동 또는 교차로 아이디 검색" aria-label="지역 검색" autoComplete="off" /><kbd>⌘ K</kbd></label><p className="data-note"><span className="live-dot" aria-hidden="true" />{syncNote}</p></>}<nav className="app-tabs" aria-label="서비스 선택"><button type="button" className={view === 'signals' ? 'active' : ''} onClick={() => setView('signals')}>신호 현황</button><button type="button" className={view === 'optimizer' ? 'active' : ''} onClick={() => setView('optimizer')}>교통량 분석</button></nav></div></header>
     <main className="container content">
