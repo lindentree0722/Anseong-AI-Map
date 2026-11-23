@@ -7,10 +7,11 @@ import { api } from './lib/api'
 import { getDummySignalDetail, getDummySignalList, readJson, validateList, validateDetail } from './lib/responses.mjs'
 import { loadApiOrDummy } from '../../lib/api-fallback.mjs'
 import './signals.css'
-type Filter = 'all' | SignalStatus
+type Filter = 'all' | Exclude<SignalStatus, 'unknown'>
 const filters: {value: Filter; label: string}[] = [
   {value:'all',label:'전체'}, {value:'green',label:'초록불'}, {value:'yellow',label:'노란불'}, {value:'red',label:'빨간불'}
 ]
+const pageSize = 20
 const dataProxyUrl = import.meta.env.VITE_SIGNAL_DATA_PROXY_URL?.trim()
 export default function SignalsPage() {
   const [view, setView] = useState<'signals' | 'optimizer'>('signals')
@@ -18,6 +19,7 @@ export default function SignalsPage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [items, setItems] = useState<Signal[]>([])
   const [total, setTotal] = useState(0)
+  const [offset, setOffset] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [syncNote, setSyncNote] = useState('저장한 관측 정보 또는 서버 샘플을 표시합니다.')
@@ -28,31 +30,41 @@ export default function SignalsPage() {
   const [refresh, setRefresh] = useState(0)
   const [detailRefresh, setDetailRefresh] = useState(0)
   const selectedId = selected?.id
+  const selectedIsDummy = selected?.source === 'dummy'
 
   useEffect(() => {
     const controller = new AbortController()
     setLoading(true); setError('')
     const timer = window.setTimeout(async () => {
       try {
-        const params = new URLSearchParams({q:query.trim(),status:filter,limit:'20',offset:'0'})
+        const params = new URLSearchParams({q:query.trim(),status:filter,limit:String(pageSize),offset:String(offset)})
         const result = await loadApiOrDummy(
           async () => validateList(await readJson(await api(`traffic-signals?${params}`, {signal:controller.signal}))),
-          () => getDummySignalList(query, filter),
+          () => {
+            const data = getDummySignalList(query, filter)
+            return { ...data, items: data.items.slice(offset, offset + pageSize) }
+          },
         )
         if (!controller.signal.aborted) {
+          if (offset > 0 && offset >= result.data.total) {
+            setOffset(Math.max(0, Math.floor((result.data.total - 1) / pageSize) * pageSize))
+            return
+          }
           setItems(result.data.items); setTotal(result.data.total)
           setSyncNote(result.usedDummy
             ? '연결된 신호 API가 없어 더미 데이터를 표시합니다.'
             : result.data.source === 'mock'
-              ? '안성시 샘플 신호입니다.'
-              : '수집 시점의 저장 신호를 표시합니다.')
+              ? `안성시 샘플 신호입니다.${result.data.observation?.message ? ' ' + result.data.observation.message : ''}`
+              : result.data.observation?.state === 'stale'
+                ? `이전 관측이 포함되어 있습니다.${result.data.observation.message ? ' ' + result.data.observation.message : ''}`
+                : '안성시 신호 수집 시각을 함께 표시합니다.')
         }
       } catch (err) {
         if (!controller.signal.aborted) { setItems([]); setTotal(0); setError(err instanceof Error ? err.message : '신호 API에 연결할 수 없습니다.') }
       } finally { if (!controller.signal.aborted) setLoading(false) }
     }, 160)
     return () => { window.clearTimeout(timer); controller.abort() }
-  }, [query, filter, refresh])
+  }, [query, filter, refresh, offset])
 
   useEffect(() => {
     if (!dataProxyUrl) return
@@ -78,13 +90,11 @@ export default function SignalsPage() {
     setHistory([]); setDetailError(''); setDetailLoading(true)
     async function load() {
       try {
-        const result = await loadApiOrDummy(
-          async () => validateDetail(await readJson(await api(`traffic-signals/${selectedId}`, {signal:controller.signal}))),
-          () => getDummySignalDetail(selectedId),
-        )
+        const result = selectedIsDummy
+          ? getDummySignalDetail(selectedId)
+          : validateDetail(await readJson(await api(`traffic-signals/${selectedId}`, {signal:controller.signal})))
         if (!controller.signal.aborted) {
-          setSelected(result.data.signal); setHistory(result.data.history)
-          if (result.usedDummy) setSyncNote('연결된 신호 API가 없어 더미 데이터를 표시합니다.')
+          setSelected(result.signal); setHistory(result.history)
         }
       } catch (err) {
         if (!controller.signal.aborted) setDetailError(err instanceof Error ? err.message : '상세 정보를 불러오지 못했습니다.')
@@ -92,16 +102,29 @@ export default function SignalsPage() {
     }
     void load()
     return () => controller.abort()
-  }, [selectedId, detailRefresh])
+  }, [selectedId, selectedIsDummy, detailRefresh])
+
+  useEffect(() => {
+    if (view !== 'signals') return
+    const timer = window.setInterval(() => {
+      if (selectedId === undefined) setRefresh(value => value + 1)
+      else setDetailRefresh(value => value + 1)
+    }, 120000)
+    return () => window.clearInterval(timer)
+  }, [view, selectedId])
   const openDetail = (item: Signal) => setSelected(item)
   const resultLabel = useMemo(() => query.trim() ? `“${query.trim()}” 검색 결과` : '신호등 현황', [query])
   return <div className="page-signals"><div className="app-shell">
-    <header className="hero"><div className="container"><p className="brand-mark">신호등 지금 <span>저장 데이터</span></p><h1>{view === 'signals' ? <>지금 지나갈 곳의<br />신호를 빠르게 확인하세요.</> : <>교통량을 살펴보고<br />신호 개선안을 확인하세요.</>}</h1>{view === 'signals' && <><label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="시·구·동 또는 교차로 아이디 검색" aria-label="지역 검색" autoComplete="off" /><kbd>⌘ K</kbd></label><p className="data-note"><span className="live-dot" aria-hidden="true" />{syncNote}</p></>}<nav className="app-tabs" aria-label="서비스 선택"><button type="button" className={view === 'signals' ? 'active' : ''} onClick={() => setView('signals')}>신호 현황</button><button type="button" className={view === 'optimizer' ? 'active' : ''} onClick={() => setView('optimizer')}>교통량 분석</button></nav></div></header>
+    <header className="hero"><div className="container"><p className="brand-mark">안성시 신호 진단 <span>관측 정보</span></p><h1>{view === 'signals' ? <>안성시 교차로의<br />방향별 신호를 확인하세요.</> : <>교통량을 살펴보고<br />신호 개선안을 확인하세요.</>}</h1>{view === 'signals' && <><label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setOffset(0) }} placeholder="지역, 교차로 이름 또는 ID 검색" aria-label="지역 검색" autoComplete="off" /><kbd>⌘ K</kbd></label><p className="data-note">{syncNote}</p></>}<nav className="app-tabs" aria-label="서비스 선택"><button type="button" className={view === 'signals' ? 'active' : ''} onClick={() => setView('signals')}>신호 현황</button><button type="button" className={view === 'optimizer' ? 'active' : ''} onClick={() => setView('optimizer')}>교통량 분석</button></nav></div></header>
     <main className="container content">
       {view === 'optimizer' ? <TrafficOptimizer /> : selected ? <><button className="back-button" onClick={() => setDetailRefresh(v => v + 1)} disabled={detailLoading}>상세 다시 조회</button><DetailView signal={selected} history={history} loading={detailLoading} error={detailError} onBack={() => setSelected(null)} /></> : <>
         <section className="results-head"><div><p className="eyebrow">신호등 조회</p><h2>{resultLabel}</h2></div><span className="result-count tabular">{loading ? '조회 중' : `${items.length}곳 / ${total.toLocaleString()}건`}</span></section>
-        <nav className="filter-tabs" aria-label="신호 상태 필터">{filters.map((item) => <button type="button" key={item.value} className={filter === item.value ? 'active' : ''} onClick={() => setFilter(item.value)}>{item.label}</button>)}</nav>
+        <nav className="filter-tabs" aria-label="신호 상태 필터">{filters.map((item) => <button type="button" key={item.value} className={filter === item.value ? 'active' : ''} onClick={() => { setFilter(item.value); setOffset(0) }}>{item.label}</button>)}</nav>
         <button className="back-button" onClick={() => setRefresh(v => v + 1)} disabled={loading}>다시 조회</button><SignalList items={items} loading={loading} error={error} hasQuery={Boolean(query.trim())} onSelect={openDetail} />
+        {!error && total > pageSize && <nav className="filter-tabs" aria-label="신호 목록 페이지">
+          <button type="button" disabled={loading || offset === 0} onClick={() => setOffset(value => value - pageSize)}>이전 페이지</button>
+          <button type="button" disabled={loading || offset + pageSize >= total} onClick={() => setOffset(value => value + pageSize)}>다음 페이지</button>
+        </nav>}
       </>}
     </main>
   </div></div>

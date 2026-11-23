@@ -28,3 +28,11 @@ test('신호 API가 없을 때 검색과 상세 화면에 사용할 더미 데�
   assert.equal(detail.signal.source, 'dummy')
   assert.ok(detail.history.length > 0)
 })
+test('관측 방향의 상태나 잔여시간이 누락돼도 샘플로 대체하지 않는다', () => {
+  const signal = {id:-1,name:'안성 교차로',location:'안성시',status:'unknown',
+    remaining_seconds:null,updated_at:'2026-11-24T08:00:00+09:00',observation_status:'stale'}
+  const history = [{id:1,status:'unknown',remaining_seconds:null,recorded_at:signal.updated_at}]
+  assert.equal(validateList({items:[signal],total:1}).items[0], signal)
+  assert.deepEqual(validateDetail({signal,history}).history,history)
+  assert.throws(() => validateList({items:[{...signal,remaining_seconds:-1}],total:1}))
+})

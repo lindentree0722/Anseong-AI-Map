@@ -1,7 +1,8 @@
+import asyncio
 import os
 import sqlite3
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from typing import Annotated
 from xml.etree.ElementTree import ParseError
@@ -13,10 +14,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 if __package__:
-    from . import commercial, database, signals
+    from . import commercial, database, signal_provider, signals
     from .traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 else:
-    import commercial, database, signals
+    import commercial, database, signal_provider, signals
     from traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 
 
@@ -40,7 +41,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.database_path = database.database_path()
     database.initialize(app.state.database_path)
     signals.init_db()
-    yield
+    key = os.getenv("TRAFFIC_SIGNAL_API_KEY", "").strip()
+    app.state.signal_feed = signal_provider.SignalFeed(key, signals.get_db) if key else None
+    task = asyncio.create_task(app.state.signal_feed.poll()) if app.state.signal_feed else None
+    try:
+        yield
+    finally:
+        if task:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
 
 
 FRONTEND_DIST = Path(__file__).resolve().parents[1] / "frontend" / "dist"

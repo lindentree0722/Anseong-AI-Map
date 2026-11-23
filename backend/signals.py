@@ -1,13 +1,9 @@
-import json
 import os
 import sqlite3
 from contextlib import closing
 from pathlib import Path
 from typing import Any, Optional
-from urllib.parse import urlencode
-from urllib.request import urlopen
-from xml.etree import ElementTree
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 if __package__:
@@ -124,6 +120,16 @@ def create_tables(conn: sqlite3.Connection):
             status TEXT NOT NULL,
             remaining_seconds INTEGER NOT NULL,
             recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS provider_signals (
+            id INTEGER PRIMARY KEY,
+            intersection_id TEXT NOT NULL UNIQUE,
+            observed_at TEXT NOT NULL,
+            directions TEXT NOT NULL,
+            name TEXT,
+            latitude REAL,
+            longitude REAL,
+            active INTEGER NOT NULL
         );
         CREATE TABLE IF NOT EXISTS signal_sync_state (
             id INTEGER PRIMARY KEY CHECK(id = 1),
@@ -316,50 +322,6 @@ def to_signal(row: sqlite3.Row) -> dict:
     }
 
 
-def extract_rows(payload: bytes) -> list[dict]:
-    text = payload.decode("utf-8-sig")
-    try:
-        parsed = json.loads(text)
-        candidates = (
-            parsed.get("response", parsed)
-            .get("body", parsed.get("body", {}))
-            .get("items", {})
-            .get("item", [])
-        )
-        return candidates if isinstance(candidates, list) else [candidates]
-    except json.JSONDecodeError:
-        root = ElementTree.fromstring(text)
-        return [
-            {child.tag: child.text or "" for child in item}
-            for item in root.findall(".//item")
-        ]
-
-
-def refresh_live_data():
-    api_url = os.getenv("TRAFFIC_SIGNAL_API_URL")
-    api_key = os.getenv("TRAFFIC_SIGNAL_API_KEY")
-    if not api_key or not api_url:
-        return False
-    query = urlencode(
-        {"serviceKey": api_key, "pageNo": 1, "numOfRows": 100, "dataType": "JSON"}
-    )
-    separator = "&" if "?" in api_url else "?"
-    try:
-        with urlopen(f"{api_url}{separator}{query}", timeout=12) as response:
-            records = extract_rows(response.read())
-    except Exception:
-        return False
-    valid = [
-        record
-        for record in records
-        if isinstance(record, dict) and record.get("crsrdId")
-    ]
-    if not valid:
-        return False
-    save_snapshot(valid, len(valid))
-    return True
-
-
 class SignalUpdate(BaseModel):
     status: str
     remaining_seconds: int
@@ -436,10 +398,30 @@ def save_snapshot(records: list[dict], total: int) -> None:
 
 @router.get("/traffic-signals")
 def list_traffic_signals(
-    q: str = "", status: Optional[str] = None, limit: int = 20, offset: int = 0
+    request: Request, q: str = "", status: Optional[str] = None, limit: int = 20, offset: int = 0
 ):
-    refresh_live_data()
     limit, offset, query = min(max(limit, 1), 100), max(offset, 0), q.strip()
+    feed = request.app.state.signal_feed
+    provider_items = [detail["signal"] for detail in feed.lookup()] if feed else []
+    if provider_items:
+        keyword = query.casefold()
+        matching = [
+            item for item in provider_items
+            if (not status or status == "all" or item["status"] == status)
+            and keyword in f"{item['name']} {item['location']} {item['intersection_id']}".casefold()
+        ]
+        return {
+            "items": matching[offset:offset + limit],
+            "total": len(matching),
+            "limit": limit,
+            "offset": offset,
+            "source": "live",
+            "sync": None,
+            "observation": {
+                "state": "stale" if any(item["observation_status"] == "stale" for item in provider_items) else "fresh",
+                "message": feed.message,
+            },
+        }
     conditions, values = [VISIBLE_SIGNAL], []
     if query:
         like = f"%{query}%"
@@ -470,11 +452,21 @@ def list_traffic_signals(
         "offset": offset,
         "source": "live" if sync else "mock",
         "sync": sync,
+        "observation": {
+            "state": "stale" if sync else "sample",
+            "message": feed.message if feed else None,
+        },
     }
 
 
 @router.get("/traffic-signals/{signal_id}")
-def get_traffic_signal(signal_id: int):
+def get_traffic_signal(signal_id: int, request: Request):
+    if signal_id < 0:
+        feed = request.app.state.signal_feed
+        details = feed.lookup(signal_id) if feed else []
+        if not details:
+            raise HTTPException(status_code=404, detail="신호등 정보를 찾을 수 없습니다.")
+        return details[0]
     with closing(get_db()) as conn, conn:
         conn.execute("BEGIN")
         row = conn.execute(
@@ -537,11 +529,11 @@ def update_signal(signal_id: int, update: SignalUpdate):
 
 @router.get("/signals")
 def search_signals(
-    q: str = "", status: Optional[str] = None, limit: int = 20, offset: int = 0
+    request: Request, q: str = "", status: Optional[str] = None, limit: int = 20, offset: int = 0
 ):
-    return list_traffic_signals(q, status, limit, offset)
+    return list_traffic_signals(request, q, status, limit, offset)
 
 
 @router.get("/signals/{signal_id}")
-def get_signal(signal_id: int):
-    return get_traffic_signal(signal_id)
+def get_signal(signal_id: int, request: Request):
+    return get_traffic_signal(signal_id, request)

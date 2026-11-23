@@ -38,12 +38,18 @@ Render에서 저장소 루트를 사용하는 **Docker / Free Web Service** 하�
 | --- | --- |
 | `CORS_ORIGINS` | 별도 출처에서 API를 호출할 때 허용할 주소를 쉼표로 지정합니다. 기본값은 `http://localhost:5173,http://127.0.0.1:5173`입니다. 같은 Render 주소에서 화면과 API를 사용하면 추가 설정이 필요 없습니다. |
 | `COMMERCIAL_SERVICE_KEY` | 상권 분석의 서버 호출에 사용하는 공공데이터포털 키입니다. 키가 없으면 화면에 더미 데이터 사용이 표시됩니다. |
-| `TRAFFIC_SIGNAL_API_URL`, `TRAFFIC_SIGNAL_API_KEY` | 신호 관측 데이터를 가져올 서버 측 원천 API 설정입니다. 미설정 상태에서는 저장된 스냅샷이나 초기 안성시 샘플을 사용합니다. |
+| `TRAFFIC_SIGNAL_API_KEY` | 공공데이터포털 안성시 신호 관측을 활성화하는 서버 전용 키입니다. 기본 사용은 키 없이 안성시 샘플을 표시합니다. |
 | `SIGNAL_DB_PATH` | 별도 신호 SQLite 파일을 사용하거나 기존 8001번 서버의 DB 복사본을 가져올 때 지정합니다. 기본값은 장소와 같은 SQLite 파일입니다. |
 
 신호 응답의 숫자 ID는 해당 스냅샷 내 상세 조회에 사용합니다. 스냅샷을 교체하면 ID가 재사용될 수 있습니다.
 
 로컬 시연에서는 장소 등록·전체 삭제와 신호 동기화·수정을 사용할 수 있습니다. 공개 Docker 배포는 `ANSEONG_ALLOW_WRITES=0`으로 해당 요청을 차단합니다. 서버가 설정된 원천 API에서 신호를 조회해 스냅샷을 갱신하는 동작은 가능합니다. Render Free의 로컬 SQLite 변경은 서비스 재시작, 재배포, 절전 시 유실될 수 있습니다. [Render Free 파일시스템 안내](https://render.com/docs/free#local-files-lost-on-redeploy)
+
+### 안성시 신호 관측
+
+서버 환경변수 `TRAFFIC_SIGNAL_API_KEY`를 설정하면 공공데이터포털에서 안성시(`4155000000`) 신호 관측을 2분마다, 교차로 위치를 1시간마다 갱신합니다. API는 기존 `/api/traffic-signals` 목록과 상세 경로를 사용합니다. [신호등 실시간 정보 API](https://www.data.go.kr/data/15157604/openapi.do)
+
+목록에서 `observation.state`는 `fresh`, `stale`, `sample` 중 하나입니다. 관측 교차로에는 `observation_status`와 시간대가 포함된 `updated_at`이 반환됩니다. 상태와 시간이 비어 있으면 `unknown`, `null`로 표시합니다. 마지막 관측이 5분을 넘었거나 최근 갱신에 실패하면 이전 관측으로 표시합니다. 원천 응답을 받기 전에는 안성시 샘플을 볼 수 있습니다.
 
 ### 장소 API (SQLite)
 
