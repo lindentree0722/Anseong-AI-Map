@@ -20,7 +20,7 @@ export default function SignalsPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [syncNote, setSyncNote] = useState('별도 API의 저장 데이터입니다. 시뮬레이션이 포함될 수 있으며 실제 현재 신호가 아닐 수 있습니다.')
+  const [syncNote, setSyncNote] = useState('저장한 관측 정보 또는 서버 샘플을 표시합니다.')
   const [selected, setSelected] = useState<Signal | null>(null)
   const [history, setHistory] = useState<SignalHistory[]>([])
   const [detailLoading, setDetailLoading] = useState(false)
@@ -41,7 +41,11 @@ export default function SignalsPage() {
         )
         if (!controller.signal.aborted) {
           setItems(result.data.items); setTotal(result.data.total)
-          if (result.usedDummy) setSyncNote('연결된 신호 API가 없어 더미 데이터를 표시합니다.')
+          setSyncNote(result.usedDummy
+            ? '연결된 신호 API가 없어 더미 데이터를 표시합니다.'
+            : result.data.source === 'mock'
+              ? '서버에서 제공하는 샘플 신호입니다.'
+              : '수집 시점의 저장 신호를 표시합니다.')
         }
       } catch (err) {
         if (!controller.signal.aborted) { setItems([]); setTotal(0); setError(err instanceof Error ? err.message : '신호 API에 연결할 수 없습니다.') }
@@ -61,7 +65,7 @@ export default function SignalsPage() {
         await readJson(await api('traffic-signals/sync', {method:'POST', signal:controller.signal, headers:{'Content-Type':'application/json'}, body:JSON.stringify({rows:payload.rows,total:payload.total ?? payload.rows.length})}))
         if (!controller.signal.aborted) { setSyncNote(`외부 데이터 ${payload.rows.length}건 동기화 · 수신 시점의 저장 정보입니다.`); setRefresh(v => v + 1) }
       } catch {
-        if (!controller.signal.aborted) setSyncNote('외부 동기화에 실패했습니다. 별도 API의 저장 정보를 조회합니다.')
+        if (!controller.signal.aborted) setSyncNote('외부 동기화에 실패했습니다. 서버에 저장된 정보를 조회합니다.')
       } finally { if (!controller.signal.aborted) timer = window.setTimeout(sync, 60000) }
     }
     void sync()

@@ -1,5 +1,5 @@
 export async function readJson(response) {
-  if (!response.ok) throw new Error(`신호 API 요청 실패 (HTTP ${response.status}). 별도 API 서버를 확인해 주세요.`)
+  if (!response.ok) throw new Error(`신호 API 요청 실패 (HTTP ${response.status}). 서버 연결을 확인해 주세요.`)
   try { return await response.json() } catch { throw new Error('신호 API가 JSON 응답을 반환하지 않았습니다.') }
 }
 const statusValid = value => ['green', 'yellow', 'red'].includes(value)

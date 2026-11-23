@@ -3,7 +3,6 @@ import CommercialMap, { type Position, type Store, type Vacancy } from './Map'
 import { genDemo, summarize, recommend, PALETTE } from './model.mjs'
 import { DEFAULT_ENDPOINT, fetchStoresOrDemo } from './api.mjs'
 import './commercial.css'
-const proxyAvailable = import.meta.env.VITE_COMMERCIAL_PROXY_ENABLED === 'true'
 type Mode = 'demo'|'proxy'|'api'
 export default function CommercialPage() {
   const [center,setCenter] = useState<Position>({lat:37.008,lng:127.2797})
@@ -70,11 +69,10 @@ export default function CommercialPage() {
           <label htmlFor="commercial-mode">데이터 모드</label>
           <select id="commercial-mode" value={mode} onChange={e => setMode(e.target.value as Mode)}>
             <option value="demo">데모 (가상 샘플 데이터)</option>
-            <option value="proxy" disabled={!proxyAvailable}>공공데이터 API · 프록시 서버{!proxyAvailable ? ' (연결 미설정)' : ''}</option>
+            <option value="proxy">공공데이터 API · 서버 호출</option>
             <option value="api">공공데이터 API · 브라우저 직접 호출</option>
           </select>
-          {!proxyAvailable && <div className="note">프록시 서버가 연결되지 않아 프록시 모드를 사용할 수 없습니다.</div>}
-          {mode === 'proxy' && <div className="note">연결된 프록시 서버로 조회합니다. 서비스키는 해당 서버에서 관리합니다.</div>}
+          {mode === 'proxy' && <div className="note">메인 서버에서 공공데이터를 조회하며 서비스키는 서버에서 관리합니다.</div>}
           {mode === 'api' && <div>
             <label htmlFor="commercial-key">공공데이터포털 서비스키</label><input id="commercial-key" type="password" autoComplete="off" value={key} onChange={e => setKey(e.target.value)} placeholder="data.go.kr에서 발급받은 인증키"/>
             <label htmlFor="commercial-endpoint">반경 조회 엔드포인트</label><input id="commercial-endpoint" type="text" value={endpoint} onChange={e => setEndpoint(e.target.value)}/>

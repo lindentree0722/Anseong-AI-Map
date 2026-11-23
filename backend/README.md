@@ -11,11 +11,39 @@ uv sync --locked
 uv run uvicorn main:app --reload
 ```
 
-- API 문서: http://127.0.0.1:8000/docs
-- 장소 조회: `GET /places`
-- 장소 등록: `POST /places` (JSON 객체 배열)
-- 장소 전체 삭제: `DELETE /places`
-- 교통 개요: `GET /traffic/overview`
+- API 문서: http://127.0.0.1:8000/api/docs
+- 장소 조회: `GET /api/places`
+- 장소 등록: `POST /api/places` (JSON 객체 배열)
+- 장소 전체 삭제: `DELETE /api/places`
+- 교통 개요: `GET /api/traffic/overview`
+- 신호 목록·상세: `GET /api/traffic-signals`, `GET /api/traffic-signals/{id}`
+- 신호 동기화·수정: `POST /api/traffic-signals/sync`, `PUT /api/signals/{id}`
+- 상권 반경 조회: `GET /api/commercial-service/storeListInRadius`
+
+## 단일 서버 실행 및 Render 배포
+
+저장소 루트에서 프론트를 빌드하고 FastAPI를 시작합니다.
+
+```sh
+npm ci --prefix frontend
+npm run build --prefix frontend
+uv run --project backend uvicorn backend.main:app
+```
+
+같은 서버에서 [홈 화면](http://127.0.0.1:8000/)과 [API 문서](http://127.0.0.1:8000/api/docs)를 열 수 있습니다. 개발할 때는 Vite를 별도로 실행해도 `/api/*` 경로가 그대로 FastAPI로 전달됩니다.
+
+Render에서 저장소 루트를 사용하는 **Docker / Free Web Service** 하나를 만들고, 배포 브랜치와 루트의 `Dockerfile`을 선택합니다. Health Check Path는 `/api/health`입니다. 이미지 빌드가 프론트를 컴파일하고, FastAPI는 Render의 `PORT`로 화면과 API를 제공합니다. [Render Docker 배포 문서](https://render.com/docs/docker)
+
+| 서버 환경변수 | 설정 |
+| --- | --- |
+| `CORS_ORIGINS` | 별도 출처에서 API를 호출할 때 허용할 주소를 쉼표로 지정합니다. 기본값은 `http://localhost:5173,http://127.0.0.1:5173`입니다. 같은 Render 주소에서 화면과 API를 사용하면 추가 설정이 필요 없습니다. |
+| `COMMERCIAL_SERVICE_KEY` | 상권 분석의 서버 호출에 사용하는 공공데이터포털 키입니다. 키가 없으면 화면에 더미 데이터 사용이 표시됩니다. |
+| `TRAFFIC_SIGNAL_API_URL`, `TRAFFIC_SIGNAL_API_KEY` | 신호 관측 데이터를 가져올 서버 측 원천 API 설정입니다. 미설정 상태에서는 저장된 스냅샷이나 초기 샘플을 사용합니다. |
+| `SIGNAL_DB_PATH` | 별도 신호 SQLite 파일을 사용하거나 기존 8001번 서버의 DB 복사본을 가져올 때 지정합니다. 기본값은 장소와 같은 SQLite 파일입니다. |
+
+신호 응답의 숫자 ID는 해당 스냅샷 내 상세 조회에 사용합니다. 스냅샷을 교체하면 ID가 재사용될 수 있습니다.
+
+로컬 시연에서는 장소 등록·전체 삭제와 신호 동기화·수정을 사용할 수 있습니다. 공개 Docker 배포는 `ANSEONG_ALLOW_WRITES=0`으로 해당 요청을 차단합니다. 서버가 설정된 원천 API에서 신호를 조회해 스냅샷을 갱신하는 동작은 가능합니다. Render Free의 로컬 SQLite 변경은 서비스 재시작, 재배포, 절전 시 유실될 수 있습니다. [Render Free 파일시스템 안내](https://render.com/docs/free#local-files-lost-on-redeploy)
 
 ### 장소 API (SQLite)
 
@@ -28,7 +56,7 @@ uv run uvicorn main:app --reload
 [{"name": "안성시청", "position": [37.008, 127.279]}]
 ```
 
-`GET /places`는 장소 배열을 반환합니다. 등록과 삭제는 기존의 `message`, `places` 응답 구조를 유지합니다.
+`GET /api/places`는 장소 배열을 반환합니다. 등록과 삭제는 기존의 `message`, `places` 응답 구조를 유지합니다.
 빈 배열 등록은 기존 목록을 유지하며, 빈 목록의 조회·삭제도 성공합니다.
 기존 임의 JSON 객체를 보내던 외부 호출자는 위 형식으로 변경해야 합니다. 저장소 내 프런트엔드는 이 API를 호출하지 않습니다.
 
@@ -52,14 +80,14 @@ uv run --project backend uvicorn main:app --app-dir backend --reload
 ```
 
 서버에는 해당 디렉터리의 읽기·쓰기 권한이 필요합니다. DB와 SQLite 보조 파일(`-journal`, `-wal`, `-shm`)은 Git에서 제외합니다.
-교통·신호·상권 데이터는 이번 DB에 저장하지 않습니다. 별도 ORM이나 의존성 추가는 없습니다.
-기존 메모리 서버에 보존할 장소가 있다면 **서버를 종료하기 전에** `GET /places` 응답을 보관하고 전환 후 `POST /places`로 등록하세요. 자동 이전은 하지 않습니다.
+신호 스냅샷과 수정 이력은 기본적으로 같은 SQLite 파일의 별도 테이블에 저장합니다. 교통 개요와 상권 응답은 저장하지 않습니다. 별도 ORM이나 의존성 추가는 없습니다.
+기존 메모리 서버에 보존할 장소가 있다면 **서버를 종료하기 전에** `GET /places` 응답을 보관하고 전환 후 `POST /api/places`로 등록하세요. 자동 이전은 하지 않습니다.
 
 #### 백업과 복원
 
 1. 같은 DB를 사용하는 서버·워커를 모두 정상 종료합니다.
 2. DB 파일을 별도의 백업 경로에 복사합니다. 정상 종료 후에도 보조 파일이 남아 있다면 임의로 삭제하거나 DB 파일만 복사하지 말고 SQLite의 백업 기능을 사용하세요.
-3. 복원할 때도 서버를 종료하고 현재 DB와 보조 파일을 별도 폴더에 보관한 뒤, 백업 DB를 설정된 경로에 복사합니다. 재시작 후 `GET /places`로 내용을 확인합니다.
+3. 복원할 때도 서버를 종료하고 현재 DB와 보조 파일을 별도 폴더에 보관한 뒤, 백업 DB를 설정된 경로에 복사합니다. 재시작 후 `GET /api/places`로 내용을 확인합니다.
 
 첫 버전은 테이블을 생성하는 초기화만 제공합니다. 이후 스키마 변경 시에는 백업과 명시적인 마이그레이션이 필요합니다.
 
@@ -85,7 +113,7 @@ uv run uvicorn main:app --reload
 
 `-MaskInput`은 PowerShell 7.1 이상에서 지원합니다. Windows PowerShell 5.1에서는 사용자 환경변수 설정에서 키를 등록한 후 새 터미널에서 실행하세요.
 
-서버를 재시작하면 같은 `GET /traffic/overview`에서 실측값을 조회합니다. 더미 데이터로 돌아가려면 `TRAFFIC_DATA_SOURCE`를 `sample`로 설정하고 재시작하세요. 개별 요청의 `?mode=sample` 또는 `?mode=observed`는 서버 기본값보다 우선합니다.
+서버를 재시작하면 같은 `GET /api/traffic/overview`에서 실측값을 조회합니다. 더미 데이터로 돌아가려면 `TRAFFIC_DATA_SOURCE`를 `sample`로 설정하고 재시작하세요. 개별 요청의 `?mode=sample` 또는 `?mode=observed`는 서버 기본값보다 우선합니다.
 
 실측 응답에는 수집 시각과 구간 속도가 포함됩니다. 제공기관 문서에서 교통량의 집계 구간과 단위를 특정할 수 없어 교통량은 `null`로 제공합니다. 결과 없음은 200과 빈 배열, 원천 응답 형식 오류는 502, 설정 누락·인증 실패·요청 시간 초과는 503입니다. [공식 구간 소통정보 조회 규격](https://openapigits.gg.go.kr/api/jsp/manual_getRoadLinkTrafficInfo.jsp)
 

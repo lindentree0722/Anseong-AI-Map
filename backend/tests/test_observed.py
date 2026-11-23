@@ -10,7 +10,7 @@ def observed(monkeypatch):
     monkeypatch.setenv("GITS_SERVICE_KEY", "test-key")
     monkeypatch.setenv("ANSEONG_LINK_ID", "test-link")
     monkeypatch.setenv("ANSEONG_LINK_POSITION", "37.01,127.27")
-    return lambda: TestClient(main.app).get("/traffic/overview?mode=observed")
+    return lambda: TestClient(main.app).get("/api/traffic/overview?mode=observed")
 
 
 def payload(code="0", items=""):
@@ -73,5 +73,5 @@ def test_switch_default_source_without_changing_url(observed, monkeypatch):
     monkeypatch.setenv("TRAFFIC_DATA_SOURCE", "observed")
     monkeypatch.setattr(traffic, "fetch_link_xml", lambda *_: payload("4"))
     client = TestClient(main.app)
-    assert client.get("/traffic/overview").json()["dataStatus"] == "observed"
-    assert client.get("/traffic/overview?mode=sample").json()["dataStatus"] == "sample"
+    assert client.get("/api/traffic/overview").json()["dataStatus"] == "observed"
+    assert client.get("/api/traffic/overview?mode=sample").json()["dataStatus"] == "sample"

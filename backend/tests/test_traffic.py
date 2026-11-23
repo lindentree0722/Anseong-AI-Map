@@ -9,7 +9,7 @@ import traffic
 
 
 client = TestClient(main.app)
-endpoint = "/traffic/overview"
+endpoint = "/api/traffic/overview"
 sample_path = Path(__file__).resolve().parents[1] / "data" / "traffic-sample.json"
 
 
