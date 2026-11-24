@@ -1,7 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
 
 .page-home{--bg:#f4f2ec;--card:#fff;--ink:#2b2a26;--mute:#6f6c62;--line:#dcd8cb;--accent:#6b685a}
-@media (prefers-color-scheme:dark){.page-home:not([data-theme="light"]){--bg:#1b1a17;--card:#25241f;--ink:#efece3;--mute:#a9a595;--line:#3a382f;--accent:#c9c4ae}}
 .page-home,.page-home *{box-sizing:border-box;margin:0;padding:0}
 .page-home{scroll-behavior:smooth}
 .page-home{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;word-break:keep-all}
