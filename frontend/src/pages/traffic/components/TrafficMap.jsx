@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
+import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 const ANSEONG_BOUNDS = [
@@ -27,6 +27,8 @@ function MapViewport({ intersections, selectedId }) {
 }
 
 export default function TrafficMap({ intersections, selectedId, onSelect }) {
+  const selected = intersections.find(item => item.id === selectedId) || intersections[0];
+
   return <div className="map-panel">
     <MapContainer
       className="leaflet-map"
@@ -53,6 +55,15 @@ export default function TrafficMap({ intersections, selectedId, onSelect }) {
           pathOptions={{ color: "#ffffff", weight: selected ? 3 : 2, fillColor: color, fillOpacity: 1 }}
           eventHandlers={{ click: () => onSelect(item.id) }}
         >
+          <Tooltip
+            permanent={selected}
+            direction="top"
+            offset={[0, -10]}
+            opacity={1}
+            className="intersection-tooltip"
+          >
+            <b>{item.name}</b>
+          </Tooltip>
           <Popup>
             <strong>{item.name}</strong><br />
             {item.area} · 혼잡도 {item.congestion == null ? "자료 없음" : `${item.congestion}/100`}<br />
