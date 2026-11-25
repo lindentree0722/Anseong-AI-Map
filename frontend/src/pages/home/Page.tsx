@@ -48,14 +48,14 @@ export default function HomePage() {
   <article className="card">
    <h3>이동 데이터를 읽는 방법</h3>
    <p>시간대·요일·구간별 이동 흐름을 살펴 혼잡 구간과 보행·대중교통 접점을 함께 파악합니다.</p>
-   <ul><li>시간대별 이동 흐름</li><li>구간별 혼잡 변화</li><li>보행·환승 접점</li></ul>
+   <ul><li>시간대별 이동 흐름</li><li>구간별 혼잡 변화</li><li>신호등 신호 분석</li><li>상권 데이터 분석</li></ul>
    <Link to="/signals">교통량 분석 보기 →</Link>
   </article>
   <article className="card">
    <div className="tag">상권 현황 안내 분석 서비스</div>
    <div className="eyebrow" style={{"marginBottom": "6px"}}>보행·방문상권 변화</div>
    <h3>생활 상권의 변화를 읽는 방법</h3>
-   <p>유동인구·매출·점포 변화와 생활권 특성을 함께 비교해 상권의 활력과 변화 신호를 살펴봅니다.</p><Link to="/commercial">상권 분석 보기 →</Link>
+   <p>유동인구·매출·점포 변화와 생활권 특성을 함께 비교해 상권의 활력과 변화를 주기 위한 방법을 모색합니다.</p><Link to="/commercial">상권 분석 보기 →</Link>
   </article>
  </div>
 </section>
@@ -78,7 +78,7 @@ export default function HomePage() {
   <div><b>4. 상권 성과</b>누적 효과로 유동인구·매출 증가</div>
   <div><b>5. 환류</b>AI 상권분석으로 효과 측정, 위기 선제 대응</div>
  </div>
- <p className="refs" style={{"marginTop": "14px"}}>핵심은 차량 소통이 아니라 사람이 상권에 도착하고 머무는 과정의 개선입니다.</p>
+ <p className="refs" style={{"marginTop": "14px"}}>안성맞춤 AI는 위 자료를 근거로 하여 안성시의 교통과 상권을 개선하기 위한 방안을 생각해냅니다.</p>
 
  <h3 className="sub">제언</h3>
  <ol className="rec">
@@ -90,9 +90,9 @@ export default function HomePage() {
   <li><b>역사·문화 자원과 결합</b> — 보행 환경과 문화 콘텐츠로 방문 이유를 만듦</li>
  </ol>
 
- <h3 className="sub">한계 및 유의사항</h3>
+ <h3 className="sub">유의사항</h3>
  <div className="note"><ul>
-  <li>청량리 사례의 상권 효과는 발표 시점 기준 전망이며 매출 등 실측 자료가 없습니다.</li>
+  <li>해당 사이트는 공공 api와 공공 실측 데이터를 사용하였습니다.</li>
   <li>연세로 수치는 2020년 보도 기준이며 현재와 다를 수 있습니다.</li>
   <li>교통 개선과 매출 증가의 인과관계는 다른 요인의 영향을 배제하기 어렵습니다.</li>
   <li>AI 상권분석 내용은 2차 요약 자료에 근거하므로 서울시 공식 발표로 확인이 필요합니다.</li>
