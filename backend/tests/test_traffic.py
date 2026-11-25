@@ -42,6 +42,9 @@ def test_sample_overview(client):
     assert segment["averageWait"] is None
     assert segment["greenRatio"] is None
     assert segment["directions"] is None
+    assert len(overview["roadSegments"]) == 4
+    assert overview["roadSegments"][0]["averageSpeed"] == 17.8
+    assert len(overview["roadSegments"][0]["positions"]) == 3
 
 
 @pytest.mark.parametrize(("score", "wait", "green", "speed", "level"), [

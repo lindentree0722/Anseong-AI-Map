@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { CircleMarker, MapContainer, Polyline, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 const ANSEONG_BOUNDS = [
@@ -26,7 +26,7 @@ function MapViewport({ intersections, selectedId }) {
   return null;
 }
 
-export default function TrafficMap({ intersections, selectedId, onSelect }) {
+export default function TrafficMap({ intersections, roadSegments = [], selectedId, onSelect }) {
   const selected = intersections.find(item => item.id === selectedId) || intersections[0];
 
   return <div className="map-panel">
@@ -44,6 +44,26 @@ export default function TrafficMap({ intersections, selectedId, onSelect }) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <MapViewport intersections={intersections} selectedId={selectedId} />
+      {roadSegments.map(segment => {
+        const congestion = segment.congestion;
+        const color = congestion == null ? "#8491a3" : congestion >= 75 ? "#f17b80" : congestion >= 50 ? "#e8b85f" : "#65c99b";
+        const midpoint = segment.positions[Math.floor(segment.positions.length / 2)];
+        return <Polyline
+          key={segment.id}
+          positions={segment.positions}
+          pathOptions={{ color, weight: 7, opacity: 0.82, lineCap: "round" }}
+        >
+          {midpoint && <Tooltip
+            permanent
+            direction="center"
+            opacity={1}
+            className="road-speed-tooltip"
+          >
+            <b>{segment.averageSpeed == null ? "속도 자료 없음" : `${segment.averageSpeed} km/h`}</b>
+            <small>{segment.name}</small>
+          </Tooltip>}
+        </Polyline>;
+      })}
       {intersections.map(item => {
         const color = item.congestion == null ? "#8491a3" : item.congestion >= 75 ? "#f17b80" : item.congestion >= 50 ? "#e8b85f" : "#65c99b";
         const selected = selectedId === item.id;
@@ -63,6 +83,8 @@ export default function TrafficMap({ intersections, selectedId, onSelect }) {
             className="intersection-tooltip"
           >
             <b>{item.name}</b>
+            <span>{item.averageWait == null ? "대기 자료 없음" : `평균 대기 ${item.averageWait}초`}</span>
+            {item.averageSpeed != null && <span>통행속도 {item.averageSpeed} km/h</span>}
           </Tooltip>
           <Popup>
             <strong>{item.name}</strong><br />

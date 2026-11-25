@@ -33,6 +33,29 @@ export const intersections = [
   }
 ];
 
+export const roadSegments = [
+  {
+    id: "SEG-001", sourceId: "sample-seg-001", name: "국도1호선 안성시청 구간",
+    positions: [[37.0080982, 127.2797684], [37.0054, 127.2726], [37.0028, 127.2651]],
+    averageSpeed: 17.8, congestion: 86
+  },
+  {
+    id: "SEG-002", sourceId: "sample-seg-002", name: "국도38호선 공도 구간",
+    positions: [[36.9989154, 127.1663727], [37.0021, 127.1788], [37.0066, 127.1945]],
+    averageSpeed: 22.4, congestion: 69
+  },
+  {
+    id: "SEG-003", sourceId: "sample-seg-003", name: "안성터널 진입 구간",
+    positions: [[37.0336458, 127.1602142], [37.0278, 127.1694], [37.0206, 127.1818]],
+    averageSpeed: 14.6, congestion: 94
+  },
+  {
+    id: "SEG-004", sourceId: "sample-seg-004", name: "중앙로 한경대 구간",
+    positions: [[37.0117775, 127.2634692], [37.0092, 127.2548], [37.0043816, 127.2276309]],
+    averageSpeed: 31.2, congestion: 38
+  }
+];
+
 export const hourlyTraffic = [
   { time: "06시", volume: 310, wait: 22 },
   { time: "07시", volume: 580, wait: 43 },

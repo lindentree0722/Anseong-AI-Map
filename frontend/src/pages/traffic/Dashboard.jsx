@@ -66,7 +66,12 @@ export default function App() {
         <div className="panel map-section">
           <div className="panel-heading"><div><div className="eyebrow">INTERSECTION MONITORING</div><h2>교차로 교통 현황</h2></div><span className="count-label">{filtered.length}개 지점</span></div>
           <div className="map-search"><Search size={16}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="교차로 또는 지역 검색"/></div>
-          <TrafficMap intersections={filtered} selectedId={selected?.id} onSelect={setSelectedId}/>
+          <TrafficMap
+            intersections={filtered}
+            roadSegments={overview.roadSegments || []}
+            selectedId={selected?.id}
+            onSelect={setSelectedId}
+          />
           <div className="intersection-list">{!filtered.length && <p role="status">{overview.intersections.length ? "검색 결과가 없습니다." : "조회된 교통 지점이 없습니다."}</p>}{filtered.map(x => <button key={x.id} onClick={() => setSelectedId(x.id)} className={`intersection-row ${selected?.id === x.id ? "chosen" : ""}`}><span className={`mini-status ${x.congestion == null ? "unknown-bg" : x.congestion >= 75 ? "red-bg" : x.congestion >= 50 ? "yellow-bg" : "green-bg"}`}/><span className="intersection-name"><b>{x.name}</b><small>{x.area}</small></span><span className="intersection-wait">{display(x.averageWait, "초")}<small>대기시간</small></span><span className={`status-pill ${x.congestion == null ? "" : x.congestion >= 75 ? "red" : x.congestion >= 50 ? "yellow" : "green"}`}>{x.status ?? "자료 없음"}</span></button>)}</div>
         </div>
 

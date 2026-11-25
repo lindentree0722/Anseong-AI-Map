@@ -103,6 +103,16 @@ class HourlyTraffic(BaseModel):
     wait: NonnegativeNumber | None
 
 
+class RoadSegment(BaseModel):
+    id: str
+    sourceId: str
+    name: str
+    positions: list[Position]
+    observedAt: AwareDatetime | None = None
+    averageSpeed: NonnegativeNumber | None = None
+    congestion: Annotated[int, Field(ge=0, le=100)] | None = None
+
+
 def _rounded_average(values: list[float]) -> float | None:
     return round(sum(values) / len(values), 1) if values else None
 
@@ -113,6 +123,7 @@ class TrafficOverview(BaseModel):
     generatedAt: AwareDatetime
     intersections: list[TrafficSegment]
     hourlyTraffic: list[HourlyTraffic] | None = None
+    roadSegments: list[RoadSegment] | None = None
 
     @computed_field
     @property

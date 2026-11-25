@@ -1,5 +1,5 @@
 import { loadApiOrDummy } from "../../../lib/api-fallback.mjs";
-import { diagnose, getSummary, hourlyTraffic, intersections } from "../data/simulation.js";
+import { diagnose, getSummary, hourlyTraffic, intersections, roadSegments } from "../data/simulation.js";
 
 function dummyOverview() {
   const generatedAt = new Date().toISOString();
@@ -17,6 +17,7 @@ function dummyOverview() {
     generatedAt,
     intersections: rows,
     hourlyTraffic,
+    roadSegments,
     summary: getSummary(rows)
   };
 }
