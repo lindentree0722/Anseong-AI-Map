@@ -193,7 +193,13 @@ def get_traffic_signal(signal_id: int):
         history = conn.execute("SELECT id, status, remaining_seconds, recorded_at FROM signal_history WHERE signal_id = ? ORDER BY recorded_at DESC, id DESC LIMIT 8", (signal_id,)).fetchall()
     if not row: raise HTTPException(status_code=404, detail="신호등 정보를 찾을 수 없습니다.")
     if not history:
-        history = [{"id": index + 1, "status": status_for(row[f"{direction}StsgSttsNm"]), "remaining_seconds": seconds_for(row[f"{direction}StsgRmndCs"]), "recorded_at": row["totDt"], "label": label} for index, (direction, label) in enumerate([("nt", "북쪽 직진"), ("et", "동쪽 직진"), ("st", "남쪽 직진"), ("wt", "서쪽 직진")])]
+        available_columns = set(row.keys())
+        history = []
+        for index, (direction, label) in enumerate([("nt", "북쪽 직진"), ("et", "동쪽 직진"), ("st", "남쪽 직진"), ("wt", "서쪽 직진")]):
+            status_column, seconds_column = f"{direction}StsgSttsNm", f"{direction}StsgRmndCs"
+            if status_column not in available_columns or seconds_column not in available_columns:
+                continue
+            history.append({"id": index + 1, "status": status_for(row[status_column]), "remaining_seconds": seconds_for(row[seconds_column]), "recorded_at": row["totDt"], "label": label})
     return {"signal": to_signal(row), "history": [dict(item) for item in history]}
 @app.put("/api/signals/{signal_id}")
 def update_signal(signal_id: int, update: SignalUpdate):

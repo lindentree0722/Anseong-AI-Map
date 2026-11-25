@@ -13,8 +13,18 @@ interface DetailViewProps {
 const phaseOrder: SignalStatus[] = ['green', 'red', 'yellow']
 const directionLabels = ['북쪽 직진', '동쪽 직진', '남쪽 직진', '서쪽 직진']
 
-const directionalDetails = (history: SignalHistory[]): DirectionalSignal[] =>
-  directionLabels.map((label, index) => {
+const directionalDetails = (history: SignalHistory[]): DirectionalSignal[] => {
+  const labeledHistory = history.filter((item): item is SignalHistory & { label: string } => Boolean(item.label))
+  if (labeledHistory.length) {
+    return labeledHistory.map((item) => ({
+      id: item.label,
+      label: item.label,
+      status: item.status,
+      remaining_seconds: item.remaining_seconds,
+    }))
+  }
+
+  return directionLabels.map((label, index) => {
     const item = history.find((entry) => entry.label === label) ?? history[index]
     return {
       id: label,
@@ -23,6 +33,7 @@ const directionalDetails = (history: SignalHistory[]): DirectionalSignal[] =>
       remaining_seconds: item?.remaining_seconds ?? 0,
     }
   })
+}
 
 export function DetailView({ signal, history, loading, error, onBack }: DetailViewProps) {
   if (!signal || loading) {

@@ -49,6 +49,15 @@ h1 { margin-bottom: var(--space-5); max-width: 660px; font-size: clamp(var(--tex
 .map-view .leaflet-control-attribution { font-size: var(--text-xs); }
 .map-location { margin: var(--space-2) 0 0; color: var(--color-text-2); font-size: var(--text-sm); }
 .leaflet-container { font: inherit; }
+.map-popup { display: grid; gap: 6px; min-width: 180px; }
+.map-popup > span { color: var(--color-text-2); font-size: var(--text-xs); }
+.map-popup-current { font-size: var(--text-sm); }
+.map-popup-current.green, .map-popup-phases .green em { color: var(--color-success); }
+.map-popup-current.yellow, .map-popup-phases .yellow em { color: var(--color-warning); }
+.map-popup-current.red, .map-popup-phases .red em { color: var(--color-danger); }
+.map-popup-phases { display: grid; gap: 3px; border-top: var(--border-width) solid var(--color-border); padding-top: 6px; }
+.map-popup-phases span { display: flex; justify-content: space-between; gap: var(--space-2); font-size: var(--text-xs); }
+.map-popup-phases em { color: var(--color-text-2); font-style: normal; }
 @media (min-width: 640px) { .map-frame, .map-view { min-height: 360px; height: 360px; } }
 .signal-phase-times { min-width: 92px; }
 @media (max-width: 639px) { .signal-row { grid-template-columns: 34px minmax(0, 1fr) 92px 14px; }.signal-phase-times > span { gap: 4px; font-size: 10px; }.signal-phase-times b { font-size: 11px; } }

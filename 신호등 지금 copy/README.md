@@ -12,7 +12,7 @@
 
 ```powershell
 python -m pip install -r requirements.txt
-python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+python -m uvicorn backend.main_copy:app --host 127.0.0.1 --port 8000
 ```
 
 프론트엔드 소스를 수정한 뒤에는 Node.js가 설치된 환경에서 `npm ci`와 `npm run build`를 실행해 `dist`를 갱신하세요.
