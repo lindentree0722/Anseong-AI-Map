@@ -20,12 +20,33 @@ uv run uvicorn main:app --reload
 - 신호 동기화·수정: `POST /api/traffic-signals/sync`, `PUT /api/signals/{id}`
 - 상권 반경 조회: `GET /api/commercial-service/storeListInRadius`
 - 공실 목록 조회: `GET /api/commercial-service/vacancies`
+- 공실 처방: `GET /api/commercial-service/vacancies/{vacancy_id}/prescription`
 
 ### 공실 목록 API
 
 기본 응답은 `data/vacancies-sample.json`의 가상 공실 목록이며 `data_status`는 `sample`입니다. 실제 자료를 받으면 같은 형식의 JSON 파일을 준비하고 서버 환경변수 `ANSEONG_VACANCY_DATA_PATH`에 경로를 지정하세요. 상대 경로는 `backend/` 기준입니다. 설정한 파일의 응답에는 `data_status: "reported"`가 붙습니다.
 
 파일에는 제공처명 `source`와 공실 배열 `items`가 필요합니다. 각 항목은 고유한 문자열 `id`, `name`, 위도 `lat`, 경도 `lng`, 확인일 `confirmed_on` (`YYYY-MM-DD`)을 포함합니다. `address`는 선택 항목입니다. 공실이 없으면 빈 배열을 사용하세요. 파일을 읽을 수 없거나 형식이 잘못되면 API는 503을 반환합니다. 실제 자료 파일은 저장소 외부에서 관리하세요.
+
+### 공실 처방 API
+
+`/api/docs`에서 공실 목록의 ID를 선택해 처방을 조회합니다. 샘플 요청은 `GET /api/commercial-service/vacancies/grid-vacancy-7/prescription?radius_m=300`입니다. 반경은 공실을 중심으로 100~1,500m이며 기본값은 300m입니다.
+
+- 지도에 표시할 주변 점포·시설, 반경 내 업종 분포, 가장 가까운 유동인구 관측 지점의 시간대별 기록, 가까운 도로와 시간대별 평균속도를 반환합니다. 반경과 도로 거리는 좌표로 계산합니다.
+- 추천은 최대 3개 업종이며, 공급 공백 55%, 유동인구 시간대 적합도 20%, 주변 시설 적합도 15%, 도로 접근성 10%를 사용합니다. 공급 공백은 전체 자료와 반경 내 업종 비중을 비교합니다. 유동인구는 업종별 가정 영업시간에 해당하는 관측의 시간당 인원을, 시설은 업종에 관련된 유형의 개수를, 도로는 구간까지의 거리와 관측 속도를 반영합니다. 사용할 수 있는 항목의 가중치만 합계 100%로 환산합니다. 점수는 시연용 규칙이며 매출·수익 예측에는 사용할 수 없습니다.
+- 반경 내 점포가 없으면 `insufficient_store_data`와 빈 추천 배열을 반환합니다. 보류 중인 신호 평균 대기시간은 `null`이며 추천 점수에서 제외됩니다. 공실 ID가 없으면 404, 자료를 읽거나 검증할 수 없으면 503입니다.
+
+기본값으로 내장 샘플을 읽습니다. 실자료를 연결하려면 공실 파일은 `ANSEONG_VACANCY_DATA_PATH`를 사용하고, 나머지 파일은 `ANSEONG_PRESCRIPTION_DATA_DIR`로 지정한 디렉터리에 둡니다. 디렉터리의 상대 경로는 `backend/` 기준입니다.
+
+| 파일 | 참고 형식 |
+| --- | --- |
+| `stores.json` | `stores-sample.json`의 점포 ID, 위치, 업종 코드 및 이름 |
+| `facilities.json` | `facilities-sample.json`의 시설 ID, 위치 및 유형 |
+| `road-network.json` | `road-network-sample.json`의 도로 링크와 교차로 |
+| `traffic-observations.json` | `traffic-observations-sample.json`의 도로 링크 ID, 시각 및 평균속도 |
+| `foot-traffic.json` | `foot-traffic-sample.json`의 교차로 ID, 집계 시작·종료 시각 및 인원수 |
+
+각 파일은 `source`, `reference_date`, `data_status`를 포함해야 합니다. 실자료는 `reported`, 가상 자료는 `sample`로 표시합니다. 실자료와 샘플이 섞이면 처방 응답은 `mixed`이며 개별 출처는 `sources`에서 확인할 수 있습니다. 실자료의 업종 코드가 `CAFE`, `FOOD`, `RETAIL`, `LIFE`, `HEALTH`, `EDU`인 경우 시연의 시간대·시설 적합도 규칙이 적용됩니다. 추가 업종에는 공급 공백과 이용 가능한 도로 접근성 점수를 사용합니다.
 
 ## 단일 서버 실행 및 Render 배포
 

@@ -15,7 +15,7 @@ ENV ANSEONG_ALLOW_WRITES=0
 COPY backend/pyproject.toml backend/uv.lock backend/README.md ./backend/
 RUN uv sync --project backend --locked --no-dev --no-install-project --python 3.15.0b3
 COPY backend/*.py ./backend/
-COPY backend/data/traffic-sample.json ./backend/data/traffic-sample.json
+COPY backend/data/*-sample.json ./backend/data/
 COPY --from=frontend /build/dist ./frontend/dist
 
 CMD ["sh", "-c", "exec backend/.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port \"${PORT:-10000}\""]
