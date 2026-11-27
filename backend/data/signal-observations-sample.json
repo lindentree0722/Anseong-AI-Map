@@ -1,0 +1,17 @@
+{
+  "source": "안성맞춤 AI 가상 데이터",
+  "data_status": "sample",
+  "reference_date": "2026-11-27",
+  "items": [
+    {
+      "intersection_id": "node-02",
+      "incoming_link_id": "link-01",
+      "approach_from_node_id": "node-01",
+      "outgoing_link_id": "link-02",
+      "observed_at": "2026-11-27T08:00:00+09:00",
+      "cycle_seconds": 90,
+      "green_seconds": 36,
+      "average_wait_seconds": 32
+    }
+  ]
+}

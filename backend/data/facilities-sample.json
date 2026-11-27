@@ -1,0 +1,21 @@
+{
+  "source": "안성맞춤 AI 가상 데이터",
+  "data_status": "sample",
+  "reference_date": "2026-11-27",
+  "items": [
+    {
+      "id": "facility-01",
+      "name": "가상 버스 정류장",
+      "type": "bus_stop",
+      "lat": 37.0082,
+      "lng": 127.2799
+    },
+    {
+      "id": "facility-02",
+      "name": "가상 도서관",
+      "type": "library",
+      "lat": 37.0071,
+      "lng": 127.2812
+    }
+  ]
+}

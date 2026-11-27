@@ -1,0 +1,42 @@
+{
+  "source": "안성맞춤 AI 가상 데이터",
+  "data_status": "sample",
+  "reference_date": "2026-11-27",
+  "nodes": [
+    {
+      "id": "node-01",
+      "name": "가상 북측 교차로",
+      "lat": 37.009,
+      "lng": 127.279
+    },
+    {
+      "id": "node-02",
+      "name": "가상 중앙 교차로",
+      "lat": 37.008,
+      "lng": 127.28
+    },
+    {
+      "id": "node-03",
+      "name": "가상 남측 교차로",
+      "lat": 37.007,
+      "lng": 127.281
+    }
+  ],
+  "links": [
+    {
+      "id": "link-01",
+      "from_node_id": "node-01",
+      "to_node_id": "node-02",
+      "length_m": 142,
+      "one_way": false
+    },
+    {
+      "id": "link-02",
+      "from_node_id": "node-02",
+      "to_node_id": "node-03",
+      "length_m": 142,
+      "one_way": true
+    }
+  ],
+  "turn_restrictions": []
+}

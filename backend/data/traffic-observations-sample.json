@@ -1,0 +1,27 @@
+{
+  "source": "안성맞춤 AI 가상 데이터",
+  "data_status": "sample",
+  "reference_date": "2026-11-27",
+  "items": [
+    {
+      "link_id": "link-01",
+      "from_node_id": "node-01",
+      "to_node_id": "node-02",
+      "observed_at": "2026-11-27T08:00:00+09:00",
+      "average_speed_kmh": 25.6,
+      "travel_time_seconds": 20,
+      "vehicle_count": 24,
+      "aggregation_interval_seconds": 300
+    },
+    {
+      "link_id": "link-02",
+      "from_node_id": "node-02",
+      "to_node_id": "node-03",
+      "observed_at": "2026-11-27T08:00:00+09:00",
+      "average_speed_kmh": 35.5,
+      "travel_time_seconds": 14.4,
+      "vehicle_count": 18,
+      "aggregation_interval_seconds": 300
+    }
+  ]
+}

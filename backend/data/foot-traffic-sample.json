@@ -1,0 +1,19 @@
+{
+  "source": "안성맞춤 AI 가상 데이터",
+  "data_status": "sample",
+  "reference_date": "2026-11-27",
+  "items": [
+    {
+      "node_id": "node-02",
+      "window_start": "2026-11-27T08:00:00+09:00",
+      "window_end": "2026-11-27T09:00:00+09:00",
+      "pedestrian_count": 180
+    },
+    {
+      "node_id": "node-02",
+      "window_start": "2026-11-27T12:00:00+09:00",
+      "window_end": "2026-11-27T13:00:00+09:00",
+      "pedestrian_count": 260
+    }
+  ]
+}
