@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { DetailView } from './components/DetailView'
 import { SignalList } from './components/SignalList'
 import { TrafficOptimizer } from './components/TrafficOptimizer'
+import { SampleWaitTimes } from './components/SampleWaitTimes'
 import type { Signal, SignalHistory, SignalStatus } from './components/signal-utils'
 import { api } from './lib/api'
 import { getDummySignalDetail, getDummySignalList, readJson, validateList, validateDetail } from './lib/responses.mjs'
@@ -14,7 +15,7 @@ const filters: {value: Filter; label: string}[] = [
 const pageSize = 20
 const dataProxyUrl = import.meta.env.VITE_SIGNAL_DATA_PROXY_URL?.trim()
 export default function SignalsPage() {
-  const [view, setView] = useState<'signals' | 'optimizer'>('signals')
+  const [view, setView] = useState<'signals' | 'optimizer' | 'waits'>('signals')
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [items, setItems] = useState<Signal[]>([])
@@ -115,9 +116,9 @@ export default function SignalsPage() {
   const openDetail = (item: Signal) => setSelected(item)
   const resultLabel = useMemo(() => query.trim() ? `“${query.trim()}” 검색 결과` : '신호등 현황', [query])
   return <div className="page-signals"><div className="app-shell">
-    <header className="hero"><div className="container"><p className="brand-mark">안성시 신호 진단 <span>관측 정보</span></p><h1>{view === 'signals' ? <>안성시 교차로의<br />방향별 신호를 확인하세요.</> : <>교통량을 살펴보고<br />신호 개선안을 확인하세요.</>}</h1>{view === 'signals' && <><label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setOffset(0) }} placeholder="지역, 교차로 이름 또는 ID 검색" aria-label="지역 검색" autoComplete="off" /><kbd>⌘ K</kbd></label><p className="data-note">{syncNote}</p></>}<nav className="app-tabs" aria-label="서비스 선택"><button type="button" className={view === 'signals' ? 'active' : ''} onClick={() => setView('signals')}>신호 현황</button><button type="button" className={view === 'optimizer' ? 'active' : ''} onClick={() => setView('optimizer')}>교통량 분석</button></nav></div></header>
+    <header className="hero"><div className="container"><p className="brand-mark">안성시 신호 진단 <span>관측 정보</span></p><h1>{view === 'signals' ? <>안성시 교차로의<br />방향별 신호를 확인하세요.</> : view === 'waits' ? <>가상 신호 대기시간을 확인하세요.</> : <>교통량을 살펴보고<br />신호 개선안을 확인하세요.</>}</h1>{view === 'signals' && <><label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setOffset(0) }} placeholder="지역, 교차로 이름 또는 ID 검색" aria-label="지역 검색" autoComplete="off" /><kbd>⌘ K</kbd></label><p className="data-note">{syncNote}</p></>}<nav className="app-tabs" aria-label="서비스 선택"><button type="button" className={view === 'signals' ? 'active' : ''} onClick={() => setView('signals')}>신호 현황</button><button type="button" className={view === 'optimizer' ? 'active' : ''} onClick={() => setView('optimizer')}>교통량 분석</button><button type="button" className={view === 'waits' ? 'active' : ''} onClick={() => setView('waits')}>가상 대기시간</button></nav></div></header>
     <main className="container content">
-      {view === 'optimizer' ? <TrafficOptimizer /> : selected ? <><button className="back-button" onClick={() => setDetailRefresh(v => v + 1)} disabled={detailLoading}>상세 다시 조회</button><DetailView signal={selected} history={history} loading={detailLoading} error={detailError} onBack={() => setSelected(null)} /></> : <>
+      {view === 'waits' ? <SampleWaitTimes /> : view === 'optimizer' ? <TrafficOptimizer /> : selected ? <><button className="back-button" onClick={() => setDetailRefresh(v => v + 1)} disabled={detailLoading}>상세 다시 조회</button><DetailView signal={selected} history={history} loading={detailLoading} error={detailError} onBack={() => setSelected(null)} /></> : <>
         <section className="results-head"><div><p className="eyebrow">신호등 조회</p><h2>{resultLabel}</h2></div><span className="result-count tabular">{loading ? '조회 중' : `${items.length}곳 / ${total.toLocaleString()}건`}</span></section>
         <nav className="filter-tabs" aria-label="신호 상태 필터">{filters.map((item) => <button type="button" key={item.value} className={filter === item.value ? 'active' : ''} onClick={() => { setFilter(item.value); setOffset(0) }}>{item.label}</button>)}</nav>
         <button className="back-button" onClick={() => setRefresh(v => v + 1)} disabled={loading}>다시 조회</button><SignalList items={items} loading={loading} error={error} hasQuery={Boolean(query.trim())} onSelect={openDetail} />

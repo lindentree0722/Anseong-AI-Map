@@ -17,6 +17,7 @@ uv run uvicorn main:app --reload
 - 장소 전체 삭제: `DELETE /api/places`
 - 교통 개요: `GET /api/traffic/overview`
 - 가상 신호 대기시간: `GET /api/traffic/signals/wait-times`
+- 가상 경로 선택지와 비교: `GET /api/traffic/sample-routes/options`, `GET /api/traffic/sample-routes`
 - 신호 목록·상세: `GET /api/traffic-signals`, `GET /api/traffic-signals/{id}`
 - 신호 동기화·수정: `POST /api/traffic-signals/sync`, `PUT /api/signals/{id}`
 - 상권 반경 조회: `GET /api/commercial-service/storeListInRadius`
@@ -53,6 +54,12 @@ uv run uvicorn main:app --reload
 ### 가상 신호 대기시간 API
 
 `GET /api/traffic/signals/wait-times`는 가상 관측의 교차로별·시간대별 평균 대기시간과 집계 건수를 반환합니다. `?intersection_id=grid-node-2`로 특정 교차로를 조회할 수 있습니다. 시간대는 한국 표준시 기준이며, `data_status`는 `sample`입니다. 관측이 없는 교차로는 빈 배열을, 등록되지 않은 교차로 ID는 404를 반환합니다.
+
+### 가상 경로 비교 API
+
+선택지 API는 가상 교차로와 교통 관측 시간대를 반환합니다. `GET /api/traffic/sample-routes?start_id=grid-node-2&end_id=grid-node-8&hour=8`은 지정한 한국 표준시 시간대의 통행시간과 신호 대기시간 합계가 짧은 순으로 경로를 최대 3개 반환합니다. 도로의 일방통행과 금지된 회전을 반영합니다.
+
+방향·시간대가 일치하는 구간 관측이 없으면 길이와 30km/h로 구간 통행시간을 추정합니다. 신호 대기시간은 교차로에서 진입·진출 방향과 시간대가 일치하는 기록만 합산합니다. 추정 구간 수와 대기시간이 반영된 회전 수를 응답에서 확인할 수 있습니다. 연결된 경로가 없으면 빈 배열, 알 수 없는 교차로는 404, 출발지와 도착지가 같으면 422입니다.
 
 ## 단일 서버 실행 및 Render 배포
 

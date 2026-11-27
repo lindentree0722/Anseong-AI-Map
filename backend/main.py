@@ -14,10 +14,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 if __package__:
-    from . import commercial, database, prescriptions, signal_provider, signals, vacancies
+    from . import commercial, database, prescriptions, sample_routes, signal_provider, signals, vacancies
     from .traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 else:
-    import commercial, database, prescriptions, signal_provider, signals, vacancies
+    import commercial, database, prescriptions, sample_routes, signal_provider, signals, vacancies
     from traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 
 
@@ -134,6 +134,7 @@ api.include_router(signals.router)
 api.include_router(commercial.router)
 api.include_router(vacancies.router)
 api.include_router(prescriptions.router)
+api.include_router(sample_routes.router)
 app.include_router(api)
 
 if (FRONTEND_DIST / "assets").is_dir():

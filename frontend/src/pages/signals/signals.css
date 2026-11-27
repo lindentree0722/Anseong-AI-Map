@@ -235,3 +235,8 @@
 @media (min-width: 640px) { .page-signals .optimizer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.page-signals .optimizer { gap: var(--space-5); } }
 
 .page-signals .signal-location-map { height: 240px; margin: 12px 0; }
+.page-signals .sample-waits { padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg); }
+.page-signals .sample-waits select { display: block; width: 100%; max-width: 24rem; padding: .5rem; margin: .3rem 0 1rem; font: inherit; }
+.page-signals .sample-waits table { width: 100%; border-collapse: collapse; }
+.page-signals .sample-waits th, .page-signals .sample-waits td { padding: .55rem .35rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+.page-signals .app-tabs { flex-wrap: wrap; }

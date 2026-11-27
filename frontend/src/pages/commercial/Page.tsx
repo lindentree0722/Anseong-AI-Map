@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import CommercialMap, { type Position, type Store, type Vacancy } from './Map'
 import { genDemo, summarize, recommend, PALETTE } from './model.mjs'
 import { DEFAULT_ENDPOINT, fetchStoresOrDemo } from './api.mjs'
+import { useApiData } from '../../lib/use-api-data'
+import { PrescriptionDetails, statusLabel, vacancyApi, type Prescription, type VacancyListing } from './PrescriptionDetails'
 import './commercial.css'
 type Mode = 'demo'|'proxy'|'api'
 export default function CommercialPage() {
@@ -14,28 +16,33 @@ export default function CommercialPage() {
   const [requestConfig,setRequestConfig] = useState({key:'',endpoint:DEFAULT_ENDPOINT})
   const [refresh,setRefresh] = useState(0)
   const [stores,setStores] = useState<Store[]>([])
-  const [vacs,setVacs] = useState<Vacancy[]>([])
+  const [manualVacs,setManualVacs] = useState<Vacancy[]>([])
   const [hidden,setHidden] = useState<Set<string>>(new Set())
   const [selected,setSelected] = useState<string|null>(null)
   const [addMode,setAddMode] = useState(false)
   const [loading,setLoading] = useState(false)
   const [status,setStatus] = useState('')
   const [error,setError] = useState(false)
+  const listing = useApiData<VacancyListing>(vacancyApi)
+  const vacancyData = listing.result?.status === 'ready' ? listing.result.data : null
+  const vacs = useMemo(() => [...(vacancyData?.items ?? []), ...manualVacs], [vacancyData,manualVacs])
+  const listedVacancy = vacancyData?.items.find(vacancy => vacancy.id === selected)
+  const prescription = useApiData<Prescription>(listedVacancy
+    ? `${vacancyApi}/${encodeURIComponent(listedVacancy.id)}/prescription?radius_m=${radius}` : null)
+  const prescriptionData = prescription.result?.status === 'ready' ? prescription.result.data : null
   useEffect(() => {
     const controller = new AbortController()
-    setLoading(true); setError(false); setStatus('불러오는 중…'); setSelected(null)
+    setLoading(true); setError(false); setStatus('불러오는 중…')
     async function load() {
       try {
         if (mode === 'demo') {
           const data = genDemo(center,radius)
           setStores(data.stores)
-          setVacs(current => [...data.vacs,...current.filter(v => v.id.startsWith('v'))])
-          setStatus('데모 데이터입니다(가상). API 모드로 바꾸면 실제 상가정보를 조회합니다.')
+          setStatus('분석 중심의 가상 영업점을 표시합니다.')
         } else {
           const result = await fetchStoresOrDemo({...requestConfig,mode,center,radius},controller.signal)
           if (!controller.signal.aborted) {
             setStores(result.stores)
-            setVacs(current => result.usedDummy ? [...result.vacs,...current.filter(v => v.id.startsWith('v'))] : current.filter(v => v.id.startsWith('v')))
             setStatus(result.usedDummy
               ? '연결된 상권 API가 없어 더미 데이터를 표시합니다.'
               : `상가 ${result.stores.length}곳을 불러왔습니다.${result.limited ? ' 최대 5페이지를 조회해 일부 결과만 표시합니다.' : ''}`)
@@ -48,22 +55,27 @@ export default function CommercialPage() {
     void load()
     return () => controller.abort()
   }, [center,radius,mode,requestConfig,refresh])
-  const colors = useMemo(() => Object.fromEntries([...new Set(stores.map(s => s.cat))].map((cat,i) => [cat,PALETTE[i % PALETTE.length]])),[stores])
-  const summary = useMemo(() => summarize(stores,center,radius),[stores,center,radius])
+  const mapStores = useMemo(() => {
+    if (!listedVacancy) return stores
+    return prescriptionData?.nearby_stores.map(store => ({...store,cat:store.category_name})) ?? []
+  }, [listedVacancy, prescriptionData, stores])
+  const mapCenter = listedVacancy ?? center
+  const colors = useMemo(() => Object.fromEntries([...new Set(mapStores.map(s => s.cat))].map((cat,i) => [cat,PALETTE[i % PALETTE.length]])),[mapStores])
+  const summary = useMemo(() => summarize(mapStores,mapCenter,radius),[mapStores,mapCenter,radius])
   const selectedVacancy = vacs.find(v => v.id === selected)
   const recs = useMemo(() => recommend(stores,selectedVacancy ?? center,selectedVacancy ? 300 : radius,access),[stores,center,radius,access,selectedVacancy])
   const counts = Object.entries(summary.counts) as [string,number][]
   const max = Math.max(1,...counts.map(([,count]) => count))
   const onMapClick = useCallback((point:Position) => {
-    if (addMode) setVacs(current => [...current,{...point,id:'v'+crypto.randomUUID(),name:'공실 후보 '+(current.length+1),vacant:true}])
+    if (addMode) setManualVacs(current => [...current,{...point,id:'manual-'+crypto.randomUUID(),name:'직접 추가한 공실 '+(current.length+1),vacant:true}])
     else setCenter(point)
     setSelected(null)
   },[addMode])
-  function analyze() { setRequestConfig({key,endpoint}); setRefresh(v => v+1) }
+  function analyze() { setSelected(null); setRequestConfig({key,endpoint}); setRefresh(v => v+1) }
   return <div className="page-commercial">
     <header><h1>안성맞춤 AI · 상권 분석</h1><span>공실 처방 모듈 프로토타입 · 소상공인 상가(상권)정보 API 기반</span></header>
     <div className="wrap">
-      <CommercialMap center={center} radius={radius} stores={stores} vacs={vacs} hidden={hidden} colors={colors} selected={selected} onMapClick={onMapClick} onSelect={setSelected}/>
+      <CommercialMap center={mapCenter} radius={radius} stores={mapStores} vacs={vacs} hidden={hidden} colors={colors} selected={selected} onMapClick={onMapClick} onSelect={setSelected}/>
       <div className="side">
         <section className="card"><h2>데이터 설정</h2>
           <label htmlFor="commercial-mode">데이터 모드</label>
@@ -79,20 +91,30 @@ export default function CommercialPage() {
             <div className="note">서비스키는 저장하지 않습니다. 값을 입력한 뒤 ‘이 위치 분석’을 눌러 주세요. 브라우저 호출이 CORS로 차단되면 프록시가 필요합니다.</div>
           </div>}
           <label htmlFor="commercial-radius">분석 반경: {radius}m</label><input id="commercial-radius" type="range" min="200" max="1500" step="100" value={radius} onChange={e => setRadius(Number(e.target.value))}/>
-          <label htmlFor="commercial-access">접근성 점수(신호 진단 연계 임시 입력): {access}</label><input id="commercial-access" type="range" min="0" max="100" step="5" value={access} onChange={e => setAccess(Number(e.target.value))}/>
+          {!listedVacancy && <><label htmlFor="commercial-access">접근성 점수(직접 입력): {access}</label><input id="commercial-access" type="range" min="0" max="100" step="5" value={access} onChange={e => setAccess(Number(e.target.value))}/></>}
           <div className="row" style={{marginTop:10}}><button className="pri" onClick={analyze} disabled={loading}>{loading ? '조회 중…' : '이 위치 분석'}</button><button className={addMode ? 'on' : ''} aria-pressed={addMode} onClick={() => setAddMode(v => !v)}>공실 추가 모드{addMode ? ' ON' : ''}</button></div>
-          <div id="status" className={error ? 'err' : ''} role={error ? 'alert' : 'status'}>{status}</div>
+          {!listedVacancy && <div id="status" className={error ? 'err' : ''} role={error ? 'alert' : 'status'}>{status}</div>}
           <div className="note">지도를 클릭하면 분석 중심이 이동합니다. ‘공실 추가 모드’에서는 클릭한 위치에 공실 후보가 추가됩니다. 공실 위치는 상가정보 API에 없으므로 별도 자료나 직접 입력이 필요합니다.</div>
         </section>
+        {listedVacancy && <PrescriptionDetails vacancy={listedVacancy} request={prescription}/>}
         <section className="card"><h2>상권 요약</h2><div className="kpis"><div className="kpi"><b>{summary.count}</b><small>업소 수</small></div><div className="kpi"><b>{summary.count ? summary.density : '-'}</b><small>업소/㎢</small></div><div className="kpi"><b>{summary.count ? summary.diversity : '-'}</b><small>업종 다양성(0~100)</small></div></div></section>
         <section className="card"><h2>업종 분포 <small style={{fontWeight:400,color:'var(--sub)'}}>(클릭하면 지도에서 숨김/표시)</small></h2>
           {counts.length ? counts.sort((a,b) => b[1]-a[1]).map(([cat,count]) => <button key={cat} className={`bar ${hidden.has(cat) ? 'off' : ''}`} aria-pressed={!hidden.has(cat)} onClick={() => setHidden(current => {const next = new Set(current); next.has(cat) ? next.delete(cat) : next.add(cat); return next})}><span>{cat}</span><i style={{width:count/max*100+'%',background:colors[cat]}}/><span>{count}</span></button>) : <div className="note">데이터가 없습니다.</div>}
         </section>
-        <section className="card"><h2>적합 업종 추천 <small style={{fontWeight:400,color:'var(--sub)'}}>· {selectedVacancy ? selectedVacancy.name+' 반경 300m' : `분석 중심 반경 ${radius}m`}</small></h2>
+        {!listedVacancy && <section className="card"><h2>적합 업종 추천 <small style={{fontWeight:400,color:'var(--sub)'}}>· {selectedVacancy ? selectedVacancy.name+' 반경 300m' : `분석 중심 반경 ${radius}m`}</small></h2>
           {recs[0]?.scope ? recs.map((rec,i) => <div className="rec" key={rec.cat}><span className="score">{rec.score}점</span><b>{i+1}. {rec.cat}</b><small>반경 내 {rec.n}곳({rec.pct}%) · 접근성 {access}</small></div>) : <div className="note">분석할 업소 데이터가 없습니다.</div>}
           <div className="note">현재는 업종 공급 공백과 접근성 점수를 합산하는 규칙 기반 점수입니다. 실제 매출이나 수익을 예측하지 않습니다.</div>
+        </section>}
+        <section className="card"><h2>공실 후보</h2>
+          {listing.result?.status === 'loading' && <p role="status">공실 목록을 불러오는 중입니다…</p>}
+          {listing.result?.status === 'error' && <p role="alert">공실 목록을 불러오지 못했습니다. <button onClick={listing.retry}>다시 시도</button></p>}
+          {vacancyData && <p className="note">{statusLabel[vacancyData.data_status]} · {vacancyData.source}</p>}
+          {vacancyData && vacs.length === 0 && <p role="status">공실 후보가 없습니다.</p>}
+          {vacs.map(v => <div className="vac" key={v.id}><span>{v.name}</span><span>
+            <button aria-label={`${v.name} 분석`} aria-pressed={selected === v.id} onClick={() => setSelected(v.id)}>분석</button>{' '}
+            {manualVacs.includes(v) && <button aria-label={`${v.name} 삭제`} onClick={() => {setManualVacs(current => current.filter(x => x.id !== v.id)); if (selected === v.id) setSelected(null)}}>삭제</button>}
+          </span></div>)}
         </section>
-        <section className="card"><h2>공실 후보</h2>{vacs.length ? vacs.map(v => <div className="vac" key={v.id}><span>{v.name}</span><span><button onClick={() => setSelected(v.id)}>분석</button> <button aria-label={`${v.name} 삭제`} onClick={() => {setVacs(current => current.filter(x => x.id !== v.id)); if (selected === v.id) setSelected(null)}}>삭제</button></span></div>) : <div className="note">공실 후보가 없습니다.</div>}</section>
       </div>
     </div>
   </div>
