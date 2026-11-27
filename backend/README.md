@@ -16,6 +16,7 @@ uv run uvicorn main:app --reload
 - 장소 등록: `POST /api/places` (JSON 객체 배열)
 - 장소 전체 삭제: `DELETE /api/places`
 - 교통 개요: `GET /api/traffic/overview`
+- 가상 신호 대기시간: `GET /api/traffic/signals/wait-times`
 - 신호 목록·상세: `GET /api/traffic-signals`, `GET /api/traffic-signals/{id}`
 - 신호 동기화·수정: `POST /api/traffic-signals/sync`, `PUT /api/signals/{id}`
 - 상권 반경 조회: `GET /api/commercial-service/storeListInRadius`
@@ -34,7 +35,7 @@ uv run uvicorn main:app --reload
 
 - 지도에 표시할 주변 점포·시설, 반경 내 업종 분포, 가장 가까운 유동인구 관측 지점의 시간대별 기록, 가까운 도로와 시간대별 평균속도를 반환합니다. 반경과 도로 거리는 좌표로 계산합니다.
 - 추천은 최대 3개 업종이며, 공급 공백 55%, 유동인구 시간대 적합도 20%, 주변 시설 적합도 15%, 도로 접근성 10%를 사용합니다. 공급 공백은 전체 자료와 반경 내 업종 비중을 비교합니다. 유동인구는 업종별 가정 영업시간에 해당하는 관측의 시간당 인원을, 시설은 업종에 관련된 유형의 개수를, 도로는 구간까지의 거리와 관측 속도를 반영합니다. 사용할 수 있는 항목의 가중치만 합계 100%로 환산합니다. 점수는 시연용 규칙이며 매출·수익 예측에는 사용할 수 없습니다.
-- 반경 내 점포가 없으면 `insufficient_store_data`와 빈 추천 배열을 반환합니다. 보류 중인 신호 평균 대기시간은 `null`이며 추천 점수에서 제외됩니다. 공실 ID가 없으면 404, 자료를 읽거나 검증할 수 없으면 503입니다.
+- 반경 내 점포가 없으면 `insufficient_store_data`와 빈 추천 배열을 반환합니다. 반경 내 가상 신호 기록이 있으면 전체 기록의 평균 `signal_average_wait_seconds`와 교차로·시간대별 `signal_wait_by_hour`를 제공합니다. 자료가 없으면 `null`과 빈 배열을 반환합니다. 신호 대기시간은 별도 참고 지표입니다. 공실 ID가 없으면 404, 자료를 읽거나 검증할 수 없으면 503입니다.
 
 기본값으로 내장 샘플을 읽습니다. 실자료를 연결하려면 공실 파일은 `ANSEONG_VACANCY_DATA_PATH`를 사용하고, 나머지 파일은 `ANSEONG_PRESCRIPTION_DATA_DIR`로 지정한 디렉터리에 둡니다. 디렉터리의 상대 경로는 `backend/` 기준입니다.
 
@@ -45,8 +46,13 @@ uv run uvicorn main:app --reload
 | `road-network.json` | `road-network-sample.json`의 도로 링크와 교차로 |
 | `traffic-observations.json` | `traffic-observations-sample.json`의 도로 링크 ID, 시각 및 평균속도 |
 | `foot-traffic.json` | `foot-traffic-sample.json`의 교차로 ID, 집계 시작·종료 시각 및 인원수 |
+| `signal-observations.json` (선택) | `signal-observations-sample.json`의 교차로 ID, 관측시각 및 평균 대기시간 |
 
 각 파일은 `source`, `reference_date`, `data_status`를 포함해야 합니다. 실자료는 `reported`, 가상 자료는 `sample`로 표시합니다. 실자료와 샘플이 섞이면 처방 응답은 `mixed`이며 개별 출처는 `sources`에서 확인할 수 있습니다. 실자료의 업종 코드가 `CAFE`, `FOOD`, `RETAIL`, `LIFE`, `HEALTH`, `EDU`인 경우 시연의 시간대·시설 적합도 규칙이 적용됩니다. 추가 업종에는 공급 공백과 이용 가능한 도로 접근성 점수를 사용합니다.
+
+### 가상 신호 대기시간 API
+
+`GET /api/traffic/signals/wait-times`는 가상 관측의 교차로별·시간대별 평균 대기시간과 집계 건수를 반환합니다. `?intersection_id=grid-node-2`로 특정 교차로를 조회할 수 있습니다. 시간대는 한국 표준시 기준이며, `data_status`는 `sample`입니다. 관측이 없는 교차로는 빈 배열을, 등록되지 않은 교차로 ID는 404를 반환합니다.
 
 ## 단일 서버 실행 및 Render 배포
 

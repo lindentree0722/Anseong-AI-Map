@@ -71,6 +71,12 @@ class TrafficObservation(BaseModel):
     average_speed_kmh: NonnegativeNumber
 
 
+class SignalObservation(BaseModel):
+    intersection_id: str
+    observed_at: AwareDatetime
+    average_wait_seconds: NonnegativeNumber
+
+
 class PedestrianObservation(BaseModel):
     node_id: str
     window_start: AwareDatetime
@@ -105,6 +111,7 @@ class AnalysisInputs(BaseModel):
     road_network: RoadNetwork
     road_traffic: Rows[TrafficObservation]
     pedestrians: Rows[PedestrianObservation]
+    signals: Rows[SignalObservation] | None = None
 
     @model_validator(mode="after")
     def validate_references(self) -> AnalysisInputs:
@@ -117,6 +124,7 @@ class AnalysisInputs(BaseModel):
                    for link in self.road_network.links)
             or any(row.link_id not in link_ids for row in self.road_traffic.items)
             or any(row.node_id not in node_ids for row in self.pedestrians.items)
+            or (self.signals is not None and any(row.intersection_id not in node_ids for row in self.signals.items))
         ):
             raise ValueError("inconsistent road network references")
         return self
@@ -141,6 +149,18 @@ class SpeedSummary(BaseModel):
     observed_hour: datetime
     average_speed_kmh: float
     observation_count: int
+
+
+class SignalWaitSummary(BaseModel):
+    intersection_id: str
+    intersection_name: str
+    observed_hour: AwareDatetime
+    average_wait_seconds: float
+    observation_count: int
+
+
+class SignalWaitResponse(Source):
+    hours: list[SignalWaitSummary]
 
 
 class RoadContext(BaseModel):
@@ -172,7 +192,8 @@ class Prescription(BaseModel):
     facilities: list[NearbyFacility]
     pedestrians: PedestrianContext | None
     road_access: RoadContext | None
-    signal_average_wait_seconds: None = None
+    signal_average_wait_seconds: float | None = None
+    signal_wait_by_hour: list[SignalWaitSummary]
     status: Literal["ready", "insufficient_store_data"]
     recommendations: list[Recommendation]
 
@@ -181,6 +202,13 @@ def load_inputs() -> AnalysisInputs:
     configured_dir = os.getenv("ANSEONG_PRESCRIPTION_DATA_DIR", "").strip()
     directory = BACKEND_DIR / (configured_dir or "data")
     suffix = ".json" if configured_dir else "-sample.json"
+    signal_path = directory / f"signal-observations{suffix}"
+    try:
+        signals = Rows[SignalObservation].model_validate_json(signal_path.read_bytes())
+    except FileNotFoundError:
+        if not configured_dir:
+            raise
+        signals = None
     return AnalysisInputs(
         stores=Rows[Store].model_validate_json((directory / f"stores{suffix}").read_bytes()),
         facilities=Rows[Facility].model_validate_json((directory / f"facilities{suffix}").read_bytes()),
@@ -191,6 +219,47 @@ def load_inputs() -> AnalysisInputs:
         pedestrians=Rows[PedestrianObservation].model_validate_json(
             (directory / f"foot-traffic{suffix}").read_bytes()
         ),
+        signals=signals,
+    )
+
+
+def summarize_signal_waits(
+    observations: list[SignalObservation], intersection_names: dict[str, str],
+) -> list[SignalWaitSummary]:
+    groups: dict[tuple[str, datetime], list[float]] = defaultdict(list)
+    for row in observations:
+        if row.intersection_id in intersection_names:
+            hour = row.observed_at.astimezone(KST).replace(minute=0, second=0, microsecond=0)
+            groups[row.intersection_id, hour].append(row.average_wait_seconds)
+
+    return [
+        SignalWaitSummary(
+            intersection_id=node_id, intersection_name=intersection_names[node_id], observed_hour=hour,
+            average_wait_seconds=round(mean(values), 1), observation_count=len(values),
+        )
+        for (node_id, hour), values in sorted(groups.items())
+    ]
+
+
+@router.get("/traffic/signals/wait-times")
+def get_signal_wait_times(intersection_id: Annotated[str | None, Query(min_length=1)] = None) -> SignalWaitResponse:
+    try:
+        road_network = RoadNetwork.model_validate_json((BACKEND_DIR / "data/road-network-sample.json").read_bytes())
+        signals = Rows[SignalObservation].model_validate_json(
+            (BACKEND_DIR / "data/signal-observations-sample.json").read_bytes()
+        )
+    except (OSError, ValidationError) as exc:
+        raise HTTPException(503, "가상 신호 대기시간 자료를 불러올 수 없습니다.") from exc
+    names = {node.id: node.name for node in road_network.nodes}
+    if any(row.intersection_id not in names for row in signals.items):
+        raise HTTPException(503, "가상 신호 자료의 교차로 정보를 확인할 수 없습니다.")
+    if intersection_id is not None:
+        if intersection_id not in names:
+            raise HTTPException(404, "교차로를 찾을 수 없습니다.")
+        names = {intersection_id: names[intersection_id]}
+    return SignalWaitResponse(
+        source=signals.source, reference_date=signals.reference_date, data_status="sample",
+        hours=summarize_signal_waits(signals.items, names),
     )
 
 
@@ -329,6 +398,8 @@ def get_prescription(vacancy_id: str, radius_m: Annotated[int, Query(ge=100, le=
         "stores": inputs.stores, "facilities": inputs.facilities, "road_network": inputs.road_network,
         "road_traffic": inputs.road_traffic, "pedestrians": inputs.pedestrians,
     }
+    if inputs.signals is not None:
+        sources["signals"] = inputs.signals
     statuses = {vacancies.data_status, *(source.data_status for source in sources.values())}
     nearby_stores = [store for store in inputs.stores.items if hypot(*offset_m(vacancy, store)) <= radius_m]
     categories = nearby_supply(inputs.stores.items, nearby_stores)
@@ -341,6 +412,8 @@ def get_prescription(vacancy_id: str, radius_m: Annotated[int, Query(ge=100, le=
     node_distances = {node.id: hypot(*offset_m(vacancy, node)) for node in inputs.road_network.nodes}
     pedestrians = pedestrian_context(inputs, {node: dist for node, dist in node_distances.items() if dist <= radius_m})
     road = road_context(inputs, vacancy, radius_m)
+    signal_names = {node.id: node.name for node in inputs.road_network.nodes if node_distances[node.id] <= radius_m}
+    signals = [row for row in inputs.signals.items if row.intersection_id in signal_names] if inputs.signals else []
     recommendations = (
         rank_categories(categories, pedestrians, facilities if inputs.facilities.items else None, road)
         if nearby_stores else []
@@ -351,5 +424,7 @@ def get_prescription(vacancy_id: str, radius_m: Annotated[int, Query(ge=100, le=
         sources=sources, radius_m=radius_m, nearby_store_count=len(nearby_stores),
         nearby_stores=nearby_stores, category_supply=categories,
         facilities=facilities, pedestrians=pedestrians, road_access=road,
+        signal_average_wait_seconds=round(mean(row.average_wait_seconds for row in signals), 1) if signals else None,
+        signal_wait_by_hour=summarize_signal_waits(signals, signal_names),
         status="ready" if nearby_stores else "insufficient_store_data", recommendations=recommendations,
     )
