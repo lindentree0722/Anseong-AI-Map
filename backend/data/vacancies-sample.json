@@ -1,19 +1,23 @@
 {
   "source": "안성맞춤 AI 가상 공실 샘플",
   "items": [
-    {
-      "id": "sample-1",
-      "name": "시청 주변 가상 공실 A",
-      "lat": 37.009,
-      "lng": 127.279,
-      "confirmed_on": "2026-11-27"
-    },
-    {
-      "id": "sample-2",
-      "name": "시청 주변 가상 공실 B",
-      "lat": 37.007,
-      "lng": 127.281,
-      "confirmed_on": "2026-11-27"
-    }
+    {"id": "sample-1", "name": "시청 주변 가상 공실 A", "lat": 37.009, "lng": 127.279, "confirmed_on": "2026-11-27"},
+    {"id": "sample-2", "name": "시청 주변 가상 공실 B", "lat": 37.007, "lng": 127.281, "confirmed_on": "2026-11-27"},
+    {"id": "grid-vacancy-1", "name": "가상 공실 1", "lat": 37.006434999999996, "lng": 127.2784, "confirmed_on": "2026-11-24"},
+    {"id": "grid-vacancy-2", "name": "가상 공실 2", "lat": 37.006434999999996, "lng": 127.2795, "confirmed_on": "2026-11-25"},
+    {"id": "grid-vacancy-3", "name": "가상 공실 3", "lat": 37.006434999999996, "lng": 127.2806, "confirmed_on": "2026-11-26"},
+    {"id": "grid-vacancy-4", "name": "가상 공실 4", "lat": 37.006434999999996, "lng": 127.2817, "confirmed_on": "2026-11-27"},
+    {"id": "grid-vacancy-5", "name": "가상 공실 5", "lat": 37.007335, "lng": 127.2784, "confirmed_on": "2026-11-24"},
+    {"id": "grid-vacancy-6", "name": "가상 공실 6", "lat": 37.007335, "lng": 127.2795, "confirmed_on": "2026-11-25"},
+    {"id": "grid-vacancy-7", "name": "가상 공실 7", "lat": 37.007335, "lng": 127.2806, "confirmed_on": "2026-11-26"},
+    {"id": "grid-vacancy-8", "name": "가상 공실 8", "lat": 37.007335, "lng": 127.2817, "confirmed_on": "2026-11-27"},
+    {"id": "grid-vacancy-9", "name": "가상 공실 9", "lat": 37.008235, "lng": 127.2784, "confirmed_on": "2026-11-24"},
+    {"id": "grid-vacancy-10", "name": "가상 공실 10", "lat": 37.008235, "lng": 127.2795, "confirmed_on": "2026-11-25"},
+    {"id": "grid-vacancy-11", "name": "가상 공실 11", "lat": 37.008235, "lng": 127.2806, "confirmed_on": "2026-11-26"},
+    {"id": "grid-vacancy-12", "name": "가상 공실 12", "lat": 37.008235, "lng": 127.2817, "confirmed_on": "2026-11-27"},
+    {"id": "grid-vacancy-13", "name": "가상 공실 13", "lat": 37.00913499999999, "lng": 127.2784, "confirmed_on": "2026-11-24"},
+    {"id": "grid-vacancy-14", "name": "가상 공실 14", "lat": 37.00913499999999, "lng": 127.2795, "confirmed_on": "2026-11-25"},
+    {"id": "grid-vacancy-15", "name": "가상 공실 15", "lat": 37.00913499999999, "lng": 127.2806, "confirmed_on": "2026-11-26"},
+    {"id": "grid-vacancy-16", "name": "가상 공실 16", "lat": 37.00913499999999, "lng": 127.2817, "confirmed_on": "2026-11-27"}
   ]
 }

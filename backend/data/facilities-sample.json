@@ -3,19 +3,15 @@
   "data_status": "sample",
   "reference_date": "2026-11-27",
   "items": [
-    {
-      "id": "facility-01",
-      "name": "가상 버스 정류장",
-      "type": "bus_stop",
-      "lat": 37.0082,
-      "lng": 127.2799
-    },
-    {
-      "id": "facility-02",
-      "name": "가상 도서관",
-      "type": "library",
-      "lat": 37.0071,
-      "lng": 127.2812
-    }
+    {"id": "facility-01", "name": "가상 버스 정류장", "type": "bus_stop", "lat": 37.0082, "lng": 127.2799},
+    {"id": "facility-02", "name": "가상 도서관", "type": "library", "lat": 37.0071, "lng": 127.2812},
+    {"id": "grid-facility-1", "name": "가상 버스 정류장 1", "type": "bus_stop", "lat": 37.0064, "lng": 127.2784},
+    {"id": "grid-facility-3", "name": "가상 도서관 2", "type": "library", "lat": 37.0064, "lng": 127.2806},
+    {"id": "grid-facility-5", "name": "가상 공원 3", "type": "park", "lat": 37.0073, "lng": 127.2784},
+    {"id": "grid-facility-7", "name": "가상 학교 4", "type": "school", "lat": 37.0073, "lng": 127.2806},
+    {"id": "grid-facility-9", "name": "가상 버스 정류장 5", "type": "bus_stop", "lat": 37.0082, "lng": 127.2784},
+    {"id": "grid-facility-11", "name": "가상 도서관 6", "type": "library", "lat": 37.0082, "lng": 127.2806},
+    {"id": "grid-facility-13", "name": "가상 공원 7", "type": "park", "lat": 37.0091, "lng": 127.2784},
+    {"id": "grid-facility-15", "name": "가상 학교 8", "type": "school", "lat": 37.0091, "lng": 127.2806}
   ]
 }
