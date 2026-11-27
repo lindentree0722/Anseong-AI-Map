@@ -14,10 +14,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 if __package__:
-    from . import commercial, database, signal_provider, signals
+    from . import commercial, database, signal_provider, signals, vacancies
     from .traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 else:
-    import commercial, database, signal_provider, signals
+    import commercial, database, signal_provider, signals, vacancies
     from traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 
 
@@ -132,6 +132,7 @@ def delete_places(request: Request) -> PlacesResponse:
 
 api.include_router(signals.router)
 api.include_router(commercial.router)
+api.include_router(vacancies.router)
 app.include_router(api)
 
 if (FRONTEND_DIST / "assets").is_dir():

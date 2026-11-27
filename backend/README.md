@@ -19,6 +19,13 @@ uv run uvicorn main:app --reload
 - 신호 목록·상세: `GET /api/traffic-signals`, `GET /api/traffic-signals/{id}`
 - 신호 동기화·수정: `POST /api/traffic-signals/sync`, `PUT /api/signals/{id}`
 - 상권 반경 조회: `GET /api/commercial-service/storeListInRadius`
+- 공실 목록 조회: `GET /api/commercial-service/vacancies`
+
+### 공실 목록 API
+
+기본 응답은 `data/vacancies-sample.json`의 가상 공실 목록이며 `data_status`는 `sample`입니다. 실제 자료를 받으면 같은 형식의 JSON 파일을 준비하고 서버 환경변수 `ANSEONG_VACANCY_DATA_PATH`에 경로를 지정하세요. 상대 경로는 `backend/` 기준입니다. 설정한 파일의 응답에는 `data_status: "reported"`가 붙습니다.
+
+파일에는 제공처명 `source`와 공실 배열 `items`가 필요합니다. 각 항목은 고유한 문자열 `id`, `name`, 위도 `lat`, 경도 `lng`, 확인일 `confirmed_on` (`YYYY-MM-DD`)을 포함합니다. `address`는 선택 항목입니다. 공실이 없으면 빈 배열을 사용하세요. 파일을 읽을 수 없거나 형식이 잘못되면 API는 503을 반환합니다. 실제 자료 파일은 저장소 외부에서 관리하세요.
 
 ## 단일 서버 실행 및 Render 배포
 
