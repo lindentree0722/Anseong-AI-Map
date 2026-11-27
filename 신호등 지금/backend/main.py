@@ -1,17 +1,24 @@
 import json
 import os
 import sqlite3
+import time
 from contextlib import closing
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from xml.etree import ElementTree
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-DB_PATH = "/workspace/data/app.db"
+BASE_DIR = Path(__file__).resolve().parent.parent
+configured_db_path = Path(os.getenv("SIGNAL_DB_PATH", str(BASE_DIR / "data" / "app.db"))).expanduser()
+DB_PATH = configured_db_path if configured_db_path.is_absolute() else BASE_DIR / configured_db_path
 DATA_API_URL = os.getenv("TRAFFIC_SIGNAL_API_URL", "")
 DATA_API_KEY = os.getenv("TRAFFIC_SIGNAL_API_KEY", "")
+LIVE_DATA_REFRESH_SECONDS = 60
+last_live_data_attempt = 0.0
+live_api_status = "not_configured"
 COLUMNS = [
     "header", "resultCode", "resultMsg", "body", "totalCount", "pageNo", "numOfRows", "items", "item", "totDt", "stdgCd", "lclgvNm", "crsrdId", "regId", "regDt",
     "ntBssgRmndCs", "ntBcsgRmndCs", "ntLtsgRmndCs", "ntPdsgRmndCs", "ntStsgRmndCs", "ntUtsgRmndCs", "ntBssgSttsNm", "ntBcsgSttsNm", "ntLtsgSttsNm", "ntPdsgSttsNm", "ntStsgSttsNm", "ntUtsgSttsNm",
@@ -56,6 +63,16 @@ def insert_row(conn: sqlite3.Connection, row: dict):
     column_sql = ", ".join(quote(column) for column in COLUMNS)
     placeholders = ", ".join("?" for _ in COLUMNS)
     conn.execute(f"INSERT INTO dfp_7582edcc ({column_sql}) VALUES ({placeholders})", [str(row.get(column, "")) for column in COLUMNS])
+def save_signal_rows(records: list[dict], source_name: str, total: int):
+    with closing(get_db()) as conn:
+        create_tables(conn)
+        conn.execute("DELETE FROM dfp_7582edcc")
+        for record in records:
+            row = {column: record.get(column, "") for column in COLUMNS}
+            row["item"] = row["item"] or "신호제어기 신호잔여시간 정보"
+            insert_row(conn, row)
+        conn.execute("INSERT INTO signal_sync_state (id, source_name, received_rows, total_rows, synced_at) VALUES (1, ?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET source_name = excluded.source_name, received_rows = excluded.received_rows, total_rows = excluded.total_rows, synced_at = CURRENT_TIMESTAMP", (source_name, len(records), total or len(records)))
+        conn.commit()
 def seed_mock_data(conn: sqlite3.Connection):
     existing = {(row["lclgvNm"], row["crsrdId"]) for row in conn.execute("SELECT lclgvNm, crsrdId FROM dfp_7582edcc").fetchall()}
     missing_places = [place for place in PLACES if (place[0], place[2]) not in existing]
@@ -111,32 +128,45 @@ def extract_rows(payload: bytes) -> list[dict]:
     text = payload.decode("utf-8-sig")
     try:
         parsed = json.loads(text)
-        candidates = parsed.get("response", parsed).get("body", parsed.get("body", {})).get("items", {}).get("item", [])
-        return candidates if isinstance(candidates, list) else [candidates]
+        if not isinstance(parsed, dict):
+            return []
+        response = parsed.get("response", parsed)
+        if not isinstance(response, dict):
+            return []
+        body = response.get("body", parsed.get("body", {}))
+        if not isinstance(body, dict):
+            return []
+        items = body.get("items", {})
+        candidates = items.get("item", []) if isinstance(items, dict) else items
+        if isinstance(candidates, list):
+            return candidates
+        return [candidates] if isinstance(candidates, dict) else []
     except json.JSONDecodeError:
         root = ElementTree.fromstring(text)
         return [{child.tag: child.text or "" for child in item} for item in root.findall(".//item")]
 def refresh_live_data():
+    global last_live_data_attempt, live_api_status
     if not DATA_API_KEY or not DATA_API_URL:
+        live_api_status = "not_configured"
         return False
+    now = time.monotonic()
+    if now - last_live_data_attempt < LIVE_DATA_REFRESH_SECONDS:
+        return live_api_status == "connected"
+    last_live_data_attempt = now
     query = urlencode({"serviceKey": DATA_API_KEY, "pageNo": 1, "numOfRows": 100, "dataType": "JSON"})
     separator = "&" if "?" in DATA_API_URL else "?"
     try:
         with urlopen(f"{DATA_API_URL}{separator}{query}", timeout=12) as response:
             records = extract_rows(response.read())
-    except Exception:
+    except (OSError, ValueError, ElementTree.ParseError):
+        live_api_status = "unavailable"
         return False
     valid = [record for record in records if isinstance(record, dict) and record.get("crsrdId")]
     if not valid:
+        live_api_status = "invalid_response"
         return False
-    with closing(get_db()) as conn:
-        create_tables(conn)
-        conn.execute("DELETE FROM dfp_7582edcc")
-        for record in valid:
-            row = {column: record.get(column, "") for column in COLUMNS}
-            row["item"] = row["item"] or "신호제어기 신호잔여시간 정보"
-            insert_row(conn, row)
-        conn.commit()
+    save_signal_rows(valid, "행정안전부 한국지역정보개발원 전국 통합 신호등 실시간 정보", len(valid))
+    live_api_status = "connected"
     return True
 class SignalUpdate(BaseModel):
     status: str
@@ -148,21 +178,17 @@ app = FastAPI()
 init_db()
 @app.get("/api/health")
 def health():
-    return {"ok": True}
+    return {
+        "ok": True,
+        "api_configured": bool(DATA_API_URL and DATA_API_KEY),
+        "api_status": live_api_status,
+    }
 @app.post("/api/traffic-signals/sync")
 def sync_traffic_signals(payload: LiveSignalSync):
     valid = [record for record in payload.rows if isinstance(record, dict) and record.get("crsrdId")]
     if not valid:
         raise HTTPException(status_code=400, detail="저장할 신호등 정보가 없습니다.")
-    with closing(get_db()) as conn:
-        create_tables(conn)
-        conn.execute("DELETE FROM dfp_7582edcc")
-        for record in valid:
-            row = {column: record.get(column, "") for column in COLUMNS}
-            row["item"] = row["item"] or "신호제어기 신호잔여시간 정보"
-            insert_row(conn, row)
-        conn.execute("INSERT INTO signal_sync_state (id, source_name, received_rows, total_rows, synced_at) VALUES (1, ?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET source_name = excluded.source_name, received_rows = excluded.received_rows, total_rows = excluded.total_rows, synced_at = CURRENT_TIMESTAMP", ("행정안전부 한국지역정보개발원 전국 통합 신호등 실시간 정보", len(valid), payload.total or len(valid)))
-        conn.commit()
+    save_signal_rows(valid, "행정안전부 한국지역정보개발원 전국 통합 신호등 실시간 정보", payload.total)
     return {"ok": True, "saved": len(valid), "total": payload.total or len(valid)}
 @app.get("/api/traffic-signals")
 def list_traffic_signals(q: str = "", status: Optional[str] = None, limit: int = 20, offset: int = 0):
@@ -180,7 +206,7 @@ def list_traffic_signals(q: str = "", status: Optional[str] = None, limit: int =
         rows = conn.execute(sql, [*values, limit, offset]).fetchall()
         sync_state = conn.execute("SELECT source_name, received_rows, total_rows, synced_at FROM signal_sync_state WHERE id = 1").fetchone()
     sync = dict(sync_state) if sync_state else None
-    return {"items": [to_signal(row) for row in rows], "total": total, "limit": limit, "offset": offset, "source": "live" if sync else "mock", "sync": sync}
+    return {"items": [to_signal(row) for row in rows], "total": total, "limit": limit, "offset": offset, "source": "live" if sync else "mock", "sync": sync, "api_status": live_api_status}
 @app.get("/api/traffic-signals/{signal_id}")
 def get_traffic_signal(signal_id: int):
     with closing(get_db()) as conn:

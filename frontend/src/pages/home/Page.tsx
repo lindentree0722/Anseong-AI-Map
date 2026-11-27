@@ -49,7 +49,7 @@ export default function HomePage() {
    <h3>이동 데이터를 읽는 방법</h3>
    <p>시간대·요일·구간별 이동 흐름을 살펴 혼잡 구간과 보행·대중교통 접점을 함께 파악합니다.</p>
    <ul><li>시간대별 이동 흐름</li><li>구간별 혼잡 변화</li><li>보행·환승 접점</li></ul>
-   <Link to="/signals">교통량 분석 보기 →</Link>
+   <Link to="/signals">신호등 지금 보기 →</Link>
   </article>
   <article className="card">
    <div className="tag">상권 현황 안내 분석 서비스</div>

@@ -14,7 +14,7 @@ export default function AnalysisSidebar() {
         <Home size={17} aria-hidden="true" /><span className="nav-label">소개</span><span className="nav-count">01</span>
       </NavLink>
       <NavLink to="/signals" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-        <Activity size={17} aria-hidden="true" /><span className="nav-label">신호 진단</span><span className="nav-count">02</span>
+        <Activity size={17} aria-hidden="true" /><span className="nav-label">신호등 지금</span><span className="nav-count">02</span>
       </NavLink>
       <NavLink to="/commercial" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
         <MapPin size={17} aria-hidden="true" /><span className="nav-label">상권 분석</span><span className="nav-count">03</span>

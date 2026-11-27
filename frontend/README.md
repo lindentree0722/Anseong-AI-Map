@@ -39,6 +39,25 @@ npm run build
 | `VITE_SIGNAL_DATA_PROXY_URL` | 미설정 | 선택적인 외부 데이터 동기화 URL; 인증 비밀을 포함하지 않는 주소만 사용 |
 | `COMMERCIAL_API_TARGET` | 미설정 | 선택적인 상권 프록시 서버 |
 
+### 신호등 실제 API 연결
+
+신호 백엔드는 `신호등 지금/backend/main.py`입니다. 실제 제공기관 API에 연결하려면 백엔드를 실행하는 터미널에 `TRAFFIC_SIGNAL_API_URL`과 `TRAFFIC_SIGNAL_API_KEY`를 설정하세요. 키는 브라우저에 전달되는 `VITE_` 변수나 저장소 파일에 넣지 않습니다.
+
+Windows PowerShell 예시:
+
+```powershell
+Set-Location '신호등 지금'
+$env:SIGNAL_DB_PATH = Join-Path $env:LOCALAPPDATA 'Anseong-AI-Map\signals.db'
+$env:TRAFFIC_SIGNAL_API_URL = Read-Host '제공기관 API URL'
+$secureKey = Read-Host 'API 서비스 키' -AsSecureString
+$keyPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)
+try { $env:TRAFFIC_SIGNAL_API_KEY = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($keyPointer) }
+finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($keyPointer) }
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8001
+```
+
+그 뒤 별도 터미널에서 `frontend` 폴더의 `npm run dev`를 실행합니다. 백엔드는 실제 API 데이터를 60초 간격으로 갱신하고, 서비스 키가 없거나 원천 응답이 잘못되면 화면에 시연 데이터 또는 연결 상태를 표시합니다.
+
 ## API 미구현·연결 실패 처리
 
 백엔드 API가 아직 없거나 요청·응답 검증에 실패하면 화면은 같은 응답 구조의 더미 데이터를 사용합니다. 교통, 신호, 상권 화면은 더미 사용 여부를 사용자에게 표시합니다. 요청 취소는 폴백하지 않고 그대로 중단합니다.
@@ -48,10 +67,10 @@ npm run build
 ### 신호 진단
 
 - 프론트의 `/api/signals-service/*`를 별도 신호 API의 `/api/*`로 전달합니다.
-- 기존 메인 백엔드(8000)의 `/places`와 신호 API는 별개입니다. 이번 통합에는 신호 백엔드를 포함하지 않았습니다.
-- 별도 서버가 꺼져 있으면 오류와 재조회 버튼을 표시합니다. 교통량 직접 입력·CSV/JSON 분석 탭은 신호 API 없이 사용할 수 있습니다.
-- 외부 동기화 URL이 미설정이면 해당 요청을 보내지 않습니다. 설정하면 약 60초 간격으로 데이터를 받아 별도 API의 `/api/traffic-signals/sync`에 저장합니다. 브라우저에서 접근 가능한 URL과 필요 시 CORS 설정이 필요합니다.
-- 화면은 저장된 스냅샷을 보여줍니다. API에 초기 시뮬레이션 데이터가 있을 수 있어 실시간 신호로 표기하지 않으며, 저장 잔여시간을 현재 신호처럼 자동으로 감소시키지 않습니다.
+- 기존 메인 백엔드(8000)의 `/places`와 신호 API(기본 8001)는 별개입니다.
+- 별도 서버가 꺼져 있으면 연결 오류와 더미 데이터 상태를 표시합니다. 교통량 직접 입력·CSV/JSON 분석 탭은 신호 API 없이 사용할 수 있습니다.
+- `VITE_SIGNAL_DATA_PROXY_URL`은 선택적인 브라우저 측 동기화 경로입니다. 서버에서 직접 제공기관을 조회할 때는 백엔드의 `TRAFFIC_SIGNAL_API_URL`과 `TRAFFIC_SIGNAL_API_KEY`를 사용합니다.
+- 화면의 LIVE 표시는 백엔드가 동기화한 데이터가 있을 때만 사용합니다. 초기 시연 데이터와 API 연결 실패는 별도로 표시합니다.
 - 방향별 상세·검색 요청은 페이지 이동 또는 대상 변경 시 취소합니다.
 
 ### 상권 분석
