@@ -21,7 +21,7 @@ export default function AnalysisSidebar() {
         <MapPin size={17} aria-hidden="true" /><span className="nav-label">상권 분석</span><span className="nav-count">03</span>
       </NavLink>
       <NavLink to="/traffic" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-        <Gauge size={17} aria-hidden="true" /><span className="nav-label">교통량 분석 대시보드</span><span className="nav-count">04</span>
+        <Gauge size={17} aria-hidden="true" /><span className="nav-label">신호 진단 대시보드</span><span className="nav-count">04</span>
       </NavLink>
       {pathname === '/traffic' && <a href="#sample-route-planner" className="nav-item">
         <CarFront size={17} aria-hidden="true" /><span className="nav-label">멈춤 없는 길</span><span className="nav-count">05</span>
