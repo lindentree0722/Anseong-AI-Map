@@ -1,0 +1,35 @@
+.settings-page {
+  --settings-bg: #000;
+  --settings-surface: #171717;
+  --settings-text: #f3f4f6;
+  --settings-muted: #a0a6af;
+  --settings-border: #393c42;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: clamp(24px, 5vw, 56px);
+  background: var(--settings-bg);
+  color: var(--settings-text);
+  font-family: system-ui, sans-serif;
+}
+.app-layout[data-theme="light"] .settings-page {
+  --settings-bg: #fff;
+  --settings-surface: #f7f7f7;
+  --settings-text: #202124;
+  --settings-muted: #62666c;
+  --settings-border: #dedede;
+}
+.settings-header, .settings-section { max-width: 760px; }
+.settings-eyebrow { margin: 0 0 8px; color: var(--settings-muted); font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.settings-header h1 { margin: 0; font-size: clamp(28px, 4vw, 36px); }
+.settings-header > p:last-child, .settings-section > p { color: var(--settings-muted); }
+.settings-section { margin-top: 40px; }
+.settings-section h2 { margin: 0; font-size: 18px; }
+.theme-options { display: grid; gap: 12px; margin-top: 18px; }
+.theme-option { display: flex; align-items: center; gap: 14px; width: 100%; padding: 18px; border: 1px solid var(--settings-border); border-radius: 12px; background: var(--settings-surface); color: var(--settings-text); text-align: left; cursor: pointer; }
+.theme-option.selected { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+.theme-option > span:nth-child(2) { display: grid; gap: 4px; }
+.theme-option small { color: var(--settings-muted); }
+.theme-preview { width: 42px; height: 28px; margin-left: auto; border: 1px solid var(--settings-border); border-radius: 5px; }
+.theme-preview-light { background: linear-gradient(90deg, #fff 0 65%, #e5e7eb 65%); }
+.theme-preview-dark { background: linear-gradient(90deg, #000 0 65%, #262626 65%); }
+.theme-option:focus-visible { outline: 2px solid #3b82f6; outline-offset: 3px; }
