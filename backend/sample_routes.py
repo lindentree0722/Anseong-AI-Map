@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import cache
 from heapq import heappop, heappush
 from itertools import count
 from statistics import mean
@@ -127,6 +128,11 @@ def compare_paths(
             key = (signal.intersection_id, signal.approach_from_node_id, signal.incoming_link_id, signal.outgoing_link_id)
             wait_samples[key].append(signal.average_wait_seconds)
 
+    @cache
+    def turn_wait(key: tuple[str, str, str, str]) -> float | None:
+        samples = wait_samples.get(key)
+        return mean(samples) if samples else None
+
     order = count()
     # The bundled demo graph is small. Expanding paths by total cost yields the shortest distinct loop-free routes.
     pending = [(0.0, next(order), (start_id,), (), 0.0, 0.0, 0.0, 0, 0)]
@@ -144,17 +150,17 @@ def compare_paths(
         for step in graph[current]:
             if step.destination in path:
                 continue
-            samples = ()
+            turn_seconds = None
             if links:
                 if (current, links[-1], step.link.id) in prohibited:
                     continue
-                samples = wait_samples.get((current, path[-2], links[-1], step.link.id), ())
+                turn_seconds = turn_wait((current, path[-2], links[-1], step.link.id))
             next_travel = travel + step.travel_seconds
-            next_wait = wait + (mean(samples) if samples else 0)
+            next_wait = wait + (turn_seconds or 0)
             heappush(pending, (
                 next_travel + next_wait, next(order), (*path, step.destination), (*links, step.link.id),
                 next_travel, next_wait, distance + step.link.length_m,
-                fallback + (not step.has_observation), observed_turns + bool(samples),
+                fallback + (not step.has_observation), observed_turns + (turn_seconds is not None),
             ))
     return found
 
