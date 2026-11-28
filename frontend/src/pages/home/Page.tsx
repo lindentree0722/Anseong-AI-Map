@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import './home.css'
 import image2 from '../../assets/home/image-3.png'
 import image3 from '../../assets/home/image-4.png'
+import seoulCommercialImage from '../../assets/home/seoul-ai-commercial-analysis.jpg'
 export default function HomePage() {
   const roadRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<HTMLDivElement>(null)
@@ -67,8 +68,16 @@ export default function HomePage() {
   <div className="stat"><small>청량리 청과물시장 · 2024. 12.</small><b>150m → 50m</b><span>정류소 직결 횡단보도로 중앙정류소까지 보행거리 최대 100m 단축, 반대방향 205m → 25m</span></div>
   <div className="stat"><small>연세로 대중교통전용지구</small><b>유동인구 +25.7%</b><span>매출 평균 8.6% 상승, 버스 승객 11.1% 증가, 교통사고 54.5% 감소 (서울연구원)</span></div>
   <div className="stat"><small>강남역 중앙정류소 · 2023</small><b>1.7 → 2.6㎡</b><span>횡단보도 주변 1인당 점유면적 확대, 버스↔지하철 환승거리 최대 210m 단축</span></div>
-  <div className="stat"><small>서울시 AI 상권분석 · 2026</small><b>상권 활성화 지도</b><span>매출·유동인구·개폐업률을 한눈에, 장기적으로 위기 상권 예측 도입</span></div>
  </div>
+
+ <article className="seoul-analysis">
+  <img src={seoulCommercialImage} alt="서울시 AI 상권분석 서비스 소개 화면" />
+  <div className="seoul-analysis-copy">
+   <div className="eyebrow">SEOUL · AI COMMERCIAL ANALYSIS</div>
+   <h3>서울시 AI 상권분석</h3>
+   <p>매출, 유동인구, 개·폐업 현황 등 상권 데이터를 한눈에 살펴보고 지역 상권의 흐름을 파악할 수 있도록 돕는 서비스입니다. 데이터에 기반한 상권 현황 분석은 정책과 사업 방향을 검토하는 데 참고자료로 활용할 수 있습니다.</p>
+  </div>
+ </article>
 
  <h3 className="sub">교통 개선이 상권 활성화로 이어지는 경로</h3>
  <div className="flow">

@@ -43,6 +43,12 @@
 .page-home .flow div{padding:22px 20px;border-right:1px solid var(--line);font-size:14px;color:var(--mute)}
 .page-home .flow div:last-child{border-right:0}
 .page-home .flow b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
+.page-home .seoul-analysis{max-width:860px;margin:52px auto 0;overflow:hidden;background:var(--card);border:1px solid var(--line)}
+.page-home .seoul-analysis img{display:block;width:100%;height:auto}
+.page-home .seoul-analysis-copy{padding:26px 30px 30px}
+.page-home .seoul-analysis-copy .eyebrow{margin-bottom:6px}
+.page-home .seoul-analysis-copy h3{font-size:22px;line-height:1.4;margin-bottom:8px}
+.page-home .seoul-analysis-copy p{font-size:15px;color:var(--mute)}
 .page-home ol.rec{padding-left:22px;font-size:15px}
 .page-home ol.rec li{padding:6px 0}
 .page-home ol.rec b{font-weight:500}
@@ -59,6 +65,7 @@
 .page-home .abtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .page-home .abtn:hover,.page-home .abtn:focus-visible{background:#fff;color:#2b2a26}
 @media (max-width:560px){.page-home .bar{padding-left:14px;padding-right:14px}.page-home .logo img{height:68px}.page-home .logo{display:block;filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 7px rgba(255,255,255,.65))}.page-home .abtn{height:38px;padding:0 14px;font-size:13px}.page-home .abtn svg{display:none}}
+@media (max-width:560px){.page-home .seoul-analysis-copy{padding:20px}.page-home .seoul-analysis-copy h3{font-size:19px}}
 
 .page-home { position: relative; isolation: isolate; min-height: 100vh; }
 .page-home .bg { top: 0; }
