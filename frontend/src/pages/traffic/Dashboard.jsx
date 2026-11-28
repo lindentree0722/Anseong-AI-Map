@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Clock3, Gauge, MapPin, Radio, RefreshCw, Search, SlidersHorizontal, TrafficCone } from "lucide-react";
 import MetricCard from "./components/MetricCard";
 import TrafficMap from "./components/TrafficMap";
+import RoutePlanner from "./components/RoutePlanner";
 import DiagnosisPanel from "./components/DiagnosisPanel";
 import { DailyTrafficChart, TrafficChart } from "./components/TrafficChart";
 import { fetchTrafficOverview } from "./services/trafficService";
@@ -92,6 +93,8 @@ export default function App() {
       </header>
 
       <section className="welcome-row"><div><h2>일반국도 시간별 상시교통량</h2><p>제공 자료에는 안성 지점이 없어, 가평·용인·평택 관측소의 참고 데이터로 표시합니다.</p></div><div className="updated"><Clock3 size={14}/> 자료 기간 2025년 9~12월</div></section>
+
+      <RoutePlanner />
 
       <section className="metric-grid">
         <MetricCard label="시연 교차로" value={summary.count} unit="개" hint="가상 교차로" icon={MapPin}/>

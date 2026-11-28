@@ -42,3 +42,6 @@
 .page-commercial #map { isolation:isolate; }
 .page-commercial .map-error { position:absolute; top:48px; left:12px; right:12px; padding:8px; z-index:1000; background:#fff4df; font:12px/1.5 system-ui; }
 @media(max-width:900px) { .page-commercial .wrap { height:auto; } .page-commercial .side { overflow:visible; } }
+.app-layout[data-theme="dark"] .page-commercial { --bg:#000;--card:#171717;--ink:#f3f4f6;--sub:#a0a6af;--line:#393c42; }
+.app-layout[data-theme="light"] .page-commercial { --bg:#fff;--card:#f7f7f7;--ink:#202124;--sub:#62666c;--line:#dedede; }
+.app-layout[data-theme="light"] .page-commercial button.on { background:#e8f0fe;color:#1a56db; }

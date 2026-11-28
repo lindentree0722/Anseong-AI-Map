@@ -31,14 +31,15 @@ section.s{max-width:1080px;margin:0 auto;padding:96px 24px 40px}
 .eyebrow{font-size:12px;letter-spacing:.2em;color:var(--mute);margin-bottom:10px}
 h2.sec{font-size:clamp(24px,3vw,34px);font-weight:700;line-height:1.35;margin-bottom:40px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.card{background:var(--card);border:1px solid var(--line);padding:34px 30px}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);padding:34px 30px}
 .card .tag{display:inline-block;font-size:12px;color:var(--accent);border:1px solid var(--line);padding:2px 10px;margin-bottom:14px}
 .card h3{font-size:21px;font-weight:700;margin-bottom:10px}
 .card p{color:var(--mute);font-size:15px}
 .card ul{list-style:none;margin:16px 0 22px}
 .card li{padding:9px 0;border-top:1px solid var(--line);font-size:15px}
 .card li::before{content:"—";margin-right:10px;color:var(--accent)}
-.card a{color:var(--ink);font-weight:500;text-decoration:none;border-bottom:1px solid var(--ink)}
+.card a{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;height:44px;margin-top:auto;padding:0 16px;border:1px solid var(--ink);color:var(--ink);font-weight:500;line-height:1;text-decoration:none;white-space:nowrap}
+.card a:hover,.card a:focus-visible{background:var(--ink);color:var(--card)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:20px}
 .stat{background:var(--card);border:1px solid var(--line);padding:28px 26px}
 .stat small{font-size:12px;color:var(--mute);letter-spacing:.08em}
@@ -94,14 +95,14 @@ footer{text-align:center;font-size:12px;color:var(--mute);padding:56px 16px calc
   <article class="card">
    <h3>이동 데이터를 읽는 방법</h3>
    <p>시간대·요일·구간별 이동 흐름을 살펴 혼잡 구간과 보행·대중교통 접점을 함께 파악합니다.</p>
-   <ul><li>시간대별 이동 흐름</li><li>구간별 혼잡 변화</li><li>보행·환승 접점</li></ul>
-   <a href="#evidence">교통량 분석 보기 →</a>
+   <ul><li>시간대별 이동 흐름</li><li>구간별 혼잡 변화</li><li>신호등 신호 분석</li><li>상권 데이터 분석</li></ul>
+   <a href="/signals">교통량 분석 보기 →</a>
   </article>
   <article class="card">
    <div class="tag">상권 현황 안내 분석 서비스</div>
    <div class="eyebrow" style="margin-bottom:6px">보행·방문상권 변화</div>
    <h3>생활 상권의 변화를 읽는 방법</h3>
-   <p>유동인구·매출·점포 변화와 생활권 특성을 함께 비교해 상권의 활력과 변화 신호를 살펴봅니다.</p>
+   <p>유동인구·매출·점포 변화와 생활권 특성을 함께 비교해 상권의 활력과 변화를 주기 위한 방법을 모색합니다.</p>
   </article>
  </div>
 </section>
@@ -124,7 +125,7 @@ footer{text-align:center;font-size:12px;color:var(--mute);padding:56px 16px calc
   <div><b>4. 상권 성과</b>누적 효과로 유동인구·매출 증가</div>
   <div><b>5. 환류</b>AI 상권분석으로 효과 측정, 위기 선제 대응</div>
  </div>
- <p class="refs" style="margin-top:14px">핵심은 차량 소통이 아니라 사람이 상권에 도착하고 머무는 과정의 개선입니다.</p>
+ <p class="refs" style="margin-top:14px">안성맞춤 AI는 위 자료를 근거로 하여 안성시의 교통과 상권을 개선하기 위한 방안을 생각해냅니다.</p>
 
  <h3 class="sub">제언</h3>
  <ol class="rec">
@@ -136,9 +137,9 @@ footer{text-align:center;font-size:12px;color:var(--mute);padding:56px 16px calc
   <li><b>역사·문화 자원과 결합</b> — 보행 환경과 문화 콘텐츠로 방문 이유를 만듦</li>
  </ol>
 
- <h3 class="sub">한계 및 유의사항</h3>
+ <h3 class="sub">유의사항</h3>
  <div class="note"><ul>
-  <li>청량리 사례의 상권 효과는 발표 시점 기준 전망이며 매출 등 실측 자료가 없습니다.</li>
+  <li>해당 사이트는 공공 api와 공공 실측 데이터를 사용하였습니다.</li>
   <li>연세로 수치는 2020년 보도 기준이며 현재와 다를 수 있습니다.</li>
   <li>교통 개선과 매출 증가의 인과관계는 다른 요인의 영향을 배제하기 어렵습니다.</li>
   <li>AI 상권분석 내용은 2차 요약 자료에 근거하므로 서울시 공식 발표로 확인이 필요합니다.</li>

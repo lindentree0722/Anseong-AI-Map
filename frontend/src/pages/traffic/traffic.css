@@ -14,3 +14,81 @@
 @media(max-width:500px){.page-traffic .traffic-filters{grid-template-columns:1fr}.page-traffic .national-data-summary{align-items:flex-start;flex-direction:column}.page-traffic .national-data-summary b{text-align:left}}
 .page-traffic .app-shell, .page-traffic .sidebar, .page-traffic .loading { min-height: 100vh; }
 .page-traffic .main-content { min-width: 0; }
+.page-traffic .leaflet-map { width: 100%; height: 100%; z-index: 1; }
+.page-traffic .map-legend, .page-traffic .map-disclaimer { z-index: 2; }
+.page-traffic .map-legend { bottom: 34px; }
+.page-traffic .unknown-bg { background: #8491a3; }
+.page-traffic .map-panel { height: 280px; }
+.page-traffic .map-disclaimer { padding: 3px 6px; border-radius: 4px; background: #101b2bdc; }
+.page-traffic .leaflet-container { font-family: 'Noto Sans KR', sans-serif; }
+.page-traffic .leaflet-popup-content-wrapper, .page-traffic .leaflet-popup-tip { background: #111d2e; color: #e9eef7; }
+.page-traffic .leaflet-popup-content { font-size: 11px; line-height: 1.7; }
+.page-traffic .leaflet-control-attribution { font-size: 9px !important; }
+.page-traffic .route-planner { margin-bottom: 20px; }
+.page-traffic .route-planner select { display:block; width:100%; min-height:42px; margin-top:6px; border-radius:8px; border:1px solid #9ca8ba; padding:6px 8px; font:inherit; }
+.page-traffic .route-fields, .page-traffic .route-options { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.page-traffic .route-submit, .page-traffic .route-options button, .page-traffic .route-planner [role="alert"] button { border:1px solid #a4b3c5; border-radius:8px; padding:9px 13px; background:#f2f6fa; color:#171e30; font:inherit; cursor:pointer; }
+.page-traffic .route-submit { margin-top:12px; }
+.page-traffic .route-submit:disabled { opacity:.55; cursor:default; }
+.page-traffic .route-options button { display:grid; gap:4px; text-align:left; }
+.page-traffic .route-options button[aria-pressed="true"] { border-color:#1764ca; box-shadow:inset 0 0 0 1px #1764ca; background:#e3f0ff; }
+.page-traffic .route-map { height:280px; margin-top:12px; border-radius:10px; overflow:hidden; isolation:isolate; }
+.page-traffic .route-map .leaflet-container { height:100%; width:100%; }
+@media(max-width:700px) { .page-traffic .route-fields, .page-traffic .route-options { grid-template-columns:1fr; } }
+.app-layout[data-theme="dark"] .page-traffic,
+.app-layout[data-theme="dark"] .page-traffic .app-shell { background:#000;color:#f3f4f6; }
+.app-layout[data-theme="dark"] .page-traffic .metric-card,
+.app-layout[data-theme="dark"] .page-traffic .panel { background:#171717;border-color:#393c42; }
+.app-layout[data-theme="dark"] .page-traffic .brand-mark,
+.app-layout[data-theme="dark"] .page-traffic .metric-icon,
+.app-layout[data-theme="dark"] .page-traffic .icon-button,
+.app-layout[data-theme="dark"] .page-traffic .intersection-row.chosen,
+.app-layout[data-theme="dark"] .page-traffic .diagnosis-intro { background:#242424; }
+.app-layout[data-theme="dark"] .page-traffic .brand-mark,
+.app-layout[data-theme="dark"] .page-traffic .metric-icon { color:#d1d5db; }
+.app-layout[data-theme="dark"] .page-traffic .map-search,
+.app-layout[data-theme="dark"] .page-traffic .selected-stat-grid>div { background:#111;border-color:#393c42; }
+.app-layout[data-theme="dark"] .page-traffic .map-panel { background:#151515;border-color:#393c42; }
+.app-layout[data-theme="dark"] .page-traffic .map-grid { background-image:linear-gradient(#303030 1px,transparent 1px),linear-gradient(90deg,#303030 1px,transparent 1px); }
+.app-layout[data-theme="dark"] .page-traffic .map-road { background:#4a4a4a;border-color:#303030; }
+.app-layout[data-theme="dark"] .page-traffic .map-legend { background:#111d2ecc; }
+.app-layout[data-theme="dark"] .page-traffic .intersection-row { border-bottom-color:#393c42; }
+.app-layout[data-theme="light"] .page-traffic,
+.app-layout[data-theme="light"] .page-traffic .app-shell { background:#fff;color:#202124; }
+.app-layout[data-theme="light"] .page-traffic .metric-card,
+.app-layout[data-theme="light"] .page-traffic .panel { background:#f7f7f7;border-color:#dedede; }
+.app-layout[data-theme="light"] .page-traffic .metric-top,
+.app-layout[data-theme="light"] .page-traffic .metric-value small,
+.app-layout[data-theme="light"] .page-traffic .metric-hint,
+.app-layout[data-theme="light"] .page-traffic .welcome-row p,
+.app-layout[data-theme="light"] .page-traffic .updated,
+.app-layout[data-theme="light"] .page-traffic .breadcrumb,
+.app-layout[data-theme="light"] .page-traffic .count-label,
+.app-layout[data-theme="light"] .page-traffic .unit-label,
+.app-layout[data-theme="light"] .page-traffic .selected-stat-grid small,
+.app-layout[data-theme="light"] .page-traffic .selected-stat-grid em,
+.app-layout[data-theme="light"] .page-traffic .footer-note { color:#62666c; }
+.app-layout[data-theme="light"] .page-traffic .icon-button,
+.app-layout[data-theme="light"] .page-traffic .metric-icon { background:#eee;color:#45484d; }
+.app-layout[data-theme="light"] .page-traffic .map-search,
+.app-layout[data-theme="light"] .page-traffic .selected-stat-grid>div { background:#eee;border-color:#dedede; }
+.app-layout[data-theme="light"] .page-traffic .map-search input,
+.app-layout[data-theme="light"] .page-traffic .intersection-row { color:#202124; }
+.app-layout[data-theme="light"] .page-traffic .map-panel { background:#e9ecef;border-color:#d1d5db; }
+.app-layout[data-theme="light"] .page-traffic .map-grid { background-image:linear-gradient(#d5d9de 1px,transparent 1px),linear-gradient(90deg,#d5d9de 1px,transparent 1px); }
+.app-layout[data-theme="light"] .page-traffic .map-road { background:#adb5bd;border-color:#89929c; }
+.app-layout[data-theme="light"] .page-traffic .map-label,
+.app-layout[data-theme="light"] .page-traffic .map-disclaimer { color:#45484d; }
+.app-layout[data-theme="light"] .page-traffic .map-legend { background:#ffffffdf;color:#202124; }
+.app-layout[data-theme="light"] .page-traffic .intersection-row { border-bottom-color:#dedede; }
+.app-layout[data-theme="light"] .page-traffic .intersection-row.chosen,
+.app-layout[data-theme="light"] .page-traffic .diagnosis-intro { background:#eee; }
+.app-layout[data-theme="light"] .page-traffic .diagnosis-intro strong { color:#202124; }
+.app-layout[data-theme="light"] .page-traffic .diagnosis-intro p,
+.app-layout[data-theme="light"] .page-traffic .diagnosis-list,
+.app-layout[data-theme="light"] .page-traffic .action-list li,
+.app-layout[data-theme="light"] .page-traffic .intersection-name small,
+.app-layout[data-theme="light"] .page-traffic .intersection-wait small { color:#45484d; }
+.app-layout[data-theme="light"] .page-traffic .small-note { color:#62666c;border-top-color:#dedede; }
+.app-layout[data-theme="light"] .page-traffic .recharts-text { fill:#62666c; }
+.app-layout[data-theme="light"] .page-traffic .recharts-cartesian-grid line { stroke:#dedede; }

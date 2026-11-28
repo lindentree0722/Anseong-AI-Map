@@ -4,7 +4,7 @@
 
 This repository prototypes an Anseong traffic and commercial-area analysis platform.
 - `backend/main.py`: FastAPI application exposing `GET /places` and `POST /places`. Places currently live in memory and disappear on restart.
-- `backend/src/anseong_ai_map/__init__.py`: package entry point; currently prints a greeting rather than starting the API.
+- `backend/src/anseong_ai_map/__init__.py`: package marker used by `uv_build`.
 - `backend/pyproject.toml`: Python metadata, dependencies, and `uv_build` configuration. Both this file and `.python-version` target Python 3.15.
 - `frontend/asdf.html`: standalone presentation page with inline CSS, JavaScript, and embedded image assets.
 - `README.md`: Korean project overview and planned analysis modules.

@@ -6,7 +6,7 @@ import pytest
 import traffic
 
 
-ENDPOINT = "/traffic/overview"
+ENDPOINT = "/api/traffic/overview"
 SAMPLE_PATH = traffic.SAMPLE_PATH
 
 
