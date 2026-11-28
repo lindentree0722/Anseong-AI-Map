@@ -177,8 +177,6 @@ uv run --project backend python -B -m pytest backend/tests -q
 경로 설정, 동시 등록, 잠금 오류, 쓰기·커밋·삭제 실패 롤백과 기존 교통 테스트를 확인했습니다.
 Starlette의 `httpx` TestClient 사용 중단 예정 경고 1건이 있습니다. 브라우저 조작 및 실제 외부 API 호출은 이번 검증에 포함하지 않았습니다.
 
-`anseong-ai-map` 명령은 현재 인사 메시지만 출력합니다. API는 위의 uvicorn 명령으로 실행하세요.
-
 프런트엔드는 백엔드 API가 없거나 연결되지 않은 개발 단계에도 같은 응답 구조의 더미 데이터를 표시합니다. 새 API를 추가할 때는 실제 응답 계약과 더미 응답 계약을 함께 갱신하고, 프런트엔드 화면에 데이터 출처가 표시되는지 확인하세요.
 
 의존성을 변경할 때는 `uv add 패키지명`을 사용하고 `pyproject.toml`과
