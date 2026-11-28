@@ -125,10 +125,30 @@ h1 { margin-bottom: 0; font-size: var(--text-3xl); line-height: var(--leading-ti
 .store-item.more{text-align:center;font-weight:700;color:var(--color-primary-strong);min-height:56px;border-top:var(--border-width) solid var(--color-border)}
 .map-error{padding:var(--space-5);color:var(--color-danger)}
 .store-list li{list-style:none}[hidden]{display:none!important}
-.category-chip::before{content:'';display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--c,#999);margin-right:.35em}
-.filter-button[data-c]::before{content:'';display:inline-block;width:.65em;height:.65em;border-radius:50%;background:var(--c);margin-right:.4em;box-shadow:0 0 0 1.5px #fff}
+#mids:empty,#mnrs:empty{display:none}#mids:not(:empty),#mnrs:not(:empty){padding-left:12px;border-left:3px solid #256EF4}
+.tool-cta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tools{position:fixed;inset:0;background:#0007;z-index:3000;display:flex;justify-content:center;align-items:flex-start;padding:20px 10px;overflow:auto}
+.tbox{background:var(--color-bg,#fff);border-radius:12px;max-width:900px;width:100%;box-shadow:0 8px 30px #0006}
+.thead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #d9e0e7}
+.ttabs{display:flex;gap:2px;padding:6px 12px 0;border-bottom:1px solid #d9e0e7;flex-wrap:wrap}.ttabs button{border:0;border-bottom:3px solid transparent;background:none;color:inherit;padding:8px 12px;cursor:pointer;font:inherit}.ttabs button.on{border-color:#0B50D0;font-weight:700}
+.tpane{padding:14px 16px}.tpane h3{margin:16px 0 6px;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}.kpi{border:1px solid #d9e0e7;border-radius:8px;padding:8px 10px;font-size:13px}.kpi b{display:block;font-size:22px}
+.tgrid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:760px){.tgrid2{grid-template-columns:1fr}}
+.twide .nrow,#report .nrow{grid-template-columns:110px 1fr 100px}.tpane .nrow{font-size:13px}.tpane .nrow i{height:10px}
+.row2{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}.tpane select,.tpane input,.tpane textarea,.tpane button{font:inherit;color:inherit;background:var(--color-bg,#fff);border:1px solid #9aa8b6;border-radius:6px;padding:6px 8px}.tpane button{cursor:pointer}.tpane button.pri{background:#0B50D0;color:#fff;border-color:#0B50D0}
+.ctab{width:100%;border-collapse:collapse;font-size:13px}.ctab td,.ctab th{border-bottom:1px solid #d9e0e7;padding:4px 6px;text-align:left}
+.vform{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.vform label{font-size:13px;display:flex;flex-direction:column;gap:2px}
+.vitem{border:1px solid #d9e0e7;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px}.stb{display:inline-block;padding:0 8px;border-radius:10px;color:#fff;font-size:12px;margin-left:6px;background:#DE3412}.stb.s2{background:#6B7280}.stb.s3{background:#2BA84A}
+.ph{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0}.ph figure{margin:0;font-size:11px;text-align:center}.ph img{display:block;width:110px;height:80px;object-fit:cover;border-radius:6px}
+.vm.st-on{background:#6B7280}.vm.st-done{background:#2BA84A}
+#report{display:none}
+@media print{body>*:not(#report){display:none!important}#report{display:block;padding:14px;color:#000;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}#report table{width:100%;border-collapse:collapse;font-size:12px}#report th,#report td{border:1px solid #999;padding:3px 6px;text-align:left}#report h1{font-size:22px}#report h2{font-size:16px;margin:14px 0 6px}}
+.category-chip::before{content:'';display:none;width:.6em;height:.6em;border-radius:50%;background:var(--c,#999);margin-right:.35em}.cm .category-chip::before{display:inline-block}
+.filter-button[data-c]::before{content:'';display:none;width:.65em;height:.65em;border-radius:50%;background:var(--c);margin-right:.4em;box-shadow:0 0 0 1.5px #fff}
+.cm .filter-button[data-c]:not([data-c="전체"])::before{display:inline-block}
 .filter-button[data-c="전체"]::before{display:none}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.dot{display:none;width:10px;height:10px;border-radius:50%;margin-right:6px}.cm .dot{display:inline-block}
+.cl{border-radius:50%;background:#1D4ED8e6;color:#fff;font:700 12px/1 Pretendard,sans-serif;text-align:center;border:2px solid #fff;box-shadow:0 1px 4px #0005;box-sizing:border-box}.clx{display:inline-block;min-width:18px;height:18px;border-radius:9px;background:#1D4ED8;color:#fff;font:700 11px/14px sans-serif;text-align:center;border:2px solid #fff;box-shadow:0 0 0 1px #1D4ED8;margin-right:5px;box-sizing:border-box;vertical-align:-4px}.lcm{display:block;margin-top:6px;padding-top:6px;border-top:1px solid #d9e0e7;cursor:pointer}
 .samead{display:inline-block;margin:2px 0 6px;padding:1px 10px;border:3px solid #111827;border-radius:999px;font-size:calc(12px*var(--pz,1));font-weight:700;color:#111827}
 .maplegend{background:#fffffff2;padding:6px 10px;border-radius:8px;box-shadow:0 1px 5px #0004;color:#1c2733;font-size:12px;line-height:1.6}.maplegend summary{cursor:pointer;font-weight:700}.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.maplegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.lnote{margin-top:3px}.ring{display:inline-block;width:6px;height:6px;border-radius:50%;border:3px solid #111827;background:#ccc;margin-right:5px;vertical-align:-3px}.sq{display:inline-block;width:12px;height:12px;border-radius:3px;background:#DE3412;margin-right:5px;vertical-align:-2px}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -145,16 +165,19 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <section class="filter-panel" aria-labelledby="filter-title">
 <div class="filter-copy"><h2 id="filter-title">업종 선택</h2><p id="fsum">업종을 선택하면 지도와 목록이 함께 변경됩니다.</p><button class="filter-button sm press" id="ftog" type="button" aria-expanded="true" aria-controls="fside">필터 접기</button></div>
 <div class="filter-side" id="fside"><div class="filter-buttons" id="chips" role="group" aria-label="업종 필터"></div>
-<div class="filter-buttons" id="mids"></div><div class="search-row"><input id="q" type="search" placeholder="상호·지점명·업종·주소·건물명·층/호 검색" autocomplete="off" aria-label="상가 검색"><select id="adm" aria-label="행정동"></select><label class="radlab">반경 <input id="rad" type="number" min="50" max="5000" step="50" value="500" list="radl" inputmode="numeric" aria-label="반경(미터)"> m</label><datalist id="radl"><option value="100"><option value="300"><option value="500"><option value="1000"><option value="2000"></datalist><button class="filter-button press" id="near" type="button">내 주변</button><button class="filter-button press" id="pickb" type="button">지도에서 지점 선택</button><button class="filter-button press" id="csv" type="button">CSV 저장</button><button class="filter-button press" id="clr" type="button">초기화</button></div><div class="search-row"><select id="rbiz" aria-label="희망 업종"></select><select id="rpri" aria-label="추천 기준"><option value="bal">균형형</option><option value="flow">유동 중심</option><option value="comp">경쟁 회피</option><option value="rent">임대료 중시</option></select><button class="filter-button press" id="rec" type="button">공실 추천 (테스트)</button><button class="filter-button press" id="rclose" type="button" hidden>추천 닫기</button></div><p class="radsum" id="radsum" hidden></p></div>
+<div class="filter-buttons" id="mids"></div><div class="filter-buttons" id="mnrs"></div><div class="search-row"><input id="q" type="search" placeholder="상호·지점명·업종·주소·건물명·층/호 검색" autocomplete="off" aria-label="상가 검색"><select id="adm" aria-label="행정동"></select><label class="radlab">반경 <input id="rad" type="number" min="50" max="5000" step="50" value="500" list="radl" inputmode="numeric" aria-label="반경(미터)"> m</label><datalist id="radl"><option value="100"><option value="300"><option value="500"><option value="1000"><option value="2000"></datalist><button class="filter-button press" id="near" type="button">내 주변</button><button class="filter-button press" id="pickb" type="button">지도에서 지점 선택</button><button class="filter-button press" id="csv" type="button">CSV 저장</button><button class="filter-button press" id="clr" type="button">초기화</button></div><div class="search-row"><select id="rbiz" aria-label="희망 업종"></select><select id="rpri" aria-label="추천 기준"><option value="bal">균형형</option><option value="flow">유동 중심</option><option value="comp">경쟁 회피</option><option value="rent">임대료 중시</option></select><button class="filter-button press" id="rec" type="button">공실 추천 (테스트)</button><button class="filter-button press" id="rclose" type="button" hidden>추천 닫기</button></div><p class="radsum" id="radsum" hidden></p></div>
 </section></div></header>
 <main class="container main-content">
 <section class="notice-box"><strong>안내</strong><span>목록을 선택하면 해당 상가 위치로 지도가 이동하며, 마커를 선택하면 목록의 해당 항목이 강조됩니다. “지도에서 지점 선택”을 누르고 지도를 클릭하거나, 상가 팝업의 “이 상가 주변 분석”, “내 주변”으로 반경 분석을 할 수 있습니다. 상가나 공실을 누르면 설정한 반경(m) 안의 주변 업종 그래프가 나옵니다. 지도 확대·축소는 +/− 버튼이나 Ctrl(⌘)+스크롤, 모바일은 두 손가락으로 합니다. 말풍선 위에서 스크롤하면 글자 크기를 조절할 수 있습니다.</span></section>
 <div class="dashboard-grid">
-<section class="map-panel" aria-labelledby="map-title"><div class="panel-heading"><div><h2 id="map-title">상가 위치</h2><p id="status">불러오는 중…</p></div><span class="map-label">지도 이동·확대 가능</span></div><div class="map-shell"><div id="map" class="map-view"></div><div class="maphint" id="maphint" aria-live="polite"></div></div></section>
+<section class="map-panel" aria-labelledby="map-title"><div class="panel-heading"><div><h2 id="map-title">상가 위치</h2><p id="status">불러오는 중…</p></div><div class="tool-cta"><button class="filter-button sm press" id="opent" type="button">분석 도구</button><span class="map-label">지도 이동·확대 가능</span></div></div><div class="map-shell"><div id="map" class="map-view"></div><div class="maphint" id="maphint" aria-live="polite"></div></div></section>
 <aside class="list-panel" aria-labelledby="list-title"><div class="panel-heading"><div><h2 id="list-title">상가 목록</h2><p id="catlabel">전체 업종</p></div><span class="count-badge" id="count">0건</span></div><ul class="store-list" id="list" aria-label="상가 목록"></ul><ul class="store-list" id="rlist" aria-label="공실 추천 목록" hidden></ul></aside>
 </div>
 <footer class="data-caption"><strong>현재 표시 중인 상가</strong> <b class="tabular" id="count2">0건</b><span>출처: 안성 상업 조사 데이터(엑셀 원본 10,716건) · 공실 정보는 테스트용 더미데이터입니다</span></footer>
 </main></div>
+<div class="tools" id="tools" hidden role="dialog" aria-modal="true" aria-label="분석 도구"><div class="tbox"><div class="thead"><b>분석 도구</b><button class="filter-button sm press" id="tclose" type="button">닫기</button></div>
+<div class="ttabs"><button id="tb_stat" type="button" class="on">통계 대시보드</button><button id="tb_comp" type="button">경쟁 분석</button><button id="tb_vac" type="button">공실 관리</button><button id="tb_rep" type="button">보고서·다운로드</button></div>
+<div class="tpane" id="tp_stat"></div><div class="tpane" id="tp_comp" hidden></div><div class="tpane" id="tp_vac" hidden></div><div class="tpane" id="tp_rep" hidden></div></div></div><div id="report"></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <script>
@@ -167,49 +190,51 @@ const norm=v=>String(v==null?'':v).toLocaleLowerCase('ko-KR').normalize('NFKC').
 const nm=s=>[s.name,s.branch].filter(Boolean).join(' ')||'상호명 미상';
 const addr=s=>s.road||s.lot||'';
 const unit=s=>[s.building,s.dong,s.floor&&s.floor+'층',s.ho&&s.ho+'호'].filter(Boolean).join(' ');
-const PAL=['#E6194B','#3CB44B','#FFE119','#4363D8','#F58231','#911EB4','#42D4F4','#F032E6','#9A6324','#469990'];
-const CC={};(()=>{const m={};S.forEach(s=>m[s.major]=(m[s.major]||0)+1);Object.entries(m).sort((a,b)=>b[1]-a[1]).forEach(([k],i)=>CC[k]=PAL[i%PAL.length])})();
+const PAL=['#E4572E','#2E86DE','#2BA84A','#8E44AD'],REST='#9CA3AF';
+const CC={};(()=>{const m={};S.forEach(s=>m[s.major]=(m[s.major]||0)+1);Object.entries(m).sort((a,b)=>b[1]-a[1]).forEach(([k],i)=>CC[k]=PAL[i]||REST)})();
 const ak=s=>s.road||s.lot||('#'+s.id);
 const addrMap=new Map();S.forEach((s,i)=>{const k=ak(s);(addrMap.get(k)||addrMap.set(k,[]).get(k)).push(i)});
 let mset=new Set();
 const IDX=S.map(s=>norm(K.slice(0,14).map(k=>s[k]).join(' ')));
-const PAGE=50;let cat='전체',mid='',adm='',matches=[],shown=0,sel=null,ctr=null,RAD=500,pickMode=false;
+const PAGE=50;let cat='전체',mid='',mnr='',fac={baseN:0,mj:[],md:[],mn:[]},expand={m:false,n:false},adm='',matches=[],shown=0,sel=null,ctr=null,RAD=500,pickMode=false;
 const curR=()=>Math.min(5000,Math.max(50,Math.round(+$('rad').value)||500));
 const dist=(s,c)=>{const dy=(s.lat-c.lat)*111320,dx=(s.lon-c.lon)*111320*Math.cos(c.lat*Math.PI/180);return Math.hypot(dx,dy)};
 function nearChart(lat,lon,hi,R=curR()){const c={lat,lon},m={};let n=0;for(const s of S){if(dist(s,c)<=R){m[s.major]=(m[s.major]||0)+1;n++}}
  const e=Object.entries(m).sort((a,b)=>b[1]-a[1]),mx=e.length?e[0][1]:1;
- return `<div class="nchart"><b>반경 ${R}m 주변 업종 · 상가 ${n.toLocaleString('ko-KR')}곳</b>`+e.map(([k,v])=>`<div class="nrow${k===hi?' hi':''}"><span>${esc(k)}</span><i style="width:${Math.max(3,v/mx*100)}%;background:${CC[k]||'#9DB9E8'}"></i><em>${v}곳 <small>${Math.round(v/n*100)}%</small></em></div>`).join('')+`</div>`}
+ return `<div class="nchart"><b>반경 ${R}m 주변 업종 · 상가 ${n.toLocaleString('ko-KR')}곳</b>`+e.map(([k,v])=>`<div class="nrow${k===hi?' hi':''}"><span>${esc(k)}</span><i style="width:${Math.max(3,v/mx*100)}%;background:${cm?(CC[k]||'#9DB9E8'):(k===hi?'#1D4ED8':'#9DB9E8')}"></i><em>${v}곳 <small>${Math.round(v/n*100)}%</small></em></div>`).join('')+`</div>`}
 const pzBar='<p class="phint">글자 크기 <button type="button" class="around" onclick="popSize(-1)">A−</button> <button type="button" class="around" onclick="popSize(1)">A+</button> <small>· 말풍선 위에서 스크롤해도 조절됩니다</small></p>';
 const lk=s=>{const a=encodeURIComponent(addr(s)||nm(s));return `<a href="https://map.naver.com/p/search/${a}" target="_blank" rel="noopener">네이버지도</a> · <a href="https://map.kakao.com/?q=${a}" target="_blank" rel="noopener">카카오맵</a>`};
 // ── 지도 (라이브러리가 없어도 필터·목록은 동작) ──
 let map=null,dots=null,heat=null,hl=null,rc=null,vacL=null,groups=new Map();
 const gk=s=>s.lat.toFixed(6)+','+s.lon.toFixed(6);
 S.forEach((s,i)=>{const k=gk(s);(groups.get(k)||groups.set(k,[]).get(k)).push(i)});
-function popup(ids){const al=(addrMap.get(ak(S[ids[0]]))||ids).filter(i=>mset.has(i));if(al.length>ids.length)ids=al;const sm=ids.length>1?`<div class="samead">같은 주소 ${ids.length}곳</div>`:'';const h=ids.slice(0,8).map(i=>{const s=S[i];return `<div class="popup-content"><strong><i class="dot" style="background:${CC[s.major]}"></i>${esc(nm(s))}</strong><span>${esc([s.major,s.middle,s.minor].filter(Boolean).join(' / '))}</span><p><b>위치</b>${esc(addr(s))}${unit(s)?' · '+esc(unit(s)):''}</p><p class="links">${lk(s)} · <button type="button" class="around" onclick="aroundIdx(${i})">이 상가 주변 분석</button></p></div>`}).join('<hr class="rule">');const s0=S[ids[0]];return sm+h+(ids.length>8?`<p>외 ${ids.length-8}곳</p>`:'')+nearChart(s0.lat,s0.lon,s0.major)+pzBar}
+function popup(ids){const al=(addrMap.get(ak(S[ids[0]]))||ids).filter(i=>mset.has(i));if(al.length>ids.length)ids=al;const sm=ids.length>1?`<div class="samead">같은 주소 ${ids.length}곳</div>`:'';const h=ids.slice(0,8).map(i=>{const s=S[i];return `<div class="popup-content"><strong><i class="dot" style="background:${CC[s.major]}"></i>${esc(nm(s))}</strong><span>${esc([s.major,s.middle,s.minor].filter(Boolean).join(' / '))}</span><p><b>위치</b>${esc(addr(s))}${unit(s)?' · '+esc(unit(s)):''}</p><p class="links">${lk(s)} · <button type="button" class="around" onclick="aroundIdx(${i})">이 상가 주변 분석</button></p></div>`}).join('<hr class="rule">');const s0=S[ids[0]];return sm+h+(ids.length>8?`<p>외 ${ids.length-8}곳</p>`:'')+nearChart(s0.lat,s0.lon,s0.major)+`<p class="links"><button type="button" class="around" onclick="regFrom(${ids[0]})">이 위치에 공실 등록</button></p>`+pzBar}
 function initMap(){
  map=L.map('map',{preferCanvas:true,scrollWheelZoom:false,dragging:!L.Browser.mobile,tap:false});
  const mc=map.getContainer(),hint=$('maphint');let ht=0,wt=0;
  const say=m=>{hint.textContent=m;hint.classList.add('on');clearTimeout(ht);ht=setTimeout(()=>hint.classList.remove('on'),1500)};
- sayFn=say;mc.style.setProperty('--pz',pz);map.on('popupopen',e=>{curPop=e.popup});map.on('popupclose',()=>{curPop=null});
+ sayFn=say;mc.style.setProperty('--pz',pz);map.on('popupopen',e=>{curPop=e.popup});map.on('popupclose',()=>{curPop=null});map.on('zoomend',drawDots);
  mc.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();const n=Date.now();if(n-wt<180)return;wt=n;map.setZoomAround(map.mouseEventToContainerPoint(e),map.getZoom()+(e.deltaY<0?1:-1))}else say('Ctrl(⌘)을 누른 채 스크롤하면 지도가 확대·축소됩니다')},{passive:false});
  document.addEventListener('wheel',e=>{const pp=e.target&&e.target.closest&&e.target.closest('.leaflet-popup');if(!pp)return;e.preventDefault();const n=Date.now();if(n-wt>=60){wt=n;setPz(pz+(e.deltaY<0?.1:-.1))}},{capture:true,passive:false});
  mc.addEventListener('touchstart',e=>{if(L.Browser.mobile&&e.touches.length===1)say('두 손가락으로 지도를 움직이세요')},{passive:true});
  const osm=L.tileLayer('https://tiles.osm.kr/hot/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
  const sat=L.layerGroup([L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'}),L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19})]);
  let err=0;osm.on('tileerror',()=>{if(++err===6&&map.hasLayer(osm)){map.removeLayer(osm);sat.addTo(map)}});
- dots=L.layerGroup().addTo(map);hl=L.layerGroup().addTo(map);rc=L.layerGroup().addTo(map);vacL=L.layerGroup().addTo(map);map.on('contextmenu',e=>setCenter(e.latlng.lat,e.latlng.lng));map.on('click',e=>{if(pickMode)setCenter(e.latlng.lat,e.latlng.lng)});
+ dots=L.layerGroup().addTo(map);hl=L.layerGroup().addTo(map);rc=L.layerGroup().addTo(map);vacL=L.layerGroup().addTo(map);map.on('contextmenu',e=>setCenter(e.latlng.lat,e.latlng.lng));map.on('click',e=>{if(pickVac){vacPicked(e.latlng.lat,e.latlng.lng);return}if(pickMode)setCenter(e.latlng.lat,e.latlng.lng)});
  heat=L.heatLayer?L.heatLayer([],{radius:24,blur:18,maxZoom:17,minOpacity:.25}):L.layerGroup();
- L.control.layers({'일반지도':osm,'위성사진':sat},{'개별 상가 위치':dots,'공실(더미)':vacL,'상가 밀집 열지도':heat},{collapsed:false}).addTo(map);
- const lg=L.control({position:'bottomleft'});lg.onAdd=()=>{const d=L.DomUtil.create('details','maplegend');d.open=!(typeof matchMedia!=='undefined'&&matchMedia('(max-width:640px)').matches);d.innerHTML='<summary>범례</summary><div class="lgrid">'+Object.entries(CC).map(([k,c])=>`<span><i style="background:${c}"></i>${esc(k)}</span>`).join('')+'</div><div class="lnote"><span class="ring"></span>같은 주소에 상가 여러 곳</div><div class="lnote"><span class="sq"></span>공실 후보(더미)</div>';L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d};lg.addTo(map);
+ L.control.layers({'일반지도':osm,'위성사진':sat},{'개별 상가 위치':dots,'공실(더미)':vacL,'상가 밀집 열지도':heat},{collapsed:true}).addTo(map);
+ const lg=L.control({position:'bottomleft'});lg.onAdd=()=>{const d=L.DomUtil.create('details','maplegend');d.open=!(typeof matchMedia!=='undefined'&&matchMedia('(max-width:640px)').matches);d.innerHTML='<summary>범례</summary><div class="lgb"></div><label class="lcm"><input type="checkbox"> 업종별 색 보기</label>';lgBody=d.querySelector('.lgb');const cb=d.querySelector('input');cb.checked=cm;cb.addEventListener('change',()=>setCM(cb.checked));renderLegend();L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d};lg.addTo(map);cmClass();
  map.fitBounds(L.latLngBounds(S.map(s=>[s.lat,s.lon])).pad(.05));drawVac();
 }
+function pointMarker(ids,ac,z){const s=S[ids[0]],cn={};ids.forEach(i=>{const m=S[i].major;cn[m]=(cn[m]||0)+1});const dom=Object.entries(cn).sort((a,b)=>b[1]-a[1])[0][0];const n=Math.max(...ids.map(i=>ac[ak(S[i])]||1)),multi=n>1&&z>=15;
+ L.circleMarker([s.lat,s.lon],{radius:multi?Math.min(10,5+Math.ceil(Math.sqrt(n))*1.2):(z>=16?5:z>=14?4:3),color:multi?'#1F2937':'#fff',weight:multi?2.5:1,fillColor:cm?(CC[dom]||REST):'#3B82F6',fillOpacity:.88}).on('click',()=>pick(ids[0],false)).addTo(dots)}
+function drawDots(){
+ if(!map||!dots)return;dots.clearLayers();const z=map.getZoom();
+ const ac={};matches.forEach(i=>{const k=ak(S[i]);ac[k]=(ac[k]||0)+1});
+ const g=new Map();matches.forEach(i=>{const k=gk(S[i]);(g.get(k)||g.set(k,[]).get(k)).push(i)});g.forEach(ids=>pointMarker(ids,ac,z))}
 function drawMap(fit){
  if(!map)return;
- dots.clearLayers();const g=new Map();
- matches.forEach(i=>{const k=gk(S[i]);(g.get(k)||g.set(k,[]).get(k)).push(i)});
- const ac={};matches.forEach(i=>{const k=ak(S[i]);ac[k]=(ac[k]||0)+1});
- g.forEach(ids=>{const s=S[ids[0]],cn={};ids.forEach(i=>{const m=S[i].major;cn[m]=(cn[m]||0)+1});const dom=Object.entries(cn).sort((a,b)=>b[1]-a[1])[0][0];const n=Math.max(...ids.map(i=>ac[ak(S[i])]||1)),multi=n>1;
-  L.circleMarker([s.lat,s.lon],{radius:multi?Math.min(12,5+Math.ceil(Math.sqrt(n))*1.5):5,color:multi?'#111827':'#fff',weight:multi?3:1.5,fillColor:CC[dom]||'#4363D8',fillOpacity:.95}).on('click',()=>pick(ids[0],false)).addTo(dots)});
+ drawDots();
  if(heat.setLatLngs)heat.setLatLngs(matches.map(i=>[S[i].lat,S[i].lon,.65]));
  drawCircle();drawVac();if(fit&&ctr)map.fitBounds(L.circle([ctr.lat,ctr.lon],{radius:RAD}).getBounds().pad(.1));else if(fit&&matches.length)map.fitBounds(L.latLngBounds(matches.map(i=>[S[i].lat,S[i].lon])).pad(.08),{maxZoom:17});
  drawSel();
@@ -218,8 +243,19 @@ function drawCircle(){if(!rc)return;rc.clearLayers();if(ctr){L.circle([ctr.lat,c
 function drawSel(){if(!hl)return;hl.clearLayers();if(sel!=null){const s=S[sel];L.circleMarker([s.lat,s.lon],{radius:14,color:'#0B50D0',weight:4,fillOpacity:0,interactive:false}).addTo(hl)}}
 // ── 필터·목록 ──
 function counts(k){const m={};S.forEach(s=>m[s[k]]=(m[s[k]]||0)+1);return Object.entries(m).sort((a,b)=>b[1]-a[1])}
-function renderChips(){$('chips').innerHTML=[['전체',S.length]].concat(counts('major')).map(([n,c])=>`<button type="button" class="filter-button press${n===cat?' is-active':''}" data-c="${esc(n)}" style="--c:${CC[n]||'transparent'}" aria-pressed="${n===cat}">${esc(n)}<em>${c.toLocaleString('ko-KR')}</em></button>`).join('')}
-function renderMids(){const e=$('mids');if(cat==='전체'){e.innerHTML='';return}const m={};S.forEach(s=>{if(s.major===cat)m[s.middle]=(m[s.middle]||0)+1});const tot=Object.values(m).reduce((a,b)=>a+b,0);e.innerHTML=[['',tot]].concat(Object.entries(m).sort((a,b)=>b[1]-a[1])).map(([n,c])=>`<button type="button" class="filter-button sm press${n===mid?' is-active':''}" data-m="${esc(n)}">${n?esc(n):'전체 '+esc(cat)}<em>${c.toLocaleString('ko-KR')}</em></button>`).join('')}
+function chip(attr,name,label,count,cls,active,extra){return `<button type="button" class="filter-button${cls?' '+cls:''} press${active?' is-active':''}" ${attr}="${esc(name)}"${extra||''} aria-pressed="${!!active}">${label}${count!=null?`<em>${count.toLocaleString('ko-KR')}</em>`:''}</button>`}
+const cntOf=(arr,n)=>(arr.find(x=>x[0]===n)||[0,0])[1];
+function renderChips(){const st=c=>` style="--c:${CC[c]||'transparent'}"`;
+ $('chips').innerHTML=cat==='전체'?chip('data-c','전체','전체',fac.baseN,'',true)+fac.mj.map(([n,c])=>chip('data-c',n,esc(n),c,'',false,st(n))).join(''):chip('data-c','전체','‹ 전체',null,'',false)+chip('data-c',cat,esc(cat),cntOf(fac.mj,cat),'',true,st(cat))}
+function moreBtn(k,n,open){return n>12?`<button type="button" class="filter-button sm press" data-x="${k}">${open?'접기':'더 보기 ('+(n-12)+')'}</button>`:''}
+function renderMids(){const e=$('mids');if(cat==='전체'){e.innerHTML='';return}
+ if(mid){e.innerHTML=chip('data-m','','‹ '+esc(cat)+' 전체',null,'sm',false)+chip('data-m',mid,esc(mid),cntOf(fac.md,mid),'sm',true);return}
+ const all=fac.md,tot=all.reduce((a,x)=>a+x[1],0);
+ e.innerHTML=chip('data-m','','전체 '+esc(cat),tot,'sm',true)+all.slice(0,expand.m?all.length:12).map(([n,c])=>chip('data-m',n,esc(n),c,'sm',false)).join('')+moreBtn('m',all.length,expand.m)}
+function renderMnrs(){const e=$('mnrs');if(!mid){e.innerHTML='';return}
+ if(mnr){e.innerHTML=chip('data-n','','‹ '+esc(mid)+' 전체',null,'sm',false)+chip('data-n',mnr,esc(mnr),cntOf(fac.mn,mnr),'sm',true);return}
+ const all=fac.mn,tot=all.reduce((a,x)=>a+x[1],0);
+ e.innerHTML=chip('data-n','','전체 '+esc(mid),tot,'sm',true)+all.slice(0,expand.n?all.length:12).map(([n,c])=>chip('data-n',n,esc(n),c,'sm',false)).join('')+moreBtn('n',all.length,expand.n)}
 function renderRad(){const e=$('radsum');if(!ctr){if(pickMode){e.hidden=false;e.textContent='지도에서 기준 지점을 클릭하세요.'}else e.hidden=true;return}const m={};let n=0;S.forEach(s=>{if(dist(s,ctr)<=RAD){m[s.major]=(m[s.major]||0)+1;n++}});const top=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,c])=>k+' '+c).join(' · ');e.hidden=false;e.innerHTML=`선택 지점 반경 ${RAD>=1000?RAD/1000+'km':RAD+'m'} 안 상가 <b>${n.toLocaleString('ko-KR')}곳</b>`+(n?' — '+esc(top):' (안성시 상가 데이터 범위 밖일 수 있습니다)')+' · 공실 후보(더미) '+visV().length+'곳<button type="button" class="filter-button sm press" id="unc">지점 해제</button>'}
 function setCenter(lat,lon){ctr={lat,lon};RAD=curR();setPick(false);apply(true)}
 function note(t){const e=$('radsum');e.hidden=false;e.textContent=t}
@@ -232,8 +268,8 @@ function nearMe(){
   if(m>5000){setPick(true);note('현재 위치가 안성시 상가 데이터 범위 밖입니다(가장 가까운 상가 약 '+(m/1000).toFixed(1)+'km). 지도에서 안성 안의 기준 지점을 직접 클릭해 주세요.');return}
   setCenter(c.lat,c.lon)},
  err=>{setPick(true);note('현재 위치를 가져오지 못했습니다'+(err&&err.code===1?' (위치 권한이 거부되었거나 이 화면에서 차단됨)':'')+'. 지도에서 기준 지점을 직접 클릭하거나, 상가 팝업의 “이 상가 주변 분석”을 이용하세요.')},{enableHighAccuracy:true,timeout:10000})}
-function saveHash(){try{const p=new URLSearchParams();if(cat!=='전체')p.set('c',cat);if(mid)p.set('m',mid);if(adm)p.set('a',adm);const q=$('q').value.trim();if(q)p.set('q',q);if(ctr){p.set('y',ctr.lat.toFixed(5));p.set('x',ctr.lon.toFixed(5));p.set('r',RAD)}history.replaceState(null,'',p.toString()?'#'+p:location.pathname+location.search)}catch(e){}}
-function loadHash(){try{const p=new URLSearchParams(location.hash.slice(1));cat=p.get('c')||'전체';if(!S.some(s=>s.major===cat))cat='전체';mid=cat==='전체'?'':(p.get('m')||'');adm=p.get('a')||'';$('adm').value=adm;adm=$('adm').value;$('q').value=p.get('q')||'';if(p.get('y')&&p.get('x')){ctr={lat:+p.get('y'),lon:+p.get('x')};RAD=+p.get('r')||500;$('rad').value=String(RAD)}}catch(e){}}
+function saveHash(){try{const p=new URLSearchParams();if(cat!=='전체')p.set('c',cat);if(mid)p.set('m',mid);if(mnr)p.set('n',mnr);if(adm)p.set('a',adm);const q=$('q').value.trim();if(q)p.set('q',q);if(ctr){p.set('y',ctr.lat.toFixed(5));p.set('x',ctr.lon.toFixed(5));p.set('r',RAD)}history.replaceState(null,'',p.toString()?'#'+p:location.pathname+location.search)}catch(e){}}
+function loadHash(){try{const p=new URLSearchParams(location.hash.slice(1));cat=p.get('c')||'전체';if(!S.some(s=>s.major===cat))cat='전체';mid=cat==='전체'?'':(p.get('m')||'');mnr=mid?(p.get('n')||''):'';adm=p.get('a')||'';$('adm').value=adm;adm=$('adm').value;$('q').value=p.get('q')||'';if(p.get('y')&&p.get('x')){ctr={lat:+p.get('y'),lon:+p.get('x')};RAD=+p.get('r')||500;$('rad').value=String(RAD)}}catch(e){}}
 function renderList(){
  const L2=$('list');if(!matches.length){L2.innerHTML='<li class="list-state">조건에 맞는 상가가 없습니다.</li>';return}
  let h='';for(let j=0;j<Math.min(shown,matches.length);j++){const i=matches[j],s=S[i];h+=`<li><button type="button" class="store-item press${i===sel?' is-selected':''}" data-i="${i}" aria-pressed="${i===sel}"><span class="store-item__head"><strong>${esc(nm(s))}</strong><span class="category-chip" style="--c:${CC[s.major]}">${esc(s.major)}</span></span><span class="store-item__address">${esc(addr(s))}</span><span class="store-item__address">${esc([s.middle,s.minor].filter(Boolean).join(' / '))}</span></button></li>`}
@@ -243,14 +279,19 @@ function renderList(){
 function apply(fit){
  if(typeof recOn!=='undefined'&&recOn)closeRec();
  const terms=$('q').value.trim().split(/\s+/).map(norm).filter(Boolean);
- matches=[];for(let i=0;i<S.length;i++){const s=S[i];if(cat!=='전체'&&s.major!==cat)continue;if(mid&&s.middle!==mid)continue;if(adm&&s.admin!==adm)continue;if(ctr&&dist(s,ctr)>RAD)continue;if(terms.every(t=>IDX[i].includes(t)))matches.push(i)}
+ const base=[];for(let i=0;i<S.length;i++){const s=S[i];if(adm&&s.admin!==adm)continue;if(ctr&&dist(s,ctr)>RAD)continue;if(terms.every(t=>IDX[i].includes(t)))base.push(i)}
+ const fc=(arr,k)=>{const m={};arr.forEach(i=>{const v=S[i][k];m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+ fac.baseN=base.length;fac.mj=fc(base,'major');
+ const b1=cat==='전체'?base:base.filter(i=>S[i].major===cat);fac.md=cat==='전체'?[]:fc(b1,'middle');
+ const b2=mid?b1.filter(i=>S[i].middle===mid):b1;fac.mn=mid?fc(b2,'minor'):[];
+ matches=mnr?b2.filter(i=>S[i].minor===mnr):b2;
  if(ctr){const d={};matches.forEach(i=>d[i]=dist(S[i],ctr));matches.sort((a,b)=>d[a]-d[b])}
  mset=new Set(matches);if(sel!=null&&matches.indexOf(sel)<0)sel=null;
- shown=PAGE;renderChips();renderMids();renderRad();renderList();saveHash();
+ shown=PAGE;renderChips();renderMids();renderMnrs();renderRad();renderList();saveHash();
  const n=matches.length.toLocaleString('ko-KR')+'건';
  $('count').textContent=n;$('count2').textContent=n;
- $('catlabel').textContent=(cat==='전체'?'전체':cat)+(mid?' › '+mid:'')+' 업종'+(adm?' · '+adm:'');
- {const q=$('q').value.trim();$('fsum').textContent=(cat==='전체'?'전체 업종':cat+(mid?' › '+mid:''))+(adm?' · '+adm:'')+(q?' · “'+q+'”':'')+(ctr?' · 반경 '+RAD+'m':'')+' — '+n}
+ $('catlabel').textContent=(cat==='전체'?'전체':cat)+(mid?' › '+mid:'')+(mnr?' › '+mnr:'')+' 업종'+(adm?' · '+adm:'');
+ {const q=$('q').value.trim();$('fsum').textContent=(cat==='전체'?'전체 업종':cat+(mid?' › '+mid:'')+(mnr?' › '+mnr:''))+(adm?' · '+adm:'')+(q?' · “'+q+'”':'')+(ctr?' · 반경 '+RAD+'m':'')+' — '+n}
  $('status').textContent=`전체 ${S.length.toLocaleString('ko-KR')}개 중 ${n} 표시`;
  try{drawMap(fit)}catch(e){console.error(e)}
 }
@@ -260,8 +301,9 @@ function pick(i,fly){
  if(map){const s=S[i];drawSel();if(fly)map.setView([s.lat,s.lon],Math.max(map.getZoom(),17),{animate:true});const ids=(groups.get(gk(s))||[i]).filter(x=>matches.indexOf(x)>=0);L.popup({maxWidth:330}).setLatLng([s.lat,s.lon]).setContent(popup(ids.length?ids:[i])).openOn(map)}
 }
 // ── 이벤트 ──
-$('chips').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;cat=b.dataset.c;mid='';apply(true)});
-$('mids').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;mid=b.dataset.m;apply(true)});
+$('chips').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;cat=b.dataset.c;mid='';mnr='';expand={m:false,n:false};apply(true)});
+$('mids').addEventListener('click',e=>{if(e.target.closest('[data-x]')){expand.m=!expand.m;renderMids();return}const b=e.target.closest('[data-m]');if(!b)return;mid=b.dataset.m;mnr='';expand.n=false;apply(true)});
+$('mnrs').addEventListener('click',e=>{if(e.target.closest('[data-x]')){expand.n=!expand.n;renderMnrs();return}const b=e.target.closest('[data-n]');if(!b)return;mnr=b.dataset.n;apply(true)});
 $('radsum').addEventListener('click',e=>{if(e.target.closest('#unc')){ctr=null;apply(true)}});
 $('rad').addEventListener('change',()=>{RAD=curR();$('rad').value=RAD;if(ctr)apply(true)});
 $('near').addEventListener('click',nearMe);
@@ -271,17 +313,22 @@ $('list').addEventListener('click',e=>{if(e.target.closest('[data-more]')){shown
 $('adm').addEventListener('change',e=>{adm=e.target.value;apply(true)});
 $('q').addEventListener('input',()=>apply(false));
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter')apply(true);if(e.key==='Escape'){$('q').value='';apply(true)}});
-$('clr').addEventListener('click',()=>{$('q').value='';cat='전체';adm='';$('adm').value='';mid='';ctr=null;RAD=500;$('rad').value='500';pickMode=false;$('pickb').classList.remove('is-active');sel=null;apply(true)});
+$('clr').addEventListener('click',()=>{$('q').value='';cat='전체';adm='';$('adm').value='';mid='';mnr='';expand={m:false,n:false};ctr=null;RAD=500;$('rad').value='500';pickMode=false;$('pickb').classList.remove('is-active');sel=null;apply(true)});
 $('adm').innerHTML='<option value="">전체 행정동</option>'+counts('admin').map(([n,c])=>`<option value="${esc(n)}">${esc(n)} (${c.toLocaleString('ko-KR')})</option>`).join('');
 // ── 공실 추천 (더미 데이터) ──
-let pz=1,curPop=null,sayFn=()=>{};
+let pz=1,curPop=null,sayFn=()=>{},cm=true,lgBody=null;
+try{const v=localStorage.getItem('cm2');if(v!==null)cm=v==='1'}catch(e){}
+function cmClass(){if(document.body&&document.body.classList)document.body.classList.toggle('cm',cm)}
+function renderLegend(){if(!lgBody)return;const e=Object.entries(CC),main=e.filter(x=>x[1]!==REST),rest=e.length-main.length;
+ lgBody.innerHTML=(cm?'<div class="lgrid">'+main.map(([k,c])=>`<span><i style="background:${c}"></i>${esc(k)}</span>`).join('')+(rest?`<span><i style="background:${REST}"></i>기타 ${rest}개 업종</span>`:'')+'</div>':'<div class="lnote"><i style="background:#3B82F6"></i>상가 1곳</div>')+'<div class="lnote"><span class="ring"></span>같은 주소에 상가 여러 곳</div><div class="lnote"><span class="sq"></span>공실 후보(더미)</div>'}
+function setCM(on){cm=on;try{localStorage.setItem('cm2',on?'1':'0')}catch(e){}cmClass();renderLegend();drawDots()}
 try{pz=Math.min(1.6,Math.max(.6,+localStorage.getItem('popZoom')||1))}catch(e){}
 function setPz(p){pz=Math.min(1.6,Math.max(.6,Math.round(p*10)/10));if(map)map.getContainer().style.setProperty('--pz',pz);try{localStorage.setItem('popZoom',pz)}catch(e){}if(curPop)curPop.update();sayFn('말풍선 글자 크기 '+Math.round(pz*100)+'%')}
 function popSize(d){setPz(pz+d*.1)}
-const V=D.v||[];const visV=()=>ctr?V.filter(v=>dist(v,ctr)<=RAD):V;let recOn=false,recR=500,recBiz='',ranks=new Map();const PN={bal:'균형형',flow:'유동 중심',comp:'경쟁 회피',rent:'임대료 중시'};
+const V=D.v||[];const pool=()=>(showDummy?V:[]).concat(REG);const visV=()=>ctr?pool().filter(v=>dist(v,ctr)<=RAD):pool();let recOn=false,recR=500,recBiz='',ranks=new Map();const PN={bal:'균형형',flow:'유동 중심',comp:'경쟁 회피',rent:'임대료 중시'};
 const PRI={bal:{d:.4,c:.35,r:.25},flow:{d:.6,c:.25,r:.15},comp:{d:.25,c:.6,r:.15},rent:{d:.25,c:.2,r:.55}};
 const vdesc=v=>`${v.b?v.b+' · ':''}${v.f}층 · ${v.ar}㎡ · 보증금 ${v.dp.toLocaleString('ko-KR')}만 / 월세 ${v.rt}만원`;
-function vacPopup(v){const r=ranks.get(v.id);return `<div class="popup-content"><strong>공실 후보${r?' '+r.n+'위':''} <small>(테스트용 더미)</small></strong><span>${esc(v.a)}</span><p><b>조건</b>${esc(vdesc(v))}</p>${r?recHtml(r):''}${nearChart(v.lat,v.lon,r?majorOf(recBiz):null,r?recR:curR())}${pzBar}<p class="links"><button type="button" class="around" onclick="aroundV('${v.id}')">이 공실 주변 분석</button></p></div>`}
+function vacPopup(v){const r=ranks.get(v.id);return `<div class="popup-content"><strong>공실 후보${r?' '+r.n+'위':''} <small>${v.reg?'('+esc(v.st)+' · 직접 등록)':'(테스트용 더미)'}</small></strong><span>${esc(v.a)}</span><p><b>조건</b>${esc(vdesc(v))}</p>${v.reg?regExtra(v):''}${r?recHtml(r):''}${nearChart(v.lat,v.lon,r?majorOf(recBiz):null,r?recR:curR())}${pzBar}<p class="links"><button type="button" class="around" onclick="aroundV('${v.id}')">이 공실 주변 분석</button></p></div>`}
 const majorOf=m=>Object.keys(mm).find(a=>mm[a][m]);
 const bar=(k,p,pt)=>`<div class="nrow"><span>${k}</span><i style="width:${Math.round(p*100)}%"></i><em>${pt}점</em></div>`;
 const recHtml=r=>{const x=r.x,w=x.w;return `<div class="rs"><p><b>추천 ${x.sc}점 · ${r.n}위</b> (기준: ${esc(x.pn)})</p>`+x.rs.map(q=>`<p>${q.ok?'✔':'△'} ${esc(q.t)}</p>`).join('')+`<p><b>점수 구성</b></p>`+bar('유동 '+Math.round(w.d*100)+'%',x.dS,Math.round(x.dS*100))+bar('경쟁 '+Math.round(w.c*100)+'%',x.cS,Math.round(x.cS*100))+bar('임대료 '+Math.round(w.r*100)+'%',x.rS,Math.round(x.rS*100))+'</div>'};
@@ -291,13 +338,13 @@ function reasonList(x,biz,r,aS,aP,N,w){const o=[],top=Math.max(1,Math.round(x.rk
  o.push({ok:x.ppm<=aP,t:`임대료: ㎡당 월세 ${x.ppm.toFixed(2)}만원 — 후보 평균 ${aP.toFixed(2)}만원보다 ${Math.round(Math.abs(x.ppm/aP-1)*100)}% ${x.ppm<=aP?'저렴':'높음'}`});
  const c=[['유동',w.d*x.dS],['경쟁',w.c*x.cS],['임대료',w.r*x.rS]].sort((a,b)=>b[1]-a[1])[0][0];
  o.push({ok:true,t:`이 기준에서 점수에 가장 크게 기여한 항목: ${c}`});return o}
-function drawVac(){if(!vacL)return;vacL.clearLayers();visV().forEach(v=>{const r=ranks.get(v.id);L.marker([v.lat,v.lon],{zIndexOffset:r?1000:0,icon:L.divIcon({className:'',html:`<div class="vm${r?' top':''}">${r?r.n:''}</div>`,iconSize:r?[28,28]:[20,20],iconAnchor:r?[14,14]:[10,10]})}).bindPopup(()=>vacPopup(v),{maxWidth:330}).addTo(vacL)})}
-function focusV(id){const v=V.find(x=>x.id===id);if(!v||!map)return;map.setView([v.lat,v.lon],17);L.popup({maxWidth:330}).setLatLng([v.lat,v.lon]).setContent(vacPopup(v)).openOn(map)}
-function aroundV(id){const v=V.find(x=>x.id===id);if(v){if(map)map.closePopup();setCenter(v.lat,v.lon)}}
+function drawVac(){if(!vacL)return;vacL.clearLayers();visV().forEach(v=>{const r=ranks.get(v.id);L.marker([v.lat,v.lon],{zIndexOffset:r?1000:0,icon:L.divIcon({className:'',html:`<div class="vm${r?' top':''}${v.st==='영업 중'?' st-on':v.st==='임대 완료'?' st-done':''}">${r?r.n:''}</div>`,iconSize:r?[28,28]:[20,20],iconAnchor:r?[14,14]:[10,10]})}).bindPopup(()=>vacPopup(v),{maxWidth:330}).addTo(vacL)})}
+function focusV(id){const v=findV(id);if(!v||!map)return;map.setView([v.lat,v.lon],17);L.popup({maxWidth:330}).setLatLng([v.lat,v.lon]).setContent(vacPopup(v)).openOn(map)}
+function aroundV(id){const v=findV(id);if(v){if(map)map.closePopup();setCenter(v.lat,v.lon)}}
 function recommend(){
  const biz=$('rbiz').value;if(!biz){note('희망 업종을 먼저 선택해 주세요.');return}
  const r=curR(),w=PRI[$('rpri').value]||PRI.bal;
- const cand=visV();if(!cand.length){note('선택한 반경 안에 공실 후보가 없습니다. 반경을 넓히거나 지점을 해제해 주세요.');return}
+ const cand=visV().filter(v=>!v.st||v.st==='공실');if(!cand.length){note('선택한 반경 안에 공실 후보가 없습니다. 반경을 넓히거나 지점을 해제해 주세요.');return}
  const rows=cand.map(v=>{let tot=0,same=0;for(const s of S){if(dist(s,v)<=r){tot++;if(s.middle===biz)same++}}return{v,tot,same,ppm:v.rt/v.ar}});
  const mx=k=>Math.max(...rows.map(x=>x[k])),mn=k=>Math.min(...rows.map(x=>x[k]));
  const T=mx('tot')||1,C=mx('same')||1,P0=mn('ppm'),P1=mx('ppm');
@@ -315,6 +362,98 @@ $('rbiz').innerHTML='<option value="">희망 업종 선택</option>'+Object.entr
 $('rec').addEventListener('click',recommend);
 $('rclose').addEventListener('click',()=>apply(false));
 $('rlist').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)focusV(b.dataset.v)});
+// ── 분석 도구 ──
+let REG=[],showDummy=true,curTab='stat',pickVac=false,delArm='';
+try{REG=JSON.parse(localStorage.getItem('vacReg')||'[]')}catch(e){}
+const today=()=>new Date().toISOString().slice(0,10),nf=n=>Number(n).toLocaleString('ko-KR'),pct=(v,t)=>t?Math.round(v/t*100):0;
+const saveReg=()=>{try{localStorage.setItem('vacReg',JSON.stringify(REG));return true}catch(e){return false}};
+const findV=id=>pool().find(v=>v.id===id);
+const x2=v=>String(v==null?'':v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function dl(b,name){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function counts2(list){const mj={},ad={};list.forEach(i=>{const s=S[i];mj[s.major]=(mj[s.major]||0)+1;ad[s.admin]=(ad[s.admin]||0)+1});return{mj,ad}}
+function rows2(o,tot,link){const e=Object.entries(o).sort((a,b)=>b[1]-a[1]),mx=e.length?e[0][1]:1;return e.map(([k,v])=>`<div class="nrow"${link?` data-adm="${esc(k)}" style="cursor:pointer"`:''}><span>${esc(k)}</span><i style="width:${Math.max(2,v/mx*100)}%;background:${link?'#2563EB':(cm?(CC[k]||REST):'#2563EB')}"></i><em>${nf(v)} <small>${pct(v,tot)}%</small></em></div>`).join('')}
+function showTab(t){curTab=t;['stat','comp','vac','rep'].forEach(k=>{$('tb_'+k).classList.toggle('on',k===t);$('tp_'+k).hidden=k!==t});({stat:renderStat,comp:renderComp,vac:renderVac,rep:renderRep})[t]()}
+function openTools(t){$('tools').hidden=false;showTab(t||curTab)}
+function closeTools(){$('tools').hidden=true}
+// 1) 통계
+function renderStat(){const n=matches.length,{mj,ad}=counts2(matches),reg=REG.filter(v=>v.st==='공실').length;
+ $('tp_stat').innerHTML=`<p class="phint">현재 필터 기준: ${esc($('fsum').textContent)}</p><div class="kpis"><div class="kpi">상가 수<b>${nf(n)}</b>전체 ${nf(S.length)}곳</div><div class="kpi">업종(대분류)<b>${Object.keys(mj).length}</b></div><div class="kpi">행정동<b>${Object.keys(ad).length}</b></div><div class="kpi">등록 공실<b>${reg}</b>${showDummy?'+ 더미 '+V.length:''}</div></div>
+ <div class="tgrid2"><div><h3>업종별 점유 비율</h3>${rows2(mj,n,false)}</div><div><h3>행정동별 상가 수 <small>(누르면 해당 동만 보기)</small></h3>${rows2(ad,n,true)}</div></div>
+ <p class="phint">공실률과 업종별 증감 추이는 조사 시점이 하나뿐이고 실제 공실 자료가 없어 계산하지 않습니다.</p>
+ <h3>행정동 비교</h3><div class="row2"><select id="cmpA"></select><select id="cmpB"></select></div><div id="cmpOut"></div>
+ <h3>지도에서 밀집도 보기</h3><p class="phint">지도의 현재 필터 조건(업종·행정동 등)에 맞는 상가의 밀집도를 색 농도로 봅니다.</p><div class="row2"><button type="button" id="heatOn" class="pri">열지도로 보기</button><button type="button" id="dotOn">점으로 보기</button></div>`;
+ const ao='<option value="">행정동 선택</option>'+counts('admin').map(([k])=>`<option>${esc(k)}</option>`).join('');$('cmpA').innerHTML=ao;$('cmpB').innerHTML=ao;renderCmp()}
+function renderCmp(){const a=$('cmpA').value,b=$('cmpB').value;if(!a||!b){$('cmpOut').innerHTML='<p class="phint">두 행정동을 고르면 업종 구성을 나란히 비교합니다.</p>';return}
+ const f=d=>{const m={};let t=0;S.forEach(s=>{if(s.admin===d){m[s.major]=(m[s.major]||0)+1;t++}});return{m,t}},A=f(a),B=f(b);
+ $('cmpOut').innerHTML=`<table class="ctab"><tr><th>업종</th><th>${esc(a)}</th><th>${esc(b)}</th></tr>`+Object.keys(CC).map(k=>`<tr><td>${esc(k)}</td><td>${nf(A.m[k]||0)} (${pct(A.m[k]||0,A.t)}%)</td><td>${nf(B.m[k]||0)} (${pct(B.m[k]||0,B.t)}%)</td></tr>`).join('')+`<tr><th>합계</th><th>${nf(A.t)}</th><th>${nf(B.t)}</th></tr></table>`}
+// 2) 경쟁 분석
+function cnt(la,lo,R,biz){const dy=R/111320,dx=R/(111320*Math.cos(la*Math.PI/180)),c={lat:la,lon:lo};let T=0,C=0;for(const s of S){if(Math.abs(s.lat-la)>dy||Math.abs(s.lon-lo)>dx)continue;if(dist(s,c)<=R){T++;if(s.middle===biz)C++}}return{T,C}}
+function compGrid(biz,R){const kx=111320*Math.cos(37*Math.PI/180),ky=111320,cs=Math.max(300,R),cells=new Map();
+ S.forEach(s=>{const x=Math.floor((s.lon-127)*kx/cs),y=Math.floor((s.lat-37)*ky/cs);cells.set(x+','+y,[(x+.5)*cs/kx+127,(y+.5)*cs/ky+37])});
+ const o=[];cells.forEach(([lo,la])=>{const c=cnt(la,lo,R,biz);o.push({la,lo,T:c.T,C:c.C})});return o}
+function nearest(la,lo){let b=null,m=1e12;const c={lat:la,lon:lo};for(const s of S){const d=dist(s,c);if(d<m){m=d;b=s}}return b}
+function renderComp(){const keep=$('cbiz')&&$('cbiz').value;
+ $('tp_comp').innerHTML=`<p>희망 업종과 현재 반경(<b>${curR()}m</b>)을 기준으로 경쟁 강도를 분석합니다. 반경은 화면 위쪽 입력칸에서 바꿀 수 있어요.</p><div class="row2"><select id="cbiz">${$('rbiz').innerHTML}</select><button type="button" id="cgo" class="pri">분석 실행</button></div><div id="cout"></div>`;
+ $('cbiz').value=keep||$('rbiz').value||''}
+function runComp(){const biz=$('cbiz').value;if(!biz){$('cout').innerHTML='<p>업종을 선택해 주세요.</p>';return}
+ const R=curR(),g=compGrid(biz,R),n=g.length,mT=g.reduce((a,x)=>a+x.T,0)/n,mC=g.reduce((a,x)=>a+x.C,0)/n,lv=c=>mC?(c/mC<.5?'낮음':c/mC<1.5?'보통':'높음'):'낮음';
+ const T50=g.map(x=>x.T).sort((a,b)=>a-b)[Math.floor(n/2)],Tm=Math.max(...g.map(x=>x.T))||1,Cm=Math.max(...g.map(x=>x.C))||1;
+ const top=g.filter(x=>x.T>=T50).map(x=>Object.assign({sc:Math.round(100*(.5*x.T/Tm+.5*(1-x.C/Cm)))},x)).sort((a,b)=>b.sc-a.sc).slice(0,10);
+ let h=`<p>반경 ${R}m · 업종 <b>${esc(biz)}</b> · 안성 평균(격자 ${n}곳): 주변 상가 ${mT.toFixed(0)}곳, 같은 업종 ${mC.toFixed(1)}곳</p>`;
+ if(ctr){const c=cnt(ctr.lat,ctr.lon,R,biz);h+=`<p><b>선택 지점 경쟁 강도: ${lv(c.C)}</b> — 같은 업종 ${c.C}곳(평균의 ${mC?(c.C/mC).toFixed(1):0}배), 주변 상가 ${c.T}곳</p>`}else h+='<p class="phint">지도에서 지점을 선택해 두면 그 지점의 경쟁 강도도 함께 표시됩니다.</p>';
+ h+='<h3>경쟁이 적으면서 상가가 모인 지역 TOP 10</h3>'+top.map((x,i)=>{const s=nearest(x.la,x.lo);return `<button type="button" class="store-item press" data-go="${x.la},${x.lo}"><span class="store-item__head"><strong>${i+1}. ${esc(addr(s))} 부근</strong><span class="category-chip">${x.sc}점</span></span><span class="store-item__address">주변 상가 ${x.T}곳 · 같은 업종 ${x.C}곳 · 경쟁 ${lv(x.C)}</span></button>`}).join('');
+ $('cout').innerHTML=h}
+// 3) 공실 관리
+const msg=t=>{$('vmsg').textContent=t};
+function initVac(){$('tp_vac').innerHTML=`<h3 style="margin-top:0">공실 직접 등록</h3><p class="phint">상가 팝업의 “이 위치에 공실 등록”이나 아래 “지도에서 위치 찍기”로 위치를 정합니다. 데이터는 이 브라우저에만 저장됩니다.</p>
+ <div class="vform"><label>상태<select id="v_st"><option>공실</option><option>영업 중</option><option>임대 완료</option></select></label><label>주소<input id="v_addr"></label><label>건물명<input id="v_bld"></label><label>층<input id="v_floor" type="number"></label><label>면적(㎡)<input id="v_area" type="number" min="0"></label><label>보증금(만원)<input id="v_dep" type="number" min="0"></label><label>월세(만원)<input id="v_rent" type="number" min="0"></label><label>조사일<input id="v_d1" type="date"></label><label>마지막 확인일<input id="v_d2" type="date"></label><label>위도<input id="v_lat" readonly></label><label>경도<input id="v_lon" readonly></label><label>사진<input id="v_photo" type="file" accept="image/*"></label><label style="grid-column:1/-1">메모(현장 확인 기록)<textarea id="v_memo" rows="2"></textarea></label></div>
+ <div class="row2"><button type="button" id="v_pick">지도에서 위치 찍기</button><button type="button" id="v_save" class="pri">저장</button><span id="vmsg"></span></div>
+ <div class="row2"><label><input id="showDummy" type="checkbox" checked> 더미 공실(테스트) 표시</label><button type="button" id="v_exp">내보내기(JSON)</button></div><h3>등록된 공실</h3><div id="vlist"></div>`;
+ $('v_d1').value=today();$('v_d2').value=today()}
+function regExtra(v){const p=v.ph||[],f=p[0],l=p[p.length-1];return `<p><b>조사</b> ${esc(v.d1)} · <b>확인</b> ${esc(v.d2)}</p>${v.memo?`<p>${esc(v.memo)}</p>`:''}`+(p.length?`<div class="ph">${p.length>1?`<figure><img src="${f.u}" alt="이전 사진"><figcaption>이전 ${esc(f.d)}</figcaption></figure>→`:''}<figure><img src="${l.u}" alt="현재 사진"><figcaption>${p.length>1?'현재':'사진'} ${esc(l.d)}</figcaption></figure></div>`:'')}
+function renderVac(){if(!$('vlist'))return;$('showDummy').checked=showDummy;
+ $('vlist').innerHTML=REG.length?REG.slice().reverse().map(v=>`<div class="vitem"><b>${esc(v.a)}</b><span class="stb ${v.st==='영업 중'?'s2':v.st==='임대 완료'?'s3':''}">${esc(v.st)}</span><div>${esc(vdesc(v))}</div>${regExtra(v)}<div class="row2"><select data-st="${v.id}">${['공실','영업 중','임대 완료'].map(o=>`<option${o===v.st?' selected':''}>${o}</option>`).join('')}</select><label>사진 추가 <input type="file" accept="image/*" data-ph="${v.id}"></label><button type="button" data-go="${v.id}">지도에서 보기</button><button type="button" data-del="${v.id}">${delArm===v.id?'정말 삭제? 다시 누르세요':'삭제'}</button></div></div>`).join(''):'<p class="phint">등록된 공실이 없습니다.</p>'}
+function readPhoto(file){return new Promise((ok,no)=>{const r=new FileReader();r.onerror=no;r.onload=()=>{const im=new Image();im.onerror=no;im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.7))};im.src=r.result};r.readAsDataURL(file)})}
+function regFrom(i){const s=S[i];if(map)map.closePopup();openTools('vac');$('v_addr').value=addr(s);$('v_bld').value=s.building||'';$('v_floor').value=/^\d+$/.test(s.floor)?s.floor:'';$('v_lat').value=s.lat;$('v_lon').value=s.lon;$('v_memo').value='기존 상가: '+nm(s);$('v_st').value='공실'}
+function vacPicked(la,lo){pickVac=false;if($('map').style)$('map').style.cursor='';$('v_lat').value=la.toFixed(6);$('v_lon').value=lo.toFixed(6);if(!$('v_addr').value){const s=nearest(la,lo);if(s)$('v_addr').value=addr(s)+' 부근'}openTools('vac')}
+async function saveVac(){const g=id=>$(id).value,num=id=>+g(id)||0,lat=+g('v_lat'),lon=+g('v_lon');
+ if(!g('v_addr').trim()||!lat||!lon){msg('주소와 위치가 필요합니다. 위치는 지도에서 찍거나 상가 팝업에서 등록하세요.');return}
+ const it={id:'R'+Date.now(),a:g('v_addr').trim(),b:g('v_bld').trim(),f:num('v_floor')||1,ar:num('v_area'),dp:num('v_dep'),rt:num('v_rent'),lat,lon,st:g('v_st'),d1:g('v_d1')||today(),d2:g('v_d2')||today(),memo:g('v_memo').trim(),ph:[],reg:true};
+ const file=$('v_photo').files&&$('v_photo').files[0];if(file){try{it.ph.push({d:today(),u:await readPhoto(file)})}catch(e){msg('사진을 읽지 못했습니다.');return}}
+ REG.push(it);if(!saveReg()){REG.pop();msg('저장 공간이 부족합니다. 사진을 빼거나 일부를 삭제하세요.');return}
+ ['v_addr','v_bld','v_floor','v_area','v_dep','v_rent','v_lat','v_lon','v_memo'].forEach(id=>{$(id).value=''});$('v_photo').value='';msg('저장했습니다.');renderVac();drawVac()}
+// 4) 보고서·엑셀
+function renderRep(){$('tp_rep').innerHTML=`<p>현재 필터(<b>${esc($('fsum').textContent)}</b>) 기준으로 보고서와 데이터를 만듭니다.</p><div class="row2"><button type="button" id="r_pdf" class="pri">보고서 PDF 저장(인쇄)</button><button type="button" id="r_xls">엑셀(.xls) 다운로드</button></div><p class="phint">PDF는 인쇄 창에서 “PDF로 저장”을 고르세요. 표와 막대 그래프가 담기고 지도 그림은 포함되지 않습니다. 엑셀은 상가 목록, 업종 통계, 행정동 통계, 등록 공실 4개 시트입니다.</p>`}
+function buildReport(){const n=matches.length,{mj,ad}=counts2(matches),biz=$('rbiz').value,reg=REG.filter(v=>v.st==='공실');
+ let h=`<h1>안성시 상권 분석 보고서</h1><p>작성일 ${today()} · 조건: ${esc($('fsum').textContent)}</p><div class="kpis"><div class="kpi">상가 수<b>${nf(n)}</b>전체 ${nf(S.length)}곳</div><div class="kpi">업종<b>${Object.keys(mj).length}</b></div><div class="kpi">행정동<b>${Object.keys(ad).length}</b></div><div class="kpi">등록 공실<b>${reg.length}</b></div></div><h2>업종별 점유 비율</h2>${rows2(mj,n,false)}<h2>행정동별 상가 수</h2>${rows2(ad,n,false)}`;
+ if(biz){const o={};S.forEach(s=>{if(s.middle===biz)o[s.admin]=(o[s.admin]||0)+1});const tot=Object.values(o).reduce((a,b)=>a+b,0);h+=`<h2>업종별 경쟁 현황 — ${esc(biz)} (전체 ${nf(tot)}곳)</h2>${rows2(o,tot,false)}`}
+ h+='<h2>공실 현황</h2>'+(reg.length?'<table><tr><th>주소</th><th>건물·층</th><th>면적㎡</th><th>보증금(만)</th><th>월세(만)</th><th>조사일</th><th>확인일</th></tr>'+reg.map(v=>`<tr><td>${esc(v.a)}</td><td>${esc(v.b)} ${v.f}층</td><td>${v.ar}</td><td>${nf(v.dp)}</td><td>${nf(v.rt)}</td><td>${esc(v.d1)}</td><td>${esc(v.d2)}</td></tr>`).join('')+'</table>':'<p>등록된 공실이 없습니다. (공실 자료 미확보)</p>')+(showDummy?`<p>※ 지도에 표시되는 공실 ${V.length}곳은 테스트용 더미 데이터이며 이 보고서에는 포함하지 않았습니다.</p>`:'')+`<p>출처: 안성 상업 조사 데이터(엑셀 원본 ${nf(S.length)}건)</p>`;
+ $('report').innerHTML=h}
+function downloadXls(){const sh=(nm2,rows)=>`<Worksheet ss:Name="${nm2}"><Table>`+rows.map(r=>'<Row>'+r.map(c=>typeof c==='number'?`<Cell><Data ss:Type="Number">${c}</Data></Cell>`:`<Cell><Data ss:Type="String">${x2(c)}</Data></Cell>`).join('')+'</Row>').join('')+'</Table></Worksheet>';
+ const {mj,ad}=counts2(matches),n=matches.length,st=o=>[['구분','상가 수','비율(%)']].concat(Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v,pct(v,n)]));
+ const list=[['상호명','지점명','업종대분류','업종중분류','업종소분류','행정동','도로명주소','지번주소','건물명','층','호','위도','경도']].concat(matches.map(i=>{const s=S[i];return[s.name,s.branch,s.major,s.middle,s.minor,s.admin,s.road,s.lot,s.building,s.floor,s.ho,s.lat,s.lon]}));
+ const rg=[['상태','주소','건물명','층','면적(㎡)','보증금(만원)','월세(만원)','조사일','마지막 확인일','메모','위도','경도']].concat(REG.map(v=>[v.st,v.a,v.b,v.f,v.ar,v.dp,v.rt,v.d1,v.d2,v.memo,v.lat,v.lon]));
+ dl(new Blob(['<?xml version="1.0" encoding="UTF-8"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'+sh('상가목록',list)+sh('업종통계',st(mj))+sh('행정동통계',st(ad))+sh('등록공실',rg)+'</Workbook>'],{type:'application/vnd.ms-excel'}),'안성_상권분석.xls')}
+// 이벤트 연결
+initVac();
+$('opent').addEventListener('click',()=>openTools());$('tclose').addEventListener('click',closeTools);
+$('tools').addEventListener('click',e=>{if(e.target===$('tools'))closeTools()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTools()});
+['stat','comp','vac','rep'].forEach(k=>$('tb_'+k).addEventListener('click',()=>showTab(k)));
+$('tp_stat').addEventListener('click',e=>{const t=e.target,a=t.closest('[data-adm]');if(a){adm=a.dataset.adm;$('adm').value=adm;closeTools();apply(true);return}if(t.closest('#heatOn')){if(map){map.addLayer(heat);map.removeLayer(dots)}closeTools();return}if(t.closest('#dotOn')){if(map){map.addLayer(dots);map.removeLayer(heat)}closeTools()}});
+$('tp_stat').addEventListener('change',e=>{if(e.target.id==='cmpA'||e.target.id==='cmpB')renderCmp()});
+$('tp_comp').addEventListener('click',e=>{if(e.target.closest('#cgo')){runComp();return}const b=e.target.closest('[data-go]');if(b){const [la,lo]=b.dataset.go.split(',').map(Number);closeTools();setCenter(la,lo)}});
+$('tp_vac').addEventListener('click',e=>{const t=e.target;
+ if(t.closest('#v_pick')){if(!map){msg('지도를 불러오지 못해 사용할 수 없습니다.');return}pickVac=true;closeTools();sayFn('지도에서 공실 위치를 클릭하세요');if($('map').style)$('map').style.cursor='crosshair';return}
+ if(t.closest('#v_save')){saveVac();return}
+ if(t.closest('#v_exp')){dl(new Blob([JSON.stringify(REG,null,1)],{type:'application/json'}),'등록공실.json');return}
+ const d=t.closest('[data-del]');if(d){if(delArm===d.dataset.del){REG=REG.filter(v=>v.id!==delArm);delArm='';saveReg();renderVac();drawVac()}else{delArm=d.dataset.del;renderVac()}return}
+ const g=t.closest('[data-go]');if(g){const v=findV(g.dataset.go);if(v&&map){closeTools();map.setView([v.lat,v.lon],17);L.popup({maxWidth:330}).setLatLng([v.lat,v.lon]).setContent(vacPopup(v)).openOn(map)}}});
+$('tp_vac').addEventListener('change',async e=>{const t=e.target;
+ if(t.id==='showDummy'){showDummy=t.checked;drawVac();return}
+ if(t.dataset&&t.dataset.st){const v=REG.find(x=>x.id===t.dataset.st);if(v){v.st=t.value;v.d2=today();saveReg();renderVac();drawVac()}return}
+ if(t.dataset&&t.dataset.ph&&t.files&&t.files[0]){const v=REG.find(x=>x.id===t.dataset.ph);if(v){try{v.ph.push({d:today(),u:await readPhoto(t.files[0])});v.d2=today();if(!saveReg()){v.ph.pop();msg('저장 공간이 부족합니다.')}}catch(err){msg('사진을 읽지 못했습니다.')}renderVac();drawVac()}}});
+$('tp_rep').addEventListener('click',e=>{if(e.target.closest('#r_pdf')){buildReport();if(typeof print==='function')print();return}if(e.target.closest('#r_xls'))downloadXls()});
 function toggleF(c){$('fside').hidden=c;$('ftog').textContent=c?'필터 펼치기':'필터 접기';$('ftog').setAttribute('aria-expanded',String(!c))}
 $('ftog').addEventListener('click',()=>toggleF(!$('fside').hidden));
 if(typeof matchMedia!=='undefined'&&matchMedia('(max-width:640px)').matches)toggleF(true);
