@@ -17,3 +17,14 @@
 .page-traffic .leaflet-popup-content-wrapper, .page-traffic .leaflet-popup-tip { background: #111d2e; color: #e9eef7; }
 .page-traffic .leaflet-popup-content { font-size: 11px; line-height: 1.7; }
 .page-traffic .leaflet-control-attribution { font-size: 9px !important; }
+.page-traffic .route-planner { margin-bottom: 20px; }
+.page-traffic .route-planner select { display:block; width:100%; min-height:42px; margin-top:6px; border-radius:8px; border:1px solid #9ca8ba; padding:6px 8px; font:inherit; }
+.page-traffic .route-fields, .page-traffic .route-options { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.page-traffic .route-submit, .page-traffic .route-options button, .page-traffic .route-planner [role="alert"] button { border:1px solid #a4b3c5; border-radius:8px; padding:9px 13px; background:#f2f6fa; color:#171e30; font:inherit; cursor:pointer; }
+.page-traffic .route-submit { margin-top:12px; }
+.page-traffic .route-submit:disabled { opacity:.55; cursor:default; }
+.page-traffic .route-options button { display:grid; gap:4px; text-align:left; }
+.page-traffic .route-options button[aria-pressed="true"] { border-color:#1764ca; box-shadow:inset 0 0 0 1px #1764ca; background:#e3f0ff; }
+.page-traffic .route-map { height:280px; margin-top:12px; border-radius:10px; overflow:hidden; isolation:isolate; }
+.page-traffic .route-map .leaflet-container { height:100%; width:100%; }
+@media(max-width:700px) { .page-traffic .route-fields, .page-traffic .route-options { grid-template-columns:1fr; } }

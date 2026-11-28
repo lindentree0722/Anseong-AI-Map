@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 import traffic
 
 
-OBSERVED_ENDPOINT = "/traffic/overview?mode=observed"
+OBSERVED_ENDPOINT = "/api/traffic/overview?mode=observed"
 
 
 @pytest.fixture
@@ -79,5 +79,5 @@ def test_missing_key(observed_client, monkeypatch):
 def test_switch_default_source_without_changing_url(observed_client, monkeypatch):
     monkeypatch.setenv("TRAFFIC_DATA_SOURCE", "observed")
     monkeypatch.setattr(traffic, "fetch_link_xml", lambda *_: payload(code="4"))
-    assert observed_client.get("/traffic/overview").json()["dataStatus"] == "observed"
-    assert observed_client.get("/traffic/overview?mode=sample").json()["dataStatus"] == "sample"
+    assert observed_client.get("/api/traffic/overview").json()["dataStatus"] == "observed"
+    assert observed_client.get("/api/traffic/overview?mode=sample").json()["dataStatus"] == "sample"

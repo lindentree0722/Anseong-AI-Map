@@ -30,7 +30,7 @@ def running_server(db_path):
                 if process.poll() is not None:
                     raise AssertionError(process.communicate()[0].decode(errors="replace"))
                 try:
-                    if client.get("/places").status_code == 200:
+                    if client.get("/api/places").status_code == 200:
                         break
                 except httpx.TransportError:
                     pass
@@ -51,10 +51,10 @@ def test_places_survive_server_process_restart(tmp_path):
     db_path = tmp_path / "restart.db"
     place = {"name": "재시작 검증", "position": [37, 127]}
     with running_server(db_path) as client:
-        assert client.get("/places").json() == []
-        assert client.post("/places", json=[place]).status_code == 200
+        assert client.get("/api/places").json() == []
+        assert client.post("/api/places", json=[place]).status_code == 200
     with running_server(db_path) as client:
-        assert client.get("/places").json() == [place]
-        assert client.delete("/places").status_code == 200
+        assert client.get("/api/places").json() == [place]
+        assert client.delete("/api/places").status_code == 200
     with running_server(db_path) as client:
-        assert client.get("/places").json() == []
+        assert client.get("/api/places").json() == []
