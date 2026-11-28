@@ -1,8 +1,9 @@
-import { Activity, Gauge, Home, MapPin, Settings } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { Activity, CarFront, Gauge, Home, MapPin, Settings } from 'lucide-react'
+import { NavLink, useLocation } from 'react-router-dom'
 import cityLogo from '../assets/anseong-city-logo.png'
 
 export default function AnalysisSidebar() {
+  const { pathname } = useLocation()
   return <aside className="analysis-sidebar">
     <div className="brand">
       <img className="brand-logo" src={cityLogo} alt="안성시 로고" />
@@ -22,6 +23,9 @@ export default function AnalysisSidebar() {
       <NavLink to="/traffic" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
         <Gauge size={17} aria-hidden="true" /><span className="nav-label">신호 진단 대시보드</span><span className="nav-count">04</span>
       </NavLink>
+      {pathname === '/traffic' && <a href="#sample-route-planner" className="nav-item">
+        <CarFront size={17} aria-hidden="true" /><span className="nav-label">멈춤 없는 길</span><span className="nav-count">05</span>
+      </a>}
     </nav>
     <NavLink to="/settings" className={({ isActive }) => `nav-item settings-link${isActive ? ' active' : ''}`}>
       <Settings size={17} aria-hidden="true" /><span className="nav-label">설정</span>

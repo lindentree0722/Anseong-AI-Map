@@ -1,18 +1,23 @@
+import asyncio
+import os
 import sqlite3
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
+from pathlib import Path
 from typing import Annotated
 from xml.etree.ElementTree import ParseError
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 if __package__:
-    from . import database
+    from . import commercial, database, prescriptions, sample_routes, signal_provider, signals, vacancies
     from .traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 else:
-    import database
+    import commercial, database, prescriptions, sample_routes, signal_provider, signals, vacancies
     from traffic import Latitude, Longitude, TrafficMode, TrafficOverview, load_traffic_overview
 
 
@@ -35,10 +40,42 @@ class PlacesResponse(BaseModel):
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.database_path = database.database_path()
     database.initialize(app.state.database_path)
-    yield
+    signals.init_db()
+    key = os.getenv("TRAFFIC_SIGNAL_API_KEY", "").strip()
+    app.state.signal_feed = signal_provider.SignalFeed(key, signals.get_db) if key else None
+    task = asyncio.create_task(app.state.signal_feed.poll()) if app.state.signal_feed else None
+    try:
+        yield
+    finally:
+        if task:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
 
 
-app = FastAPI(lifespan=lifespan)
+FRONTEND_DIST = Path(__file__).resolve().parents[1] / "frontend" / "dist"
+app = FastAPI(
+    lifespan=lifespan,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
+    swagger_ui_oauth2_redirect_url="/api/docs/oauth2-redirect",
+)
+origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in origins.split(",") if origin.strip()],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type"],
+)
+
+
+async def require_writes_enabled(request: Request) -> None:
+    if request.method in {"POST", "PUT", "DELETE"} and os.getenv("ANSEONG_ALLOW_WRITES") == "0":
+        raise HTTPException(403, "이 서버에서는 API를 통한 데이터 변경이 비활성화되어 있습니다.")
+
+
+api = APIRouter(prefix="/api", dependencies=[Depends(require_writes_enabled)])
 
 
 @app.exception_handler(sqlite3.Error)
@@ -55,7 +92,7 @@ def read_places(connection: sqlite3.Connection) -> list[Place]:
     ]
 
 
-@app.get("/traffic/overview")
+@api.get("/traffic/overview")
 def get_traffic_overview(mode: TrafficMode | None = None) -> TrafficOverview:
     try:
         return load_traffic_overview(mode)
@@ -67,14 +104,14 @@ def get_traffic_overview(mode: TrafficMode | None = None) -> TrafficOverview:
         ) from exc
 
 
-@app.get("/places")
+@api.get("/places")
 def get_places(request: Request) -> list[Place]:
     """저장된 장소 목록을 조회합니다. 서버 재시작 후에도 같은 DB 파일의 데이터는 유지됩니다."""
     with database.transaction(request.app.state.database_path) as connection:
         return read_places(connection)
 
 
-@app.post("/places")
+@api.post("/places")
 def create_places(new_places: list[Place], request: Request) -> PlacesResponse:
     """장소 배열을 저장합니다. 재시작 후에도 유지되며 잘못된 항목이 있으면 전체 요청을 거부합니다."""
     with database.transaction(request.app.state.database_path) as connection:
@@ -85,9 +122,31 @@ def create_places(new_places: list[Place], request: Request) -> PlacesResponse:
         return PlacesResponse(message="장소 등록 성공", places=read_places(connection))
 
 
-@app.delete("/places")
+@api.delete("/places")
 def delete_places(request: Request) -> PlacesResponse:
     """저장된 장소를 모두 영구 삭제합니다. 재시작으로 복구되지 않으며, 인증 없는 로컬 시연용 API입니다."""
     with database.transaction(request.app.state.database_path) as connection:
         connection.execute("DELETE FROM places")
         return PlacesResponse(message="장소 삭제 성공", places=read_places(connection))
+
+
+api.include_router(signals.router)
+api.include_router(commercial.router)
+api.include_router(vacancies.router)
+api.include_router(prescriptions.router)
+api.include_router(sample_routes.router)
+app.include_router(api)
+
+if (FRONTEND_DIST / "assets").is_dir():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+
+
+@app.get("/", include_in_schema=False)
+@app.get("/traffic", include_in_schema=False)
+@app.get("/signals", include_in_schema=False)
+@app.get("/commercial", include_in_schema=False)
+def frontend() -> FileResponse:
+    index = FRONTEND_DIST / "index.html"
+    if not index.is_file():
+        raise HTTPException(404, "프론트엔드 빌드가 없습니다.")
+    return FileResponse(index)

@@ -25,7 +25,7 @@ export default function CommercialMap({center,radius,stores,vacs,hidden,colors,s
     street.on('tileerror',onError); osm.on('tileerror',onError)
     instance.on('baselayerchange', () => setTileError(false))
     L.control.layers({'Esri 거리지도':street,'OpenStreetMap':osm}).addTo(instance)
-    const observer = new ResizeObserver(() => instance.invalidateSize())
+    const observer = new ResizeObserver(() => instance.invalidateSize({pan:false}))
     observer.observe(container.current)
     return () => { observer.disconnect(); instance.remove(); map.current = null }
   }, [])
@@ -40,22 +40,35 @@ export default function CommercialMap({center,radius,stores,vacs,hidden,colors,s
     const instance = map.current
     if (!instance) return
     const layer = L.layerGroup().addTo(instance)
-    L.circle([center.lat,center.lng],{radius,color:'#2563eb',weight:1,fillOpacity:.05}).addTo(layer)
-    L.circleMarker([center.lat,center.lng],{radius:5,color:'#2563eb',fillOpacity:1}).addTo(layer)
+    const area = L.circle([center.lat,center.lng],{radius,color:'#2563eb',weight:1,fillOpacity:.05}).addTo(layer)
+    L.circleMarker([center.lat,center.lng],{radius:5,color:'#2563eb',fillOpacity:1}).addTo(layer).bringToBack()
+    area.bringToBack()
+    return () => { layer.remove() }
+  }, [center,radius])
+  useEffect(() => {
+    const instance = map.current
+    if (!instance) return
+    const layer = L.layerGroup().addTo(instance)
     for (const store of stores) {
       if (hidden.has(store.cat)) continue
       L.circleMarker([store.lat,store.lng],{radius:4,color:'#fff',weight:1,fillColor:colors[store.cat],fillOpacity:.9})
-        .bindPopup(popup(store.name,[store.cat,store.sub,store.addr].filter(Boolean).join(' · '))).addTo(layer)
-    }
-    for (const vacancy of vacs) {
-      L.marker([vacancy.lat,vacancy.lng],{icon:L.divIcon({className:'',html:'<div class="vicon"></div>',iconSize:[16,16]}),bubblingMouseEvents:false})
-        .bindPopup(popup(vacancy.name)).on('click',() => onSelect(vacancy.id)).addTo(layer)
+        .bindPopup(() => popup(store.name,[store.cat,store.sub,store.addr].filter(Boolean).join(' · '))).addTo(layer)
     }
     return () => { layer.remove() }
-  }, [center,radius,stores,vacs,hidden,colors,onSelect])
+  }, [stores,hidden,colors])
+  useEffect(() => {
+    const instance = map.current
+    if (!instance) return
+    const layer = L.layerGroup().addTo(instance)
+    for (const vacancy of vacs) {
+      L.marker([vacancy.lat,vacancy.lng],{title:vacancy.name,icon:L.divIcon({className:'',html:'<div class="vicon"></div>',iconSize:[16,16]}),bubblingMouseEvents:false})
+        .bindPopup(() => popup(vacancy.name)).on('click',() => onSelect(vacancy.id)).addTo(layer)
+    }
+    return () => { layer.remove() }
+  }, [vacs,onSelect])
   useEffect(() => {
     const vacancy = vacs.find(v => v.id === selected)
-    if (vacancy) map.current?.panTo([vacancy.lat,vacancy.lng])
+    if (vacancy) map.current?.panTo([vacancy.lat,vacancy.lng], {animate:false})
   }, [selected,vacs])
   return <div id="map" ref={container} aria-label="상권 및 공실 후보 지도">{tileError && <div className="map-error" role="status">배경 지도를 불러오지 못했습니다. 네트워크를 확인하거나 다른 지도 레이어를 선택해 주세요.</div>}</div>
 }

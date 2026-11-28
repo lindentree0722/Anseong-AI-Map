@@ -1,5 +1,5 @@
-import type { Signal, SignalStatus } from './signal-utils'
-import { formatDate, formatSeconds, statusMeta } from './signal-utils'
+import type { Signal } from './signal-utils'
+import { formatDate, formatSeconds, observationLabel, statusMeta } from './signal-utils'
 interface SignalListProps {
   items: Signal[]
   loading: boolean
@@ -17,7 +17,7 @@ export function SignalList({ items, loading, error, hasQuery, onSelect }: Signal
       const meta = statusMeta[signal.status]
       return <button type="button" className="signal-row press" key={signal.id} onClick={() => onSelect(signal)}>
         <span className={`signal-light ${meta.className}`} aria-label={meta.label}><i /><i /><i /></span>
-        <span className="signal-main"><strong>{signal.name}</strong><span>{signal.location}</span><small>마지막 갱신 {formatDate(signal.updated_at)}</small></span>
+        <span className="signal-main"><strong>{signal.name}</strong><span>{signal.location}</span><small>{signal.observation_status ? observationLabel[signal.observation_status] : '수집 시각'} {formatDate(signal.updated_at)}</small></span>
         <span className="signal-time tabular"><em>{meta.label}</em><b>{formatSeconds(signal.remaining_seconds)}</b><span aria-hidden="true">›</span></span>
       </button>
     })}

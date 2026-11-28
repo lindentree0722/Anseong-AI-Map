@@ -1,0 +1,539 @@
+import os
+import sqlite3
+from contextlib import closing
+from pathlib import Path
+from typing import Any, Optional
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel
+
+if __package__:
+    from . import database
+else:
+    import database
+
+
+COLUMNS = [
+    "header",
+    "resultCode",
+    "resultMsg",
+    "body",
+    "totalCount",
+    "pageNo",
+    "numOfRows",
+    "items",
+    "item",
+    "totDt",
+    "stdgCd",
+    "lclgvNm",
+    "crsrdId",
+    "regId",
+    "regDt",
+    "ntBssgRmndCs",
+    "ntBcsgRmndCs",
+    "ntLtsgRmndCs",
+    "ntPdsgRmndCs",
+    "ntStsgRmndCs",
+    "ntUtsgRmndCs",
+    "ntBssgSttsNm",
+    "ntBcsgSttsNm",
+    "ntLtsgSttsNm",
+    "ntPdsgSttsNm",
+    "ntStsgSttsNm",
+    "ntUtsgSttsNm",
+    "etBssgRmndCs",
+    "etBcsgRmndCs",
+    "etLtsgRmndCs",
+    "etPdsgRmndCs",
+    "etStsgRmndCs",
+    "etUtsgRmndCs",
+    "etBssgSttsNm",
+    "etBcsgSttsNm",
+    "etLtsgSttsNm",
+    "etPdsgSttsNm",
+    "etStsgSttsNm",
+    "etUtsgSttsNm",
+    "stBssgRmndCs",
+    "stBcsgRmndCs",
+    "stLtsgRmndCs",
+    "stPdsgRmndCs",
+    "stStsgRmndCs",
+    "stUtsgRmndCs",
+    "stBssgSttsNm",
+    "stBcsgSttsNm",
+    "stLtsgSttsNm",
+    "stPdsgSttsNm",
+    "stStsgSttsNm",
+    "stUtsgSttsNm",
+    "wtBssgRmndCs",
+    "wtBcsgRmndCs",
+    "wtLtsgRmndCs",
+    "wtPdsgRmndCs",
+    "wtStsgRmndCs",
+    "wtUtsgRmndCs",
+    "wtBssgSttsNm",
+    "wtBcsgSttsNm",
+    "wtLtsgSttsNm",
+    "wtStsgSttsNm",
+]
+PLACES = [
+    ("경기도 안성시", "4155000000", "41550"),
+    ("경기도 안성시", "4155000000", "41551"),
+    ("경기도 안성시", "4155000000", "41552"),
+    ("경기도 안성시", "4155000000", "41553"),
+    ("경기도 안성시", "4155000000", "41554"),
+    ("경기도 안성시", "4155000000", "41555"),
+]
+
+
+def get_db() -> sqlite3.Connection:
+    path = Path(
+        os.environ.get("SIGNAL_DB_PATH") or database.database_path()
+    ).expanduser()
+    path = database.BACKEND_DIR / path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def quote(column: str) -> str:
+    return f'"{column}"'
+
+
+def create_tables(conn: sqlite3.Connection):
+    definitions = ", ".join(f"{quote(column)} TEXT" for column in COLUMNS)
+    conn.execute(f"CREATE TABLE IF NOT EXISTS dfp_7582edcc ({definitions})")
+    if "wtStsgSttsNm" not in {
+        row["name"] for row in conn.execute("PRAGMA table_info(dfp_7582edcc)")
+    }:
+        conn.execute("ALTER TABLE dfp_7582edcc ADD COLUMN wtStsgSttsNm TEXT")
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS signal_overrides (
+            signal_id INTEGER PRIMARY KEY,
+            status TEXT NOT NULL CHECK(status IN ('green', 'yellow', 'red')),
+            remaining_seconds INTEGER NOT NULL,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS signal_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            signal_id INTEGER NOT NULL,
+            status TEXT NOT NULL,
+            remaining_seconds INTEGER NOT NULL,
+            recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS provider_signals (
+            id INTEGER PRIMARY KEY,
+            intersection_id TEXT NOT NULL UNIQUE,
+            observed_at TEXT NOT NULL,
+            directions TEXT NOT NULL,
+            name TEXT,
+            latitude REAL,
+            longitude REAL,
+            active INTEGER NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS signal_sync_state (
+            id INTEGER PRIMARY KEY CHECK(id = 1),
+            source_name TEXT NOT NULL,
+            received_rows INTEGER NOT NULL DEFAULT 0,
+            total_rows INTEGER NOT NULL DEFAULT 0,
+            synced_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+
+def insert_row(conn: sqlite3.Connection, row: dict):
+    column_sql = ", ".join(quote(column) for column in COLUMNS)
+    placeholders = ", ".join("?" for _ in COLUMNS)
+    conn.execute(
+        f"INSERT INTO dfp_7582edcc ({column_sql}) VALUES ({placeholders})",
+        [
+            str(row.get(column, "")) if row.get(column) is not None else ""
+            for column in COLUMNS
+        ],
+    )
+
+
+def seed_mock_data(conn: sqlite3.Connection):
+    existing = {
+        (row["lclgvNm"], row["crsrdId"])
+        for row in conn.execute("SELECT lclgvNm, crsrdId FROM dfp_7582edcc").fetchall()
+    }
+    missing_places = [place for place in PLACES if (place[0], place[2]) not in existing]
+    for index, (city, code, intersection_id) in enumerate(missing_places):
+        allowed = (
+            "protected-Movement-Allowed"
+            if index % 3 == 0
+            else "stop-And-Remain"
+            if index % 3 == 1
+            else "caution-Conflicting-Traffic"
+        )
+        row = {column: "" for column in COLUMNS}
+        row.update(
+            {
+                "header": "header",
+                "resultCode": "K0",
+                "resultMsg": "NORMAL_SERVICE",
+                "body": "body",
+                "totalCount": str(len(PLACES)),
+                "pageNo": "1",
+                "numOfRows": "20",
+                "items": "items",
+                "item": "신호제어기 신호잔여시간 정보",
+                "totDt": f"2026-11-11 10:{4 + index:02d}:01.587",
+                "stdgCd": code,
+                "lclgvNm": city,
+                "crsrdId": intersection_id,
+                "regId": "v2x",
+                "regDt": "2026-11-11",
+            }
+        )
+        for direction, offset in [("nt", 0), ("et", 120), ("st", 240), ("wt", 360)]:
+            for movement, extra in [
+                ("Bssg", 80),
+                ("Bcsg", 42),
+                ("Ltsg", 16),
+                ("Pdsg", 42),
+                ("Stsg", 0),
+                ("Utsg", 28),
+            ]:
+                row[f"{direction}{movement}RmndCs"] = str(
+                    380 + index * 73 + offset + extra
+                )
+            for movement in ["Bssg", "Bcsg", "Ltsg", "Pdsg", "Stsg", "Utsg"]:
+                row[f"{direction}{movement}SttsNm"] = (
+                    allowed
+                    if movement in {"Bssg", "Bcsg", "Stsg"}
+                    else (
+                        "stop-And-Remain"
+                        if allowed != "stop-And-Remain"
+                        else "protected-Movement-Allowed"
+                    )
+                )
+        insert_row(conn, row)
+
+
+def init_db():
+    with closing(get_db()) as conn:
+        create_tables(conn)
+        if not conn.execute("SELECT 1 FROM dfp_7582edcc LIMIT 1").fetchone():
+            seed_mock_data(conn)
+        conn.commit()
+
+
+def status_for(raw: str) -> str:
+    value = (raw or "").lower()
+    if "protected" in value or "allowed" in value:
+        return "green"
+    if "caution" in value or "yellow" in value:
+        return "yellow"
+    return "red"
+
+
+def seconds_for(value: str) -> int:
+    try:
+        return max(0, int(float(value)) // 100)
+    except (TypeError, ValueError, OverflowError):
+        return 0
+
+
+REGION_COORDINATES = {
+    "서울특별시": (37.5665, 126.9780),
+    "부산광역시": (35.1796, 129.0756),
+    "대구광역시": (35.8714, 128.6014),
+    "인천광역시": (37.4563, 126.7052),
+    "광주광역시": (35.1595, 126.8526),
+    "대전광역시": (36.3504, 127.3845),
+    "울산광역시": (35.5384, 129.3114),
+    "세종특별자치시": (36.4800, 127.2890),
+    "경기도 성남시": (37.4200, 127.1265),
+    "경기도 수원시": (37.2636, 127.0286),
+    "경기도 안성시": (37.0079, 127.2790),
+    "강원특별자치도 춘천시": (37.8813, 127.7300),
+    "충청북도 청주시": (36.6424, 127.4890),
+    "전라북도 전주시": (35.8242, 127.1480),
+}
+
+
+def coordinates_for(local_government: str) -> tuple[float, float]:
+    if local_government in REGION_COORDINATES:
+        return REGION_COORDINATES[local_government]
+    for name, coordinates in REGION_COORDINATES.items():
+        if name in local_government or local_government in name:
+            return coordinates
+    return (36.5, 127.8)
+
+
+# Hide non-Anseong rows from the previous 22-row seed without modifying saved data.
+VISIBLE_SIGNAL = """NOT (
+    d.lclgvNm IS NOT '경기도 안성시'
+    AND d.totalCount IS '22' AND d.regId IS 'v2x' AND d.regDt IS '2026-11-11'
+    AND coalesce(d.totDt, '') GLOB '2026-11-11 10:??:01.587'
+)"""
+
+SIGNAL_ROWS = """
+    SELECT d.rowid, d.*, o.status AS override_status,
+        o.remaining_seconds AS override_seconds, o.updated_at AS override_updated,
+        EXISTS (SELECT 1 FROM signal_sync_state WHERE id = 1) AS synced
+    FROM dfp_7582edcc d LEFT JOIN signal_overrides o ON o.signal_id = d.rowid
+"""
+
+
+def to_signal(row: sqlite3.Row) -> dict:
+    status, seconds, updated = (
+        status_for(row["ntStsgSttsNm"]),
+        seconds_for(row["ntStsgRmndCs"]),
+        row["totDt"],
+    )
+    phase_times = {"green": 0, "red": 0, "yellow": 0}
+    for direction in ("nt", "et", "st", "wt"):
+        status_column, seconds_column = (
+            f"{direction}StsgSttsNm",
+            f"{direction}StsgRmndCs",
+        )
+        if not row[status_column]:
+            continue
+        phase_status = status_for(row[status_column])
+        phase_times[phase_status] = max(
+            phase_times[phase_status], seconds_for(row[seconds_column])
+        )
+    if row["override_status"]:
+        status, seconds, updated = (
+            row["override_status"],
+            int(row["override_seconds"]),
+            row["override_updated"],
+        )
+        phase_times[status] = seconds
+    latitude, longitude = coordinates_for(row["lclgvNm"])
+    return {
+        "id": row["rowid"],
+        "name": f"교차로 {row['crsrdId']}",
+        "location": row["lclgvNm"] or "위치 정보 없음",
+        "status": status,
+        "remaining_seconds": seconds,
+        "phase_times": phase_times,
+        "updated_at": updated,
+        "source": "저장된 신호제어기 관측 데이터"
+        if row["synced"]
+        else "서버 샘플 데이터",
+        "intersection_id": row["crsrdId"],
+        "local_government": row["lclgvNm"],
+        "latitude": latitude,
+        "longitude": longitude,
+    }
+
+
+class SignalUpdate(BaseModel):
+    status: str
+    remaining_seconds: int
+
+
+class LiveSignalSync(BaseModel):
+    rows: list[dict[str, Any]]
+    total: int = 0
+
+
+router = APIRouter()
+
+
+@router.get("/health")
+def health():
+    return {"ok": True}
+
+
+@router.post("/traffic-signals/sync")
+def sync_traffic_signals(payload: LiveSignalSync):
+    valid = [
+        record
+        for record in payload.rows
+        if isinstance(record, dict) and record.get("crsrdId")
+    ]
+    if not valid:
+        raise HTTPException(status_code=400, detail="저장할 신호등 정보가 없습니다.")
+    total = payload.total or len(valid)
+    save_snapshot(valid, total)
+    return {"ok": True, "saved": len(valid), "total": total}
+
+
+def save_snapshot(records: list[dict], total: int) -> None:
+    with closing(get_db()) as conn, conn:
+        conn.execute("BEGIN IMMEDIATE")
+        previous = {
+            row["rowid"]: (row["lclgvNm"], row["crsrdId"])
+            for row in conn.execute("SELECT rowid, lclgvNm, crsrdId FROM dfp_7582edcc")
+        }
+        conn.execute("DELETE FROM dfp_7582edcc")
+        for record in records:
+            row = {column: record.get(column, "") for column in COLUMNS}
+            row["item"] = row["item"] or "신호제어기 신호잔여시간 정보"
+            insert_row(conn, row)
+        current = {
+            row["rowid"]: (row["lclgvNm"], row["crsrdId"])
+            for row in conn.execute("SELECT rowid, lclgvNm, crsrdId FROM dfp_7582edcc")
+        }
+        # Row IDs are reused when a snapshot is replaced.
+        changed_ids = [
+            (i,)
+            for i, intersection in previous.items()
+            if current.get(i) != intersection
+        ]
+        conn.executemany(
+            "DELETE FROM signal_overrides WHERE signal_id = ?", changed_ids
+        )
+        conn.executemany("DELETE FROM signal_history WHERE signal_id = ?", changed_ids)
+        conn.execute(
+            """
+            INSERT INTO signal_sync_state (id, source_name, received_rows, total_rows, synced_at)
+            VALUES (1, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(id) DO UPDATE SET source_name = excluded.source_name,
+                received_rows = excluded.received_rows, total_rows = excluded.total_rows,
+                synced_at = excluded.synced_at
+        """,
+            (
+                "행정안전부 한국지역정보개발원 전국 통합 신호등 정보",
+                len(records),
+                total,
+            ),
+        )
+
+
+@router.get("/traffic-signals")
+def list_traffic_signals(
+    request: Request, q: str = "", status: Optional[str] = None, limit: int = 20, offset: int = 0
+):
+    limit, offset, query = min(max(limit, 1), 100), max(offset, 0), q.strip()
+    feed = request.app.state.signal_feed
+    provider_items = [detail["signal"] for detail in feed.lookup()] if feed else []
+    if provider_items:
+        keyword = query.casefold()
+        matching = [
+            item for item in provider_items
+            if (not status or status == "all" or item["status"] == status)
+            and keyword in f"{item['name']} {item['location']} {item['intersection_id']}".casefold()
+        ]
+        return {
+            "items": matching[offset:offset + limit],
+            "total": len(matching),
+            "limit": limit,
+            "offset": offset,
+            "source": "live",
+            "sync": None,
+            "observation": {
+                "state": "stale" if any(item["observation_status"] == "stale" for item in provider_items) else "fresh",
+                "message": feed.message,
+            },
+        }
+    conditions, values = [VISIBLE_SIGNAL], []
+    if query:
+        like = f"%{query}%"
+        conditions.append("(d.lclgvNm LIKE ? OR d.crsrdId LIKE ? OR d.item LIKE ?)")
+        values.extend([like, like, like])
+    if status and status != "all":
+        conditions.append(
+            "COALESCE(o.status, CASE WHEN lower(d.ntStsgSttsNm) LIKE '%protected%' OR lower(d.ntStsgSttsNm) LIKE '%allowed%' THEN 'green' WHEN lower(d.ntStsgSttsNm) LIKE '%caution%' OR lower(d.ntStsgSttsNm) LIKE '%yellow%' THEN 'yellow' ELSE 'red' END) = ?"
+        )
+        values.append(status)
+    where = f" WHERE {' AND '.join(conditions)}"
+    sql = f"{SIGNAL_ROWS}{where} ORDER BY d.totDt DESC, d.crsrdId ASC LIMIT ? OFFSET ?"
+    with closing(get_db()) as conn, conn:
+        conn.execute("BEGIN")
+        total = conn.execute(
+            f"SELECT COUNT(*) AS count FROM dfp_7582edcc d LEFT JOIN signal_overrides o ON o.signal_id = d.rowid{where}",
+            values,
+        ).fetchone()["count"]
+        rows = conn.execute(sql, [*values, limit, offset]).fetchall()
+        sync_state = conn.execute(
+            "SELECT source_name, received_rows, total_rows, synced_at FROM signal_sync_state WHERE id = 1"
+        ).fetchone()
+    sync = dict(sync_state) if sync_state else None
+    return {
+        "items": [to_signal(row) for row in rows],
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "source": "live" if sync else "mock",
+        "sync": sync,
+        "observation": {
+            "state": "stale" if sync else "sample",
+            "message": feed.message if feed else None,
+        },
+    }
+
+
+@router.get("/traffic-signals/{signal_id}")
+def get_traffic_signal(signal_id: int, request: Request):
+    if signal_id < 0:
+        feed = request.app.state.signal_feed
+        details = feed.lookup(signal_id) if feed else []
+        if not details:
+            raise HTTPException(status_code=404, detail="신호등 정보를 찾을 수 없습니다.")
+        return details[0]
+    with closing(get_db()) as conn, conn:
+        conn.execute("BEGIN")
+        row = conn.execute(
+            f"{SIGNAL_ROWS} WHERE d.rowid = ? AND {VISIBLE_SIGNAL}", (signal_id,)
+        ).fetchone()
+        history = conn.execute(
+            "SELECT id, status, remaining_seconds, recorded_at FROM signal_history WHERE signal_id = ? ORDER BY recorded_at DESC, id DESC LIMIT 8",
+            (signal_id,),
+        ).fetchall()
+    if not row:
+        raise HTTPException(status_code=404, detail="신호등 정보를 찾을 수 없습니다.")
+    if not history:
+        history = [
+            {
+                "id": index + 1,
+                "status": status_for(row[f"{direction}StsgSttsNm"]),
+                "remaining_seconds": seconds_for(row[f"{direction}StsgRmndCs"]),
+                "recorded_at": row["totDt"],
+                "label": label,
+            }
+            for index, (direction, label) in enumerate(
+                [
+                    ("nt", "북쪽 직진"),
+                    ("et", "동쪽 직진"),
+                    ("st", "남쪽 직진"),
+                    ("wt", "서쪽 직진"),
+                ]
+            )
+            if row[f"{direction}StsgSttsNm"]
+        ]
+    return {"signal": to_signal(row), "history": [dict(item) for item in history]}
+
+
+@router.put("/signals/{signal_id}")
+def update_signal(signal_id: int, update: SignalUpdate):
+    if update.status not in {"green", "yellow", "red"} or update.remaining_seconds < 0:
+        raise HTTPException(
+            status_code=400, detail="올바른 신호 상태와 시간을 입력해 주세요."
+        )
+    with closing(get_db()) as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        if not conn.execute(
+            f"SELECT d.rowid FROM dfp_7582edcc d WHERE d.rowid = ? AND {VISIBLE_SIGNAL}",
+            (signal_id,),
+        ).fetchone():
+            raise HTTPException(
+                status_code=404, detail="신호등 정보를 찾을 수 없습니다."
+            )
+        conn.execute(
+            "INSERT INTO signal_overrides (signal_id, status, remaining_seconds, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(signal_id) DO UPDATE SET status = excluded.status, remaining_seconds = excluded.remaining_seconds, updated_at = CURRENT_TIMESTAMP",
+            (signal_id, update.status, update.remaining_seconds),
+        )
+        conn.execute(
+            "INSERT INTO signal_history (signal_id, status, remaining_seconds) VALUES (?, ?, ?)",
+            (signal_id, update.status, update.remaining_seconds),
+        )
+        conn.commit()
+    return {"ok": True}
+
+
+@router.get("/signals")
+def search_signals(
+    request: Request, q: str = "", status: Optional[str] = None, limit: int = 20, offset: int = 0
+):
+    return list_traffic_signals(request, q, status, limit, offset)
+
+
+@router.get("/signals/{signal_id}")
+def get_signal(signal_id: int, request: Request):
+    return get_traffic_signal(signal_id, request)

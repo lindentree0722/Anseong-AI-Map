@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Clock3, Gauge, MapPin, Radio, RefreshCw, Search, SlidersHorizontal, TrafficCone } from "lucide-react";
 import MetricCard from "./components/MetricCard";
 import TrafficMap from "./components/TrafficMap";
+import RoutePlanner from "./components/RoutePlanner";
 import DiagnosisPanel from "./components/DiagnosisPanel";
 import { TrafficChart, WaitChart } from "./components/TrafficChart";
 import { fetchTrafficOverview } from "./services/trafficService";
@@ -54,6 +55,8 @@ export default function App() {
       </header>
 
       <section className="welcome-row"><div><h2>안성시 교통 흐름을 한눈에 분석합니다.</h2><p>교차로별 교통량과 대기시간을 확인하고 개선 검토 구간을 찾아보세요.</p></div><div className="updated"><Clock3 size={14}/> 자료 생성 {seoulTime(overview.generatedAt)}</div></section>
+
+      <RoutePlanner />
 
       <section className="metric-grid">
         <MetricCard label="분석 교차로" value={summary.count} unit="개" hint="조회된 지점" icon={MapPin}/>
